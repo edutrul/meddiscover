@@ -5,7 +5,7 @@ Date: 2026-11-24. Status: implementation ready for review; phase acceptance and 
 ## Issue and pull request
 
 - Issue: https://github.com/edutrul/meddiscover/issues/1 — all Phase 01.1–01.5 foundation work grouped in one reviewable infrastructure change.
-- PR: pending publication; issue remains open until approved merge.
+- PR: https://github.com/edutrul/meddiscover/pull/2 — owner review requested; issue remains open until approved merge.
 - Completed/closed implementation issues: none yet, because review and merge are required by the definition of done.
 
 ## Delivered
@@ -26,7 +26,7 @@ Drupal recommended-project 11.4.13 and Drush 13.8.1, minimal profile, PHP 8.4.20
 - Fresh separate database `med_foundation_verify` installed from existing exported configuration; foundation assertion passed and configuration had no differences. Temporary database and multisite settings were removed; primary database preserved.
 - Composer strict validation passed and audit found no known advisories at validation time. Custom PHP files passed syntax checks.
 - DDEV restart passed; post-start hooks reported both extensions already present and the Drupal assertion passed again. Temporary multisite cleanup caused a Mutagen permission warning; write permissions were restored inside the container and synchronization was flushed.
-- Tracked-file publication scan and staged whitespace check passed. Remote CI is pending PR publication.
+- Tracked-file publication scan and staged whitespace check passed. Remote CI runs on PR #2; its live status is authoritative.
 
 ## Limitations and blockers
 
