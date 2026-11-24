@@ -1,6 +1,6 @@
 # Agent instructions
 
-Read PLAN.md and this file before work. Approved phase: **Phase 03 — Basic Semantic Search**, authorized by the owner on 2026-11-24 with the merge of Phase 02 PR #4. Phase 04 and later require explicit owner approval.
+Read PLAN.md and this file before work. Approved phase: **Phase 04 — Search Enrichment**, authorized by the owner on 2026-11-24 with the merge of Phase 03 PR #7. Phase 05 and later require explicit owner approval.
 
 - Inspect repository status, existing issues and documentation before changes. Preserve unrelated edits.
 - Every implementation task needs an issue first. Use `med-{issue}-{short-title}` branches and `MED-{issue}: Title` PR titles. Never commit to main after bootstrap.

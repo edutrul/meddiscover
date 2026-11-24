@@ -27,10 +27,17 @@ The first run reports `generated: 24`. Later runs re-embed only changed topics; 
 
 Open <https://meddiscover.ddev.site/search/semantic> and enter an educational health question, for example “My knees hurt when I walk”. Results show the topic title, description, cosine similarity and MedlinePlus attribution. If no topic reaches the threshold, the page says so.
 
+Each result has three collapsible sections, built from imported data without extra AI calls ([ADR 004](architecture/004-result-enrichment.md)):
+
+- **Explore Health Information**: alternative terms, MedlinePlus groups, MeSH descriptors and non-topic links from the summary.
+- **Related Content**: explicit MedlinePlus relationships first, then up to five inferred topics sharing a MeSH descriptor or group. Each item says why it is listed.
+- **Explore Healthcare Resources**: external resources grouped by category, with original URLs and organizations.
+
 ## Verify
 
 ```bash
 ddev drush php:script scripts/search/test.php           # synthetic vectors; no provider needed
+ddev drush php:script scripts/search/test_enrichment.php # synthetic fixture enrichment
 ddev drush php:script scripts/search/evaluate.php       # real model; synthetic queries
 ddev drush php:script scripts/search/check_privacy.php  # after submitting "What is backache?" in the form
 ```
