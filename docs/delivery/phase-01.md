@@ -14,7 +14,7 @@ Public repository, main bootstrap exception, all twelve phase milestones, seven 
 
 Separate English-only selection was verified against the fixed XML checksum: 24 topics, 882 resource assignments, 744 unique URLs. Phase 00 remains historical discovery, not an import. MedlinePlus reuse conditions and attribution documented separately.
 
-Drupal recommended-project 11.4.13 and Drush 13.8.1, minimal profile, PHP 8.4.20, PostgreSQL 17, pg_trgm 1.6 and pgvector 0.8.7. DDEV package configuration and post-start SQL hooks make extensions reproducible in the Drupal database. Initial Drupal configuration exported. See ADR 001 for choices and quality-tool scope.
+Drupal recommended-project 11.4.13 and Drush 13.8.1, minimal profile, PHP 8.4.20, PostgreSQL 17, pg_trgm 1.6 and pgvector 0.8.7. Claro is configured as the administration theme; Stark remains the minimal public theme. DDEV package configuration and post-start SQL hooks make extensions reproducible in the Drupal database. Initial Drupal configuration exported. See ADR 001 for choices and quality-tool scope.
 
 ## Validation evidence
 
@@ -27,6 +27,8 @@ Drupal recommended-project 11.4.13 and Drush 13.8.1, minimal profile, PHP 8.4.20
 - Composer strict validation passed and audit found no known advisories at validation time. Custom PHP files passed syntax checks.
 - DDEV restart passed; post-start hooks reported both extensions already present and the Drupal assertion passed again. Temporary multisite cleanup caused a Mutagen permission warning; write permissions were restored inside the container and synchronization was flushed.
 - Tracked-file publication scan and staged whitespace check passed. Remote CI runs on PR #2; its live status is authoritative.
+
+- Follow-up browser verification: `/admin/structure` renders with Claro; both aggregated Claro CSS requests returned HTTP 200. Configuration exported for fresh installations.
 
 ## Limitations and blockers
 
