@@ -1,0 +1,7 @@
+med_activation.settings:
+  path: '/admin/config/search/med-activation/settings'
+  defaults:
+    _form: '\Drupal\med_activation\Form\ActivationSettingsForm'
+    _title: 'Activation settings'
+  requirements:
+    _permission: 'administer med activation'

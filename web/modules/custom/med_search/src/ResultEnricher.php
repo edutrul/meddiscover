@@ -159,8 +159,11 @@ class ResultEnricher {
 
   /**
    * Group external resources by category, preserving source order.
+   *
+   * @return array
+   *   Category name => list of [title, url, organizations].
    */
-  private function resources(NodeInterface $topic): array {
+  public function resources(NodeInterface $topic): array {
     $nodes = $this->entities->getStorage('node');
     $ids = $nodes->getQuery()->accessCheck(FALSE)
       ->condition('type', 'med_resource')->condition('field_med_topic', $topic->id())->execute();

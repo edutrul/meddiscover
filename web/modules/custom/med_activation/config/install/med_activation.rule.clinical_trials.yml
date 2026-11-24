@@ -1,0 +1,19 @@
+langcode: en
+status: true
+dependencies: {  }
+id: clinical_trials
+label: 'Clinical trials'
+weight: 3
+category: 'Clinical Trials'
+cta_label: 'Explore Clinical Trials'
+keywords:
+  - 'trial'
+  - 'trials'
+  - 'clinical study'
+  - 'study'
+  - 'studies'
+  - 'volunteer'
+  - 'new treatment'
+  - 'new treatments'
+  - 'experimental'
+require_organization: false

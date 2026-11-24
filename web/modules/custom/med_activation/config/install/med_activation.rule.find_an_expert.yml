@@ -1,0 +1,19 @@
+langcode: en
+status: true
+dependencies: {  }
+id: find_an_expert
+label: 'Find an expert'
+weight: 2
+category: 'Find an Expert'
+cta_label: 'Explore Directory'
+keywords:
+  - 'doctor'
+  - 'doctors'
+  - 'specialist'
+  - 'specialists'
+  - 'expert'
+  - 'physician'
+  - 'provider'
+  - 'who treats'
+  - 'find a'
+require_organization: true

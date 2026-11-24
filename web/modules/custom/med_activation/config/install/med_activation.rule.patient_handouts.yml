@@ -1,0 +1,17 @@
+langcode: en
+status: true
+dependencies: {  }
+id: patient_handouts
+label: 'Patient handouts'
+weight: 1
+category: 'Patient Handouts'
+cta_label: 'Read Patient Resources'
+keywords:
+  - 'handout'
+  - 'handouts'
+  - 'printable'
+  - 'print'
+  - 'guide'
+  - 'instructions'
+  - 'at home'
+require_organization: false

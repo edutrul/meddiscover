@@ -121,8 +121,13 @@ class SearchForm extends FormBase {
       }
       foreach ($response['results'] as $delta => $result) {
         $node = $result['node'];
+        $enrichment = $this->enricher->enrich($node);
         $form['results'][$delta] = [
           '#type' => 'container',
+          // For other modules (for example activation): the topic and its
+          // already computed enrichment.
+          '#med_topic' => $node,
+          '#med_enrichment' => $enrichment,
           'title' => ['#type' => 'link', '#title' => $node->label(), '#url' => $node->toUrl()],
           'description' => [
             '#type' => 'html_tag',
@@ -139,7 +144,7 @@ class SearchForm extends FormBase {
             '#title' => $this->t('Source: MedlinePlus, National Library of Medicine.'),
             '#url' => Url::fromUri($node->field_med_source_url->uri),
           ],
-        ] + $this->buildEnrichment($this->enricher->enrich($node));
+        ] + $this->buildEnrichment($enrichment);
       }
     }
     $error = $form_state->getTemporaryValue('med_error');
@@ -244,7 +249,7 @@ class SearchForm extends FormBase {
       $info['summary_links'] = $this->itemList($this->t('Further reading from the summary'), array_map(fn($l) => $this->link($l['title'], $l['url']), $data['summary_links']));
     }
     if ($info) {
-      $build['info'] = ['#type' => 'details', '#title' => $this->t('Explore Health Information')] + $info;
+      $build['info'] = ['#type' => 'details', '#title' => $this->t('Explore Health Information'), '#weight' => 10] + $info;
     }
     if ($data['related']) {
       $items = [];
@@ -269,6 +274,7 @@ class SearchForm extends FormBase {
       $build['related'] = [
         '#type' => 'details',
         '#title' => $this->t('Related Content (@count)', ['@count' => count($items)]),
+        '#weight' => 11,
         'list' => ['#theme' => 'item_list', '#items' => $items],
       ];
     }
@@ -276,6 +282,7 @@ class SearchForm extends FormBase {
       $build['resources'] = [
         '#type' => 'details',
         '#title' => $this->t('Explore Healthcare Resources (@count categories)', ['@count' => count($data['resources'])]),
+        '#weight' => 12,
       ];
       foreach ($data['resources'] as $category => $resources) {
         $build['resources'][] = $this->itemList($category . ' (' . count($resources) . ')', array_map(fn($r) => [

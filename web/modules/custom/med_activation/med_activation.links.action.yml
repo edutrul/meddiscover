@@ -1,0 +1,5 @@
+entity.med_activation_rule.add_form:
+  route_name: entity.med_activation_rule.add_form
+  title: 'Add activation rule'
+  appears_on:
+    - entity.med_activation_rule.collection

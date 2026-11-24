@@ -1,0 +1,15 @@
+langcode: en
+status: true
+dependencies: {  }
+id: start_here
+label: 'Start here'
+weight: 0
+category: 'Start Here'
+cta_label: 'Start Here'
+keywords:
+  - 'what is'
+  - 'overview'
+  - 'basics'
+  - 'learn about'
+  - 'explain'
+require_organization: false

@@ -1,0 +1,22 @@
+uuid: 798c5b65-7486-4ec7-98fe-be22353124ef
+langcode: en
+status: true
+dependencies: {  }
+_core:
+  default_config_hash: XSDhWjI6JTfxfx8C1-IJS-5q-yRwq09MeTJU7qz_IOU
+id: clinical_trials
+label: 'Clinical trials'
+weight: 3
+category: 'Clinical Trials'
+cta_label: 'Explore Clinical Trials'
+keywords:
+  - trial
+  - trials
+  - 'clinical study'
+  - study
+  - studies
+  - volunteer
+  - 'new treatment'
+  - 'new treatments'
+  - experimental
+require_organization: false

@@ -1,0 +1,8 @@
+entity.med_activation_rule.collection:
+  title: 'Rules'
+  route_name: entity.med_activation_rule.collection
+  base_route: entity.med_activation_rule.collection
+med_activation.settings:
+  title: 'Settings'
+  route_name: med_activation.settings
+  base_route: entity.med_activation_rule.collection

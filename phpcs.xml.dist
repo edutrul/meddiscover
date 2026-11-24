@@ -3,6 +3,7 @@
   <description>Drupal standards for custom runtime PHP.</description>
   <file>web/modules/custom/med_content/src</file>
   <file>web/modules/custom/med_search</file>
+  <file>web/modules/custom/med_activation</file>
   <arg name="extensions" value="php,module,install,inc"/>
   <rule ref="Drupal"/>
 </ruleset>

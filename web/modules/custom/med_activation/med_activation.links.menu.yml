@@ -1,0 +1,10 @@
+entity.med_activation_rule.collection:
+  title: 'medDiscover activation rules'
+  description: 'Calls to action shown with search results.'
+  parent: system.admin_config_search
+  route_name: entity.med_activation_rule.collection
+med_activation.settings:
+  title: 'medDiscover activation settings'
+  description: 'Maximum calls to action, external links and related topics.'
+  parent: system.admin_config_search
+  route_name: med_activation.settings

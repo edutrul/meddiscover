@@ -1,0 +1,8 @@
+name: medDiscover Activation
+type: module
+description: Explainable, rule-based calls to action that link search results to source-provided MedlinePlus resources.
+package: medDiscover
+core_version_requirement: ^11
+configure: entity.med_activation_rule.collection
+dependencies:
+  - med_search:med_search

@@ -1,0 +1,22 @@
+uuid: 5eafdfbf-2b03-40ba-ae83-a1b72d953abf
+langcode: en
+status: true
+dependencies: {  }
+_core:
+  default_config_hash: EfjvufTJ5YUQc--IMgURbA-YNb-UAAmWMaLdXfZDqNU
+id: find_an_expert
+label: 'Find an expert'
+weight: 2
+category: 'Find an Expert'
+cta_label: 'Explore Directory'
+keywords:
+  - doctor
+  - doctors
+  - specialist
+  - specialists
+  - expert
+  - physician
+  - provider
+  - 'who treats'
+  - 'find a'
+require_organization: true
