@@ -5,7 +5,7 @@ Date: 2026-11-24. Approved scope: Content Modeling & Migration. Implementation r
 ## Issue and review status
 
 - Issue: https://github.com/edutrul/meddiscover/issues/3
-- Phase 02 PR: to be published after final validation.
+- Phase 02 PR: https://github.com/edutrul/meddiscover/pull/4 — owner review requested; remote CI runs on the latest head.
 - Completed/closed Phase 02 issues: none until the required review and merge.
 - Prerequisite verified: foundation PR #2 merged, issue #1 closed and checks passed; Phase 01 milestone closed.
 
