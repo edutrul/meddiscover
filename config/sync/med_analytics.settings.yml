@@ -1,0 +1,5 @@
+_core:
+  default_config_hash: iqO1cq1Z9tRVBGWtmWSuVBmo7F0ws5jES4UHttt8At4
+enabled: true
+retention_days: 90
+report_days: 30

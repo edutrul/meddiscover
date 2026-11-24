@@ -1,0 +1,10 @@
+med_analytics.report:
+  title: 'medDiscover metrics'
+  description: 'Aggregate search, latency and activation metrics.'
+  parent: system.admin_reports
+  route_name: med_analytics.report
+med_analytics.settings:
+  title: 'medDiscover analytics settings'
+  description: 'Enable aggregate metrics and set retention.'
+  parent: system.admin_config_search
+  route_name: med_analytics.settings

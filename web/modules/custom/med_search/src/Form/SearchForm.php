@@ -8,7 +8,9 @@ use Drupal\Core\Url;
 use Drupal\med_search\ResultEnricher;
 use Drupal\med_search\SearchStrategyInterface;
 use Drupal\med_search\UrgencyDetector;
+use Drupal\med_search\Event\SearchCompletedEvent;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * POST-only educational discovery form shared by every search strategy.
@@ -43,6 +45,7 @@ class SearchForm extends FormBase {
   public function __construct(
     private SearchStrategyInterface $search,
     private ResultEnricher $enricher,
+    private EventDispatcherInterface $eventDispatcher,
   ) {}
 
   /**
@@ -54,7 +57,11 @@ class SearchForm extends FormBase {
     if (!isset(self::STRATEGIES[$strategy])) {
       throw new \InvalidArgumentException('Unknown search strategy.');
     }
-    return new static($container->get('med_search.strategies')->get($strategy), $container->get('med_search.enricher'));
+    return new static(
+      $container->get('med_search.strategies')->get($strategy),
+      $container->get('med_search.enricher'),
+      $container->get('event_dispatcher'),
+    );
   }
 
   /**
@@ -119,6 +126,7 @@ class SearchForm extends FormBase {
       if (!$response['results']) {
         $form['results']['empty'] = ['#plain_text' => $this->t('No topics matched closely enough. Try another educational health topic or a different search mode.')];
       }
+      $enrichment_start = hrtime(TRUE);
       foreach ($response['results'] as $delta => $result) {
         $node = $result['node'];
         $enrichment = $this->enricher->enrich($node);
@@ -128,7 +136,11 @@ class SearchForm extends FormBase {
           // already computed enrichment.
           '#med_topic' => $node,
           '#med_enrichment' => $enrichment,
-          'title' => ['#type' => 'link', '#title' => $node->label(), '#url' => $node->toUrl()],
+          'title' => self::track(
+            ['#type' => 'link', '#title' => $node->label(), '#url' => $node->toUrl()],
+            'search_result_clicked',
+            $this->search->id() . ':' . self::rankBucket($delta + 1),
+          ),
           'description' => [
             '#type' => 'html_tag',
             '#tag' => 'p',
@@ -139,13 +151,14 @@ class SearchForm extends FormBase {
             '#tag' => 'p',
             '#value' => $this->t('@score', ['@score' => $this->search->describeScore($result)]),
           ],
-          'source' => [
+          'source' => self::track([
             '#type' => 'link',
             '#title' => $this->t('Source: MedlinePlus, National Library of Medicine.'),
             '#url' => Url::fromUri($node->field_med_source_url->uri),
-          ],
+          ], 'external_resource_clicked', 'source'),
         ] + $this->buildEnrichment($enrichment);
       }
+      $this->reportOnce($form_state, $response, (hrtime(TRUE) - $enrichment_start) / 1e6);
     }
     $error = $form_state->getTemporaryValue('med_error');
     if ($error) {
@@ -193,12 +206,12 @@ class SearchForm extends FormBase {
           $sources[] = [
             'number' => ['#plain_text' => '[' . $number . '] '],
             'topic' => ['#type' => 'link', '#title' => $node->label(), '#url' => $node->toUrl()],
-            'origin' => [
+            'origin' => self::track([
               '#prefix' => ' — ',
               '#type' => 'link',
               '#title' => $this->t('MedlinePlus, National Library of Medicine'),
               '#url' => Url::fromUri($node->field_med_source_url->uri),
-            ],
+            ], 'external_resource_clicked', 'citation'),
           ];
         }
         $build['sources'] = ['#theme' => 'item_list', '#title' => $this->t('Sources'), '#items' => $sources];
@@ -246,7 +259,7 @@ class SearchForm extends FormBase {
       ], $data['mesh']));
     }
     if ($data['summary_links']) {
-      $info['summary_links'] = $this->itemList($this->t('Further reading from the summary'), array_map(fn($l) => $this->link($l['title'], $l['url']), $data['summary_links']));
+      $info['summary_links'] = $this->itemList($this->t('Further reading from the summary'), array_map(fn($l) => self::track($this->link($l['title'], $l['url']), 'external_resource_clicked', 'further_reading'), $data['summary_links']));
     }
     if ($info) {
       $build['info'] = ['#type' => 'details', '#title' => $this->t('Explore Health Information'), '#weight' => 10] + $info;
@@ -255,11 +268,11 @@ class SearchForm extends FormBase {
       $items = [];
       foreach ($data['related'] as $item) {
         $items[] = [
-          'link' => $item['node'] ? [
+          'link' => self::track($item['node'] ? [
             '#type' => 'link',
             '#title' => $item['title'],
             '#url' => $item['node']->toUrl(),
-          ] : $this->link($item['title'] . ' (MedlinePlus)', $item['url']),
+          ] : $this->link($item['title'] . ' (MedlinePlus)', $item['url']), 'related_content_clicked', $item['explicit'] ? 'explicit' : 'inferred'),
           'provenance' => [
             '#type' => 'html_tag',
             '#tag' => 'small',
@@ -286,7 +299,7 @@ class SearchForm extends FormBase {
       ];
       foreach ($data['resources'] as $category => $resources) {
         $build['resources'][] = $this->itemList($category . ' (' . count($resources) . ')', array_map(fn($r) => [
-          'link' => $this->link($r['title'], $r['url']),
+          'link' => self::track($this->link($r['title'], $r['url']), 'external_resource_clicked', 'resources'),
           'org' => $r['organizations'] ? [
             '#type' => 'html_tag',
             '#tag' => 'small',
@@ -297,6 +310,49 @@ class SearchForm extends FormBase {
       }
     }
     return $build;
+  }
+
+  /**
+   * Dispatch the completed-search event once per request.
+   */
+  private function reportOnce(FormStateInterface $form_state, array $response, float $enrichment_ms): void {
+    if ($form_state->getTemporaryValue('med_reported')) {
+      return;
+    }
+    $form_state->setTemporaryValue('med_reported', TRUE);
+    $t = $response['timings'];
+    $search_ms = (float) $form_state->getTemporaryValue('med_search_ms');
+    $timings = array_filter([
+      'total' => $search_ms + $enrichment_ms,
+      'embedding' => $t['embedding_ms'] ?? NULL,
+      'retrieval' => ($t['semantic_ms'] ?? 0) + ($t['lexical_ms'] ?? 0) + ($t['fusion_ms'] ?? 0) ?: NULL,
+      // Only measured when there was something to enrich.
+      'enrichment' => $response['results'] ? $enrichment_ms : NULL,
+      'generation' => $t['generation_ms'] ?? NULL,
+    ], fn($v) => $v !== NULL);
+    $this->eventDispatcher->dispatch(new SearchCompletedEvent(
+      $this->search->id(),
+      count($response['results']),
+      FALSE,
+      $response['answer']['status'] ?? NULL,
+      $timings,
+    ), SearchCompletedEvent::NAME);
+  }
+
+  /**
+   * Mark a link for aggregate click counting (inert without med_analytics).
+   */
+  public static function track(array $link, string $event, string $dimension): array {
+    $link['#attributes']['data-med-event'] = $event;
+    $link['#attributes']['data-med-dimension'] = $dimension;
+    return $link;
+  }
+
+  /**
+   * Coarse rank bucket, so clicks never identify a specific result.
+   */
+  public static function rankBucket(int $rank): string {
+    return $rank === 1 ? 'rank1' : ($rank <= 3 ? 'rank2-3' : 'rank4plus');
   }
 
   /**
@@ -317,11 +373,14 @@ class SearchForm extends FormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state): void {
+    $start = hrtime(TRUE);
     try {
       $form_state->setTemporaryValue('med_response', $this->search->search((string) $form_state->getValue('query')));
+      $form_state->setTemporaryValue('med_search_ms', (hrtime(TRUE) - $start) / 1e6);
     }
     catch (\Throwable) {
       $form_state->setTemporaryValue('med_error', TRUE);
+      $this->eventDispatcher->dispatch(new SearchCompletedEvent($this->search->id(), 0, TRUE, NULL, ['total' => (hrtime(TRUE) - $start) / 1e6]), SearchCompletedEvent::NAME);
     }
     // Only temporary state holds results; raw query text is never logged.
     $form_state->disableCache();

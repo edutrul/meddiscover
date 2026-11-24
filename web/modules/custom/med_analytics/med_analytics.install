@@ -1,0 +1,31 @@
+<?php
+
+/**
+ * @file
+ * Schema for daily aggregate metrics.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function med_analytics_schema(): array {
+  return [
+    'med_analytics_daily' => [
+      'description' => 'Daily aggregate counters. No queries, topics, URLs or identifiers.',
+      'fields' => [
+        'day' => [
+          'type' => 'varchar_ascii',
+          'length' => 10,
+          'not null' => TRUE,
+          'description' => 'UTC date, YYYY-MM-DD.',
+        ],
+        'event' => ['type' => 'varchar_ascii', 'length' => 64, 'not null' => TRUE],
+        'dimension' => ['type' => 'varchar_ascii', 'length' => 64, 'not null' => TRUE, 'default' => ''],
+        'count' => ['type' => 'int', 'unsigned' => TRUE, 'not null' => TRUE, 'default' => 0],
+        'total_ms' => ['type' => 'float', 'size' => 'big', 'not null' => TRUE, 'default' => 0],
+      ],
+      'primary key' => ['day', 'event', 'dimension'],
+      'indexes' => ['day' => ['day']],
+    ],
+  ];
+}

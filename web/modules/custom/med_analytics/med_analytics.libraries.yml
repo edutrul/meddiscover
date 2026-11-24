@@ -1,0 +1,8 @@
+beacon:
+  version: 1.0
+  js:
+    js/med-analytics.js: {}
+  dependencies:
+    - core/drupal
+    - core/drupalSettings
+    - core/once
