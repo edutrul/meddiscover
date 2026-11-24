@@ -1,0 +1,437 @@
+{
+  "review": "Synthetic queries with editorial relevance labels, reviewed on 2026-11-24 against the 24 imported topic titles, alternative terms, see references, MeSH labels and descriptions. Not clinical judgments and not exhaustive: unlabeled topics are treated as non-relevant. Phase 03 cases keep their IDs. Unrelated cases include out-of-corpus health topics (cataract surgery, ear infection), whose correct answer is no result.",
+  "k": 5,
+  "cases": [
+    {
+      "id": "exact-01",
+      "category": "exact",
+      "query": "Sciatica",
+      "relevant_ids": [
+        "1532"
+      ],
+      "origin": "phase-05"
+    },
+    {
+      "id": "exact-02",
+      "category": "exact",
+      "query": "Migraine",
+      "relevant_ids": [
+        "3157"
+      ],
+      "origin": "phase-05"
+    },
+    {
+      "id": "exact-03",
+      "category": "exact",
+      "query": "Prediabetes",
+      "relevant_ids": [
+        "5784"
+      ],
+      "origin": "phase-05"
+    },
+    {
+      "id": "exact-04",
+      "category": "exact",
+      "query": "Clinical trials",
+      "relevant_ids": [
+        "192"
+      ],
+      "origin": "phase-05"
+    },
+    {
+      "id": "exact-05",
+      "category": "exact",
+      "query": "Sprains and strains",
+      "relevant_ids": [
+        "417"
+      ],
+      "origin": "phase-05"
+    },
+    {
+      "id": "exact-06",
+      "category": "exact",
+      "query": "A1C",
+      "relevant_ids": [
+        "6308"
+      ],
+      "origin": "phase-05"
+    },
+    {
+      "id": "exact-07",
+      "category": "exact",
+      "query": "Health facilities",
+      "relevant_ids": [
+        "486"
+      ],
+      "origin": "phase-05"
+    },
+    {
+      "id": "exact-08",
+      "category": "exact",
+      "query": "Knee replacement",
+      "relevant_ids": [
+        "3924"
+      ],
+      "origin": "phase-05"
+    },
+    {
+      "id": "synonym-01",
+      "category": "synonym",
+      "query": "Lumbago",
+      "relevant_ids": [
+        "157"
+      ],
+      "origin": "phase-05"
+    },
+    {
+      "id": "synonym-02",
+      "category": "synonym",
+      "query": "Slipped disk",
+      "relevant_ids": [
+        "284"
+      ],
+      "origin": "phase-05"
+    },
+    {
+      "id": "synonym-03",
+      "category": "synonym",
+      "query": "Pollen allergy",
+      "relevant_ids": [
+        "4746"
+      ],
+      "origin": "phase-05"
+    },
+    {
+      "id": "synonym-04",
+      "category": "synonym",
+      "query": "Degenerative joint disease",
+      "relevant_ids": [
+        "1250"
+      ],
+      "origin": "phase-05"
+    },
+    {
+      "id": "synonym-05",
+      "category": "synonym",
+      "query": "Anaphylactic shock",
+      "relevant_ids": [
+        "6257"
+      ],
+      "origin": "phase-05"
+    },
+    {
+      "id": "synonym-06",
+      "category": "synonym",
+      "query": "Glycohemoglobin",
+      "relevant_ids": [
+        "6308"
+      ],
+      "origin": "phase-05"
+    },
+    {
+      "id": "synonym-07",
+      "category": "synonym",
+      "query": "Gait abnormalities",
+      "relevant_ids": [
+        "5673"
+      ],
+      "origin": "phase-05"
+    },
+    {
+      "id": "synonym-08",
+      "category": "synonym",
+      "query": "Hospitals",
+      "relevant_ids": [
+        "486"
+      ],
+      "origin": "phase-05"
+    },
+    {
+      "id": "synonym-09",
+      "category": "synonym",
+      "query": "Insulin resistance",
+      "relevant_ids": [
+        "5784"
+      ],
+      "origin": "phase-05"
+    },
+    {
+      "id": "cal-02",
+      "category": "synonym",
+      "query": "What is HbA1c?",
+      "relevant_ids": [
+        "6308"
+      ],
+      "origin": "phase-03"
+    },
+    {
+      "id": "cal-03",
+      "category": "synonym",
+      "query": "What is backache?",
+      "relevant_ids": [
+        "157"
+      ],
+      "origin": "phase-03"
+    },
+    {
+      "id": "cal-04",
+      "category": "synonym",
+      "query": "Information about blood sugar",
+      "relevant_ids": [
+        "6121",
+        "4"
+      ],
+      "origin": "phase-03"
+    },
+    {
+      "id": "cal-06",
+      "category": "synonym",
+      "query": "Information about seasonal allergies",
+      "relevant_ids": [
+        "4746",
+        "24"
+      ],
+      "origin": "phase-03"
+    },
+    {
+      "id": "hold-01",
+      "category": "synonym",
+      "query": "What is knee arthroplasty?",
+      "relevant_ids": [
+        "3924"
+      ],
+      "origin": "phase-03"
+    },
+    {
+      "id": "ambiguous-01",
+      "category": "ambiguous",
+      "query": "Sugar diabetes",
+      "relevant_ids": [
+        "4",
+        "5930"
+      ],
+      "origin": "phase-05"
+    },
+    {
+      "id": "ambiguous-02",
+      "category": "ambiguous",
+      "query": "Vascular headache",
+      "relevant_ids": [
+        "273",
+        "3157"
+      ],
+      "origin": "phase-05"
+    },
+    {
+      "id": "ambiguous-03",
+      "category": "ambiguous",
+      "query": "Allergic rhinitis",
+      "relevant_ids": [
+        "24",
+        "4746"
+      ],
+      "origin": "phase-05"
+    },
+    {
+      "id": "ambiguous-04",
+      "category": "ambiguous",
+      "query": "Hypersensitivity",
+      "relevant_ids": [
+        "24",
+        "1256"
+      ],
+      "origin": "phase-05"
+    },
+    {
+      "id": "ambiguous-05",
+      "category": "ambiguous",
+      "query": "Diabetes",
+      "relevant_ids": [
+        "4",
+        "5930",
+        "6661",
+        "5784"
+      ],
+      "origin": "phase-05"
+    },
+    {
+      "id": "cal-01",
+      "category": "paraphrase",
+      "query": "My knees hurt when I walk",
+      "relevant_ids": [
+        "304",
+        "1250",
+        "5673"
+      ],
+      "origin": "phase-03"
+    },
+    {
+      "id": "cal-05",
+      "category": "paraphrase",
+      "query": "Why do my joints hurt?",
+      "relevant_ids": [
+        "23",
+        "1250"
+      ],
+      "origin": "phase-03"
+    },
+    {
+      "id": "hold-02",
+      "category": "paraphrase",
+      "query": "A herniated disk causing shooting pain down my leg",
+      "relevant_ids": [
+        "284",
+        "1532"
+      ],
+      "origin": "phase-03"
+    },
+    {
+      "id": "hold-03",
+      "category": "paraphrase",
+      "query": "Can I prevent type 2 diabetes?",
+      "relevant_ids": [
+        "6661",
+        "5930"
+      ],
+      "origin": "phase-03"
+    },
+    {
+      "id": "hold-04",
+      "category": "paraphrase",
+      "query": "A severe allergic reaction called anaphylaxis",
+      "relevant_ids": [
+        "6257"
+      ],
+      "origin": "phase-03"
+    },
+    {
+      "id": "paraphrase-01",
+      "category": "paraphrase",
+      "query": "Pain that runs from my lower back down my leg",
+      "relevant_ids": [
+        "1532",
+        "284",
+        "157"
+      ],
+      "origin": "phase-05"
+    },
+    {
+      "id": "paraphrase-02",
+      "category": "paraphrase",
+      "query": "Itchy eyes and sneezing every spring",
+      "relevant_ids": [
+        "4746",
+        "24"
+      ],
+      "origin": "phase-05"
+    },
+    {
+      "id": "paraphrase-03",
+      "category": "paraphrase",
+      "query": "My throat swells after eating peanuts",
+      "relevant_ids": [
+        "1256",
+        "6257"
+      ],
+      "origin": "phase-05"
+    },
+    {
+      "id": "paraphrase-04",
+      "category": "paraphrase",
+      "query": "How do I pick a good doctor?",
+      "relevant_ids": [
+        "1433"
+      ],
+      "origin": "phase-05"
+    },
+    {
+      "id": "paraphrase-05",
+      "category": "paraphrase",
+      "query": "Throbbing pain on one side of my head with nausea",
+      "relevant_ids": [
+        "3157",
+        "273"
+      ],
+      "origin": "phase-05"
+    },
+    {
+      "id": "paraphrase-06",
+      "category": "paraphrase",
+      "query": "Testing new treatments on volunteers",
+      "relevant_ids": [
+        "192"
+      ],
+      "origin": "phase-05"
+    },
+    {
+      "id": "cal-07",
+      "category": "unrelated",
+      "query": "How do I repair a bicycle chain?",
+      "relevant_ids": [],
+      "origin": "phase-03"
+    },
+    {
+      "id": "cal-08",
+      "category": "unrelated",
+      "query": "Explain JavaScript closures",
+      "relevant_ids": [],
+      "origin": "phase-03"
+    },
+    {
+      "id": "cal-09",
+      "category": "unrelated",
+      "query": "What is the capital of France?",
+      "relevant_ids": [],
+      "origin": "phase-03"
+    },
+    {
+      "id": "cal-10",
+      "category": "unrelated",
+      "query": "How do I bake sourdough bread?",
+      "relevant_ids": [],
+      "origin": "phase-03"
+    },
+    {
+      "id": "hold-05",
+      "category": "unrelated",
+      "query": "How can I configure a Linux firewall?",
+      "relevant_ids": [],
+      "origin": "phase-03"
+    },
+    {
+      "id": "hold-06",
+      "category": "unrelated",
+      "query": "How do telescopes detect distant galaxies?",
+      "relevant_ids": [],
+      "origin": "phase-03"
+    },
+    {
+      "id": "scope-01",
+      "category": "unrelated",
+      "query": "Information about cataract surgery",
+      "relevant_ids": [],
+      "origin": "phase-03"
+    },
+    {
+      "id": "scope-02",
+      "category": "unrelated",
+      "query": "Ear infection in a toddler",
+      "relevant_ids": [],
+      "origin": "phase-03"
+    },
+    {
+      "id": "unrelated-01",
+      "category": "unrelated",
+      "query": "Best pizza recipe",
+      "relevant_ids": [],
+      "origin": "phase-05"
+    },
+    {
+      "id": "unrelated-02",
+      "category": "unrelated",
+      "query": "How do I change a car tire?",
+      "relevant_ids": [],
+      "origin": "phase-05"
+    }
+  ]
+}

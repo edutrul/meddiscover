@@ -1,7 +1,9 @@
-name: medDiscover Semantic Search
+name: medDiscover Search
 type: module
-description: Exact same-database semantic topic retrieval using local embeddings.
+description: Semantic (pgvector), lexical (Solr) and hybrid (RRF) English topic retrieval with deterministic enrichment.
 package: medDiscover
 core_version_requirement: ^11
 dependencies:
   - med_content:med_content
+  - search_api:search_api
+  - search_api_solr:search_api_solr

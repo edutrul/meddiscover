@@ -1,6 +1,6 @@
 med_search.settings:
   type: config_object
-  label: 'Semantic search settings'
+  label: 'medDiscover search settings'
   mapping:
     endpoint:
       type: string
@@ -26,3 +26,15 @@ med_search.settings:
     threshold:
       type: float
       label: 'Minimum cosine similarity'
+    lexical_index:
+      type: string
+      label: 'Search API index for lexical search'
+    lexical_min_match:
+      type: string
+      label: 'Solr minimum-should-match (mm) rule'
+    hybrid_depth:
+      type: integer
+      label: 'Candidates taken from each strategy before fusion'
+    hybrid_rrf_k:
+      type: integer
+      label: 'Reciprocal Rank Fusion constant k'
