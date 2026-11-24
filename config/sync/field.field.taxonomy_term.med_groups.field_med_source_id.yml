@@ -1,0 +1,19 @@
+uuid: 3ba86c01-c0c3-43e3-b164-b53fbdf393ee
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.taxonomy_term.field_med_source_id
+    - taxonomy.vocabulary.med_groups
+id: taxonomy_term.med_groups.field_med_source_id
+field_name: field_med_source_id
+entity_type: taxonomy_term
+bundle: med_groups
+label: 'Source identifier'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

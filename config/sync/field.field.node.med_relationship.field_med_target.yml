@@ -1,0 +1,24 @@
+uuid: 485f7c96-dbdd-4964-873f-c417fc074dc1
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_med_target
+    - node.type.med_health_topic
+    - node.type.med_relationship
+id: node.med_relationship.field_med_target
+field_name: field_med_target
+entity_type: node
+bundle: med_relationship
+label: 'Imported target topic (when in corpus)'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:node'
+  handler_settings:
+    target_bundles:
+      med_health_topic: med_health_topic
+field_type: entity_reference

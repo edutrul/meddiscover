@@ -1,0 +1,24 @@
+uuid: 4c6de56a-6b5a-4e90-9c57-5c3fa27f318f
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_med_mesh
+    - node.type.med_health_topic
+    - taxonomy.vocabulary.med_mesh
+id: node.med_health_topic.field_med_mesh
+field_name: field_med_mesh
+entity_type: node
+bundle: med_health_topic
+label: 'MeSH headings'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:taxonomy_term'
+  handler_settings:
+    target_bundles:
+      med_mesh: med_mesh
+field_type: entity_reference

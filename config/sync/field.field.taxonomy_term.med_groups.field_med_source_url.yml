@@ -1,0 +1,23 @@
+uuid: 4e47546c-9acf-4ac1-9b83-1c880f2910e8
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.taxonomy_term.field_med_source_url
+    - taxonomy.vocabulary.med_groups
+  module:
+    - link
+id: taxonomy_term.med_groups.field_med_source_url
+field_name: field_med_source_url
+entity_type: taxonomy_term
+bundle: med_groups
+label: 'Source URL'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  title: 0
+  link_type: 16
+field_type: link

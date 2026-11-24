@@ -1,0 +1,23 @@
+uuid: d66d6d1f-c2a8-40c0-8ff9-f664e0c6c77f
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.taxonomy_term.med_resource_categories.field_med_key
+    - taxonomy.vocabulary.med_resource_categories
+  module:
+    - text
+id: taxonomy_term.med_resource_categories.default
+targetEntityType: taxonomy_term
+bundle: med_resource_categories
+mode: default
+content:
+  description:
+    type: text_default
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+    weight: 0
+    region: content
+hidden:
+  field_med_key: true

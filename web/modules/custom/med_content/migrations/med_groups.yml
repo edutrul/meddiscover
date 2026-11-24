@@ -1,0 +1,52 @@
+"id": "med_groups"
+"label": "MedlinePlus groups"
+"migration_tags":
+  - "med"
+"source":
+  "plugin": "med_xml"
+  "collection": "groups"
+  "path": "data/raw/mplus_topics_2026-11-24.xml"
+  "sha256": "b71e4ae9d979fe8061ddb0651326fa78a9db93d5c0d7f8bd55b8fdfee0140e93"
+  "selection":
+    - "304"
+    - "3924"
+    - "1250"
+    - "23"
+    - "5673"
+    - "417"
+    - "157"
+    - "1532"
+    - "284"
+    - "6308"
+    - "6121"
+    - "4"
+    - "5930"
+    - "6661"
+    - "5784"
+    - "273"
+    - "3157"
+    - "24"
+    - "4746"
+    - "1256"
+    - "6257"
+    - "1433"
+    - "486"
+    - "192"
+  "track_changes": true
+"process":
+  "field_med_key": "key"
+  "langcode":
+    "plugin": "default_value"
+    "default_value": "en"
+  "vid":
+    "plugin": "default_value"
+    "default_value": "med_groups"
+  "name": "name"
+  "field_med_source_id": "source_id"
+  "field_med_source_url/uri": "url"
+"destination":
+  "plugin": "entity:taxonomy_term"
+  "default_bundle": "med_groups"
+  "validate": true
+"migration_dependencies":
+  "required": []

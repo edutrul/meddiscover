@@ -1,0 +1,21 @@
+uuid: 27c646e1-47b3-4ced-acf1-734d8112f9f7
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_med_source_date
+    - node.type.med_health_topic
+  module:
+    - datetime
+id: node.med_health_topic.field_med_source_date
+field_name: field_med_source_date
+entity_type: node
+bundle: med_health_topic
+label: 'Source creation date'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: datetime

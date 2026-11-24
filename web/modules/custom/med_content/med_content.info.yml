@@ -1,0 +1,14 @@
+name: medDiscover Content
+type: module
+description: Structured MedlinePlus content and checksum-verified migrations.
+package: medDiscover
+core_version_requirement: ^11
+dependencies:
+  - drupal:node
+  - drupal:taxonomy
+  - drupal:field_ui
+  - drupal:views_ui
+  - drupal:link
+  - drupal:datetime
+  - drupal:text
+  - drupal:migrate

@@ -1,0 +1,11 @@
+uuid: 1736ce4d-0240-49f1-b98d-826efaad5460
+langcode: en
+status: true
+dependencies: {  }
+name: 'Topic Relationship'
+type: med_relationship
+description: null
+help: null
+new_revision: true
+preview_mode: 1
+display_submitted: false

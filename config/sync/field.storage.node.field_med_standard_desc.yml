@@ -1,0 +1,19 @@
+uuid: a7250a0d-6949-4ad2-beae-060a8af6a7a2
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+id: node.field_med_standard_desc
+field_name: field_med_standard_desc
+entity_type: node
+type: string_long
+settings:
+  case_sensitive: false
+module: core
+locked: false
+cardinality: -1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

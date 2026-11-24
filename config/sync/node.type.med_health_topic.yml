@@ -1,0 +1,11 @@
+uuid: 07a60718-1584-4b2b-8ac6-54a3c213ee15
+langcode: en
+status: true
+dependencies: {  }
+name: 'Health Topic'
+type: med_health_topic
+description: null
+help: null
+new_revision: true
+preview_mode: 1
+display_submitted: false

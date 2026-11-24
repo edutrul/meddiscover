@@ -1,6 +1,6 @@
 # Agent instructions
 
-Read PLAN.md and this file before work. Approved phase: **Phase 01 — Project Foundation only**. Phase 02 and later require explicit owner approval.
+Read PLAN.md and this file before work. Approved phase: **Phase 02 — Content Modeling & Migration**, authorized by the owner on 2026-11-24 after foundation PR #2 merged. Phase 03 and later require explicit owner approval.
 
 - Inspect repository status, existing issues and documentation before changes. Preserve unrelated edits.
 - Every implementation task needs an issue first. Use `med-{issue}-{short-title}` branches and `MED-{issue}: Title` PR titles. Never commit to main after bootstrap.

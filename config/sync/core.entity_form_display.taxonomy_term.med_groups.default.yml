@@ -1,0 +1,65 @@
+uuid: dd9e1045-7d67-47e0-923f-8313d4a2dd42
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.taxonomy_term.med_groups.field_med_key
+    - field.field.taxonomy_term.med_groups.field_med_source_id
+    - field.field.taxonomy_term.med_groups.field_med_source_url
+    - taxonomy.vocabulary.med_groups
+  module:
+    - link
+    - text
+id: taxonomy_term.med_groups.default
+targetEntityType: taxonomy_term
+bundle: med_groups
+mode: default
+content:
+  description:
+    type: text_textfield
+    weight: 0
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_med_key:
+    type: string_textfield
+    weight: 101
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_med_source_id:
+    type: string_textfield
+    weight: 102
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_med_source_url:
+    type: link_default
+    weight: 103
+    region: content
+    settings:
+      placeholder_url: ''
+      placeholder_title: ''
+    third_party_settings: {  }
+  name:
+    type: string_textfield
+    weight: -5
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  status:
+    type: boolean_checkbox
+    weight: 100
+    region: content
+    settings:
+      display_label: true
+    third_party_settings: {  }
+hidden: {  }

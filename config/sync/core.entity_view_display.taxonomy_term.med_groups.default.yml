@@ -1,0 +1,47 @@
+uuid: 90d9885b-f597-425f-b8a0-83375c28cde4
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.taxonomy_term.med_groups.field_med_key
+    - field.field.taxonomy_term.med_groups.field_med_source_id
+    - field.field.taxonomy_term.med_groups.field_med_source_url
+    - taxonomy.vocabulary.med_groups
+  module:
+    - link
+    - text
+id: taxonomy_term.med_groups.default
+targetEntityType: taxonomy_term
+bundle: med_groups
+mode: default
+content:
+  description:
+    type: text_default
+    label: hidden
+    settings: {  }
+    third_party_settings: {  }
+    weight: 0
+    region: content
+  field_med_source_id:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+      link_rel: canonical
+    third_party_settings: {  }
+    weight: 1
+    region: content
+  field_med_source_url:
+    type: link
+    label: above
+    settings:
+      trim_length: 80
+      url_only: false
+      url_plain: false
+      rel: ''
+      target: ''
+    third_party_settings: {  }
+    weight: 2
+    region: content
+hidden:
+  field_med_key: true

@@ -1,0 +1,135 @@
+uuid: 8ec07809-b39b-4056-8823-6a966d07af43
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.node.med_health_topic.field_med_also_called
+    - field.field.node.med_health_topic.field_med_attribution
+    - field.field.node.med_health_topic.field_med_description
+    - field.field.node.med_health_topic.field_med_groups
+    - field.field.node.med_health_topic.field_med_key
+    - field.field.node.med_health_topic.field_med_mesh
+    - field.field.node.med_health_topic.field_med_see_reference
+    - field.field.node.med_health_topic.field_med_snapshot_date
+    - field.field.node.med_health_topic.field_med_source_date
+    - field.field.node.med_health_topic.field_med_source_id
+    - field.field.node.med_health_topic.field_med_source_url
+    - field.field.node.med_health_topic.field_med_summary_html
+    - field.field.node.med_health_topic.field_med_summary_plain
+    - field.field.node.med_health_topic.field_med_summary_raw
+    - node.type.med_health_topic
+  module:
+    - datetime
+    - link
+    - text
+    - user
+id: node.med_health_topic.default
+targetEntityType: node
+bundle: med_health_topic
+mode: default
+content:
+  field_med_also_called:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+      link_rel: canonical
+    third_party_settings: {  }
+    weight: 105
+    region: content
+  field_med_attribution:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+      link_rel: canonical
+    third_party_settings: {  }
+    weight: 102
+    region: content
+  field_med_description:
+    type: basic_string
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    weight: 103
+    region: content
+  field_med_groups:
+    type: entity_reference_label
+    label: above
+    settings:
+      link: true
+    third_party_settings: {  }
+    weight: 110
+    region: content
+  field_med_mesh:
+    type: entity_reference_label
+    label: above
+    settings:
+      link: true
+    third_party_settings: {  }
+    weight: 111
+    region: content
+  field_med_see_reference:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+      link_rel: canonical
+    third_party_settings: {  }
+    weight: 106
+    region: content
+  field_med_snapshot_date:
+    type: datetime_default
+    label: above
+    settings:
+      timezone_override: ''
+      format_type: medium
+    third_party_settings: {  }
+    weight: 109
+    region: content
+  field_med_source_date:
+    type: datetime_default
+    label: above
+    settings:
+      timezone_override: ''
+      format_type: medium
+    third_party_settings: {  }
+    weight: 108
+    region: content
+  field_med_source_id:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+      link_rel: canonical
+    third_party_settings: {  }
+    weight: 101
+    region: content
+  field_med_source_url:
+    type: link
+    label: above
+    settings:
+      trim_length: 80
+      url_only: false
+      url_plain: false
+      rel: ''
+      target: ''
+    third_party_settings: {  }
+    weight: 107
+    region: content
+  field_med_summary_html:
+    type: text_default
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    weight: 104
+    region: content
+  links:
+    settings: {  }
+    third_party_settings: {  }
+    weight: 100
+    region: content
+hidden:
+  field_med_key: true
+  field_med_summary_plain: true
+  field_med_summary_raw: true

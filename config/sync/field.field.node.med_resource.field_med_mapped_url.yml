@@ -1,0 +1,23 @@
+uuid: 690c43ac-4645-4241-b8a3-8fabb348a5a1
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_med_mapped_url
+    - node.type.med_resource
+  module:
+    - link
+id: node.med_resource.field_med_mapped_url
+field_name: field_med_mapped_url
+entity_type: node
+bundle: med_resource
+label: 'Language-mapped URL'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  title: 0
+  link_type: 16
+field_type: link

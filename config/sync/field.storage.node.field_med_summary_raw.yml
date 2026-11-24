@@ -1,0 +1,19 @@
+uuid: 3af75024-d3f1-4435-a7d3-ccb537c71c24
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+id: node.field_med_summary_raw
+field_name: field_med_summary_raw
+entity_type: node
+type: string_long
+settings:
+  case_sensitive: false
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

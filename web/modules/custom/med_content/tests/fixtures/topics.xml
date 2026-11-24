@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<health-topics total="4" date-generated="11/24/2026 02:30:05">
+  <health-topic id="test-1" title="Synthetic Topic One" language="English" url="https://medlineplus.gov/test-one.html" date-created="01/01/2020" meta-desc="Synthetic fixture, not medical content.">
+    <also-called>Fixture Alias</also-called><see-reference>Ambiguous Fixture</see-reference>
+    <full-summary>&lt;p onclick="alert(1)"&gt;Synthetic &lt;strong&gt;safe text&lt;/strong&gt;. &lt;a href="/test-two.html"&gt;Second&lt;/a&gt; &lt;a href="https://medlineplus.gov/outside.html"&gt;Outside&lt;/a&gt; &lt;a href="javascript:alert(1)"&gt;Unsafe&lt;/a&gt;&lt;script&gt;alert(2)&lt;/script&gt;&lt;img src="x" onerror="alert(3)"&gt;&lt;/p&gt;</full-summary>
+    <group id="GTEST" url="https://medlineplus.gov/testgroup.html">Synthetic Group</group>
+    <mesh-heading><descriptor id="DTEST">Synthetic Descriptor</descriptor><qualifier id="QTEST">Synthetic Qualifier</qualifier></mesh-heading>
+    <site title="Synthetic Resource" url="https://example.org/resource" language-mapped-url="https://example.org/es/resource"><information-category>Patient Handouts</information-category><information-category>Learn More</information-category><organization>Fixture Org A</organization><organization>Fixture Org B</organization><standard-description>Synthetic description A</standard-description><standard-description>Synthetic description B</standard-description></site>
+    <related-topic id="test-2" url="https://medlineplus.gov/test-two.html">Synthetic Topic Two</related-topic>
+    <related-topic id="test-out" url="https://medlineplus.gov/outside.html">Outside Topic</related-topic>
+    <language-mapped-topic id="test-es" url="https://medlineplus.gov/spanish/test.html">Synthetic Spanish</language-mapped-topic>
+  </health-topic>
+  <health-topic id="test-2" title="Synthetic Topic Two" language="English" url="https://medlineplus.gov/test-two.html" date-created="01/02/2020" meta-desc="Another synthetic fixture."><full-summary>&lt;p&gt;Synthetic only.&lt;/p&gt;</full-summary><site title="Shared URL Resource" url="https://example.org/resource"><information-category>Learn More</information-category></site></health-topic>
+  <health-topic id="test-out" title="Outside Topic" language="English" url="https://medlineplus.gov/outside.html" date-created="01/02/2020" meta-desc="Not selected."><full-summary>Not imported.</full-summary></health-topic>
+  <health-topic id="test-es" title="Synthetic Spanish" language="Spanish" url="https://medlineplus.gov/spanish/test.html" date-created="01/02/2020" meta-desc="Not selected."><full-summary>Not imported.</full-summary></health-topic>
+</health-topics>

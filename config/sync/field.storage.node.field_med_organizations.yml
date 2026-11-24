@@ -1,0 +1,19 @@
+uuid: d6d3c690-0c81-41cc-bdae-e13e3639cdf6
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+id: node.field_med_organizations
+field_name: field_med_organizations
+entity_type: node
+type: string_long
+settings:
+  case_sensitive: false
+module: core
+locked: false
+cardinality: -1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

@@ -1,0 +1,175 @@
+uuid: 6a801159-2163-4d73-8d94-1a7959f0c521
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.node.med_health_topic.field_med_also_called
+    - field.field.node.med_health_topic.field_med_attribution
+    - field.field.node.med_health_topic.field_med_description
+    - field.field.node.med_health_topic.field_med_groups
+    - field.field.node.med_health_topic.field_med_key
+    - field.field.node.med_health_topic.field_med_mesh
+    - field.field.node.med_health_topic.field_med_see_reference
+    - field.field.node.med_health_topic.field_med_snapshot_date
+    - field.field.node.med_health_topic.field_med_source_date
+    - field.field.node.med_health_topic.field_med_source_id
+    - field.field.node.med_health_topic.field_med_source_url
+    - field.field.node.med_health_topic.field_med_summary_html
+    - field.field.node.med_health_topic.field_med_summary_plain
+    - field.field.node.med_health_topic.field_med_summary_raw
+    - node.type.med_health_topic
+  module:
+    - datetime
+    - link
+    - text
+id: node.med_health_topic.default
+targetEntityType: node
+bundle: med_health_topic
+mode: default
+content:
+  created:
+    type: datetime_timestamp
+    weight: 10
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  field_med_also_called:
+    type: string_textfield
+    weight: 128
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_med_attribution:
+    type: string_textfield
+    weight: 123
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_med_description:
+    type: string_textarea
+    weight: 124
+    region: content
+    settings:
+      rows: 5
+      placeholder: ''
+    third_party_settings: {  }
+  field_med_groups:
+    type: entity_reference_autocomplete
+    weight: 133
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_med_key:
+    type: string_textfield
+    weight: 121
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_med_mesh:
+    type: entity_reference_autocomplete
+    weight: 134
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_med_see_reference:
+    type: string_textfield
+    weight: 129
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_med_snapshot_date:
+    type: datetime_default
+    weight: 132
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  field_med_source_date:
+    type: datetime_default
+    weight: 131
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  field_med_source_id:
+    type: string_textfield
+    weight: 122
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_med_source_url:
+    type: link_default
+    weight: 130
+    region: content
+    settings:
+      placeholder_url: ''
+      placeholder_title: ''
+    third_party_settings: {  }
+  field_med_summary_html:
+    type: text_textarea
+    weight: 127
+    region: content
+    settings:
+      rows: 5
+      placeholder: ''
+    third_party_settings: {  }
+  field_med_summary_plain:
+    type: string_textarea
+    weight: 126
+    region: content
+    settings:
+      rows: 5
+      placeholder: ''
+    third_party_settings: {  }
+  field_med_summary_raw:
+    type: string_textarea
+    weight: 125
+    region: content
+    settings:
+      rows: 5
+      placeholder: ''
+    third_party_settings: {  }
+  status:
+    type: boolean_checkbox
+    weight: 120
+    region: content
+    settings:
+      display_label: true
+    third_party_settings: {  }
+  title:
+    type: string_textfield
+    weight: -5
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  uid:
+    type: entity_reference_autocomplete
+    weight: 5
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+hidden:
+  promote: true
+  sticky: true
