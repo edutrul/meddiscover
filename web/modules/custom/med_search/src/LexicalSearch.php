@@ -4,6 +4,7 @@ namespace Drupal\med_search;
 
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Session\AccountInterface;
 use Drupal\node\NodeInterface;
 use Drupal\search_api\ParseMode\ParseModePluginManager;
 use Drupal\search_api_solr\SolrBackendInterface;
@@ -30,6 +31,7 @@ class LexicalSearch implements SearchStrategyInterface {
     private EntityTypeManagerInterface $entities,
     private ConfigFactoryInterface $configFactory,
     private ParseModePluginManager $parseModes,
+    private AccountInterface $currentUser,
   ) {}
 
   /**
@@ -89,7 +91,7 @@ class LexicalSearch implements SearchStrategyInterface {
     foreach ($items as $item) {
       $node = $item->getOriginalObject()?->getValue();
       if (!$node instanceof NodeInterface || $node->bundle() !== 'med_health_topic'
-        || !$node->isPublished() || $node->language()->getId() !== 'en' || !$node->access('view')) {
+        || !$node->isPublished() || $node->language()->getId() !== 'en' || !$node->access('view', $this->currentUser)) {
         continue;
       }
       $id = (string) $node->field_med_source_id->value;

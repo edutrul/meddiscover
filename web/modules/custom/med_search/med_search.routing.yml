@@ -22,3 +22,11 @@ med_search.hybrid:
     strategy: hybrid
   requirements:
     _permission: 'access content'
+med_search.conversational:
+  path: '/search/conversational'
+  defaults:
+    _form: '\Drupal\med_search\Form\SearchForm'
+    _title: 'medDiscover — Conversational Search'
+    strategy: conversational
+  requirements:
+    _permission: 'access content'

@@ -41,7 +41,7 @@ function fixture_embedder(array $vectors = [], ?Response $override = NULL): Olla
 }
 function fixture_search(OllamaEmbedder $embedder): SemanticSearch {
   return new SemanticSearch(\Drupal::database(), \Drupal::entityTypeManager(), $embedder,
-    \Drupal::configFactory(), \Drupal::lock(), \Drupal::time());
+    \Drupal::configFactory(), \Drupal::lock(), \Drupal::time(), \Drupal::currentUser());
 }
 try {
   foreach ([[0, 0, 0], [1, 0], [NAN, 0, 0], ['bad', 0, 1]] as $bad) {
