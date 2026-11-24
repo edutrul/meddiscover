@@ -133,3 +133,5 @@ hidden:
   field_med_key: true
   field_med_summary_plain: true
   field_med_summary_raw: true
+  langcode: true
+  search_api_excerpt: true

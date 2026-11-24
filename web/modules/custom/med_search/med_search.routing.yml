@@ -1,7 +1,24 @@
 med_search.semantic:
   path: '/search/semantic'
   defaults:
-    _form: '\Drupal\med_search\Form\SemanticSearchForm'
+    _form: '\Drupal\med_search\Form\SearchForm'
     _title: 'medDiscover — Semantic Search'
+    strategy: semantic
+  requirements:
+    _permission: 'access content'
+med_search.lexical:
+  path: '/search/lexical'
+  defaults:
+    _form: '\Drupal\med_search\Form\SearchForm'
+    _title: 'medDiscover — Lexical Search'
+    strategy: lexical
+  requirements:
+    _permission: 'access content'
+med_search.hybrid:
+  path: '/search/hybrid'
+  defaults:
+    _form: '\Drupal\med_search\Form\SearchForm'
+    _title: 'medDiscover — Hybrid Search'
+    strategy: hybrid
   requirements:
     _permission: 'access content'

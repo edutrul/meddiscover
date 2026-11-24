@@ -6,16 +6,37 @@ use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
 use Drupal\med_search\ResultEnricher;
-use Drupal\med_search\SemanticSearch;
+use Drupal\med_search\SearchStrategyInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
- * Minimal POST-only educational discovery form in the existing Drupal theme.
+ * POST-only educational discovery form shared by every search strategy.
+ *
+ * The route's "strategy" default selects the service; rendering, enrichment
+ * and privacy handling are identical for semantic, lexical and hybrid search.
  */
-class SemanticSearchForm extends FormBase {
+class SearchForm extends FormBase {
+
+  /**
+   * Strategy labels and one-line explanations for the interface.
+   */
+  public const STRATEGIES = [
+    'semantic' => [
+      'Semantic',
+      'Matches meaning using local embeddings, so questions in everyday words can find topics.',
+    ],
+    'lexical' => [
+      'Lexical',
+      'Matches your words against topic names, alternative terms, MeSH labels and text, using Apache Solr.',
+    ],
+    'hybrid' => [
+      'Hybrid',
+      'Combines the lexical and semantic rankings with Reciprocal Rank Fusion.',
+    ],
+  ];
 
   public function __construct(
-    private SemanticSearch $search,
+    private SearchStrategyInterface $search,
     private ResultEnricher $enricher,
   ) {}
 
@@ -23,14 +44,18 @@ class SemanticSearchForm extends FormBase {
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container): static {
-    return new static($container->get('med_search.search'), $container->get('med_search.enricher'));
+    $strategy = $container->get('current_route_match')->getRouteObject()?->getDefault('strategy') ?? 'semantic';
+    if (!isset(self::STRATEGIES[$strategy])) {
+      throw new \InvalidArgumentException('Unknown search strategy.');
+    }
+    return new static($container->get('med_search.strategy.' . $strategy), $container->get('med_search.enricher'));
   }
 
   /**
    * {@inheritdoc}
    */
   public function getFormId(): string {
-    return 'med_semantic_search';
+    return 'med_' . $this->search->id() . '_search';
   }
 
   /**
@@ -39,7 +64,24 @@ class SemanticSearchForm extends FormBase {
   public function buildForm(array $form, FormStateInterface $form_state): array {
     $form_state->disableCache();
     $form['#cache']['max-age'] = 0;
-    $form['intro'] = ['#plain_text' => $this->t('Explore educational health topics. This proof of concept does not provide diagnosis or personalized medical advice.')];
+    [$label, $explanation] = self::STRATEGIES[$this->search->id()];
+    $modes = [];
+    foreach (self::STRATEGIES as $id => [$mode]) {
+      $modes[] = $id === $this->search->id()
+        ? ['#type' => 'html_tag', '#tag' => 'strong', '#value' => $mode]
+        : ['#type' => 'link', '#title' => $mode, '#url' => Url::fromRoute('med_search.' . $id)];
+    }
+    $form['modes'] = [
+      '#theme' => 'item_list',
+      '#title' => $this->t('Search mode'),
+      '#items' => $modes,
+      '#attributes' => ['class' => ['inline']],
+    ];
+    $form['intro'] = [
+      '#type' => 'html_tag',
+      '#tag' => 'p',
+      '#value' => $this->t('@explanation Explore educational health topics. This proof of concept does not provide diagnosis or personalized medical advice.', ['@explanation' => $explanation]),
+    ];
     $form['query'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Search health information'),
@@ -52,8 +94,16 @@ class SemanticSearchForm extends FormBase {
     if ($response !== NULL) {
       $form['results'] = ['#type' => 'container', '#attributes' => ['aria-live' => 'polite']];
       $form['results']['heading'] = ['#type' => 'html_tag', '#tag' => 'h2', '#value' => $this->t('Search results')];
+      foreach ($response['notices'] as $delta => $notice) {
+        $form['results']['notice_' . $delta] = [
+          '#type' => 'html_tag',
+          '#tag' => 'p',
+          '#attributes' => ['role' => 'status'],
+          '#value' => $this->t('@notice', ['@notice' => $notice]),
+        ];
+      }
       if (!$response['results']) {
-        $form['results']['empty'] = ['#plain_text' => $this->t('No topics met the relevance threshold. Try another educational health topic.')];
+        $form['results']['empty'] = ['#plain_text' => $this->t('No topics matched closely enough. Try another educational health topic or a different search mode.')];
       }
       foreach ($response['results'] as $delta => $result) {
         $node = $result['node'];
@@ -68,7 +118,7 @@ class SemanticSearchForm extends FormBase {
           'score' => [
             '#type' => 'html_tag',
             '#tag' => 'p',
-            '#value' => $this->t('Cosine similarity: @score', ['@score' => number_format($result['similarity'], 4)]),
+            '#value' => $this->t('@score', ['@score' => $this->search->describeScore($result)]),
           ],
           'source' => [
             '#type' => 'link',
@@ -83,7 +133,7 @@ class SemanticSearchForm extends FormBase {
       $form['error'] = [
         '#type' => 'container',
         '#attributes' => ['role' => 'alert'],
-        'text' => ['#plain_text' => $this->t('Semantic search is temporarily unavailable. Please try again later.')],
+        'text' => ['#plain_text' => $this->t('@mode search is temporarily unavailable. Please try again later.', ['@mode' => $label])],
       ];
     }
     return $form;

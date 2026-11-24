@@ -1,6 +1,14 @@
-# Semantic search setup
+# Search setup
 
-Phase 03 search uses a local Ollama embedding model and exact pgvector retrieval in the Drupal PostgreSQL database. Design: [ADR 003](architecture/003-semantic-search.md).
+medDiscover has three search modes over the same 24 English Health Topics, sharing one form, result structure and enrichment:
+
+| Route | Strategy | Design |
+|---|---|---|
+| `/search/semantic` | Local Ollama embeddings and exact pgvector cosine search | [ADR 003](architecture/003-semantic-search.md) |
+| `/search/lexical` | Apache Solr through Search API, with field boosts and exact-name matching | [ADR 005](architecture/005-lexical-hybrid-search.md) |
+| `/search/hybrid` | Reciprocal Rank Fusion of the lexical and semantic rankings | [ADR 005](architecture/005-lexical-hybrid-search.md) |
+
+Each page links to the other two, so the same question can be compared across modes. The comparison results are in [docs/evaluation/hybrid-search.md](evaluation/hybrid-search.md).
 
 ## Prerequisites
 
@@ -15,6 +23,18 @@ Phase 03 search uses a local Ollama embedding model and exact pgvector retrieval
 
 The endpoint, model, digest, dimensions, threshold and result limit live in `config/sync/med_search.settings.yml`. If the local model digest differs, search and indexing stop with a provider error instead of mixing vectors from different models.
 
+## Solr (lexical and hybrid)
+
+`ddev start` also starts Solr 9.11 (the `ddev/ddev-solr` add-on, pinned in `.ddev/docker-compose.solr-meddiscover.yaml`). Create the collection once per environment from the exported Search API configuration, then index the topics:
+
+```bash
+ddev drush solr-upload-conf med_solr --numShards=1   # once; also after Search API Solr upgrades
+ddev drush search-api:index med_topics               # 24 items; later edits are indexed on save
+ddev drush search-api:status                         # med_topics 100%
+```
+
+The Solr admin UI opens with `ddev solr-admin` (local default user `solr`, password `SolrRocks`; these are the add-on's public development defaults, injected by `settings.php` only under DDEV). Solr logs only warnings and has no request log, so query text is never written to Solr logs.
+
 ## Generate embeddings
 
 ```bash
@@ -25,7 +45,13 @@ The first run reports `generated: 24`. Later runs re-embed only changed topics; 
 
 ## Use
 
-Open <https://meddiscover.ddev.site/search/semantic> and enter an educational health question, for example “My knees hurt when I walk”. Results show the topic title, description, cosine similarity and MedlinePlus attribution. If no topic reaches the threshold, the page says so.
+Open <https://meddiscover.ddev.site/search/semantic>, `/search/lexical` or `/search/hybrid` and enter an educational health question, for example “My knees hurt when I walk”. Results show the topic title, description, a score explanation and MedlinePlus attribution:
+
+- **Semantic** shows the cosine similarity. Topics below the 0.62 threshold are not shown.
+- **Lexical** shows the Solr score, which is only comparable within one search. Short queries must match every word, and longer ones must match 75 % of them (`mm=2<75%`). A query that exactly names a topic or one of its alternative terms ranks that topic first. If the name belongs to several topics (for example “Sugar diabetes”), the page says so and lists them.
+- **Hybrid** shows the RRF score and the topic's rank in each strategy (k = 60). If Solr or Ollama is unavailable, hybrid uses the remaining strategy and says so.
+
+If nothing matches, the page says so.
 
 Each result has three collapsible sections, built from imported data without extra AI calls ([ADR 004](architecture/004-result-enrichment.md)):
 
@@ -39,7 +65,12 @@ Each result has three collapsible sections, built from imported data without ext
 ddev drush php:script scripts/search/test.php           # synthetic vectors; no provider needed
 ddev drush php:script scripts/search/test_enrichment.php # synthetic fixture enrichment
 ddev drush php:script scripts/search/evaluate.php       # real model; synthetic queries
-ddev drush php:script scripts/search/check_privacy.php  # after submitting "What is backache?" in the form
+ddev drush php:script scripts/search/test_hybrid.php     # synthetic fixture: RRF, lexical, hybrid (needs Solr)
+ddev drush php:script scripts/search/compare.php         # real corpus, Solr and model; comparison tables
+ddev drush php:script scripts/search/check_privacy.php  # after submitting "What is backache?" in the forms
+ddev exec -s solr grep -rlc "backache" /var/solr/logs || echo "no query text in Solr logs"
 ```
+
+`test_hybrid.php` checks RRF arithmetic and tie-breaks, title, alias and exact-name matching, ambiguity notices, minimum-should-match, query escaping, unpublished exclusion, hybrid fusion with a stub semantic strategy, deduplication, limits and degradation when a strategy fails. It refuses to run against the real corpus.
 
 `test.php` checks vector validation, exact cosine ranking, thresholds and limits, freshness, regeneration, stable identity, provider failures and that no approximate index exists. CI runs it against a clean installation.

@@ -6,3 +6,7 @@ context_length: 2048
 include_metadata: true
 result_limit: 5
 threshold: 0.62
+lexical_index: med_topics
+lexical_min_match: '2<75%'
+hybrid_depth: 20
+hybrid_rrf_k: 60

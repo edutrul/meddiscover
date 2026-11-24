@@ -34,6 +34,10 @@ jobs:
           ddev drush config:export -y
           git diff --exit-code -- config/sync
           curl --fail --silent --show-error http://meddiscover.ddev.site/user/login > /dev/null
+      - name: Create the Solr collection from exported configuration
+        run: |
+          ddev drush solr-upload-conf med_solr --numShards=1
+          ddev drush php:eval 'if (!\Drupal\search_api\Entity\Server::load("med_solr")->isAvailable()) { throw new RuntimeException("Solr unavailable"); } echo "Solr collection available\n";'
       - name: Validate synthetic content migrations
         run: |
           ddev drush php:script scripts/migration/test_fixture.php
@@ -45,3 +49,7 @@ jobs:
           ddev exec php -l web/modules/custom/med_search/med_search.install
       - name: Validate deterministic result enrichment
         run: ddev drush php:script scripts/search/test_enrichment.php
+      - name: Validate lexical search, RRF and hybrid retrieval
+        run: |
+          ddev drush php:script scripts/search/test_hybrid.php
+          ddev exec -s solr bash -c '! grep -rlq "Synthetic Topic One" /var/solr/logs'
