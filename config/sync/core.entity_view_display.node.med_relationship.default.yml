@@ -1,0 +1,93 @@
+uuid: 4cb53a50-2dd9-4798-a30c-d5a53177603a
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.node.med_relationship.field_med_key
+    - field.field.node.med_relationship.field_med_provenance
+    - field.field.node.med_relationship.field_med_relation_type
+    - field.field.node.med_relationship.field_med_target
+    - field.field.node.med_relationship.field_med_target_source_id
+    - field.field.node.med_relationship.field_med_target_title
+    - field.field.node.med_relationship.field_med_target_url
+    - field.field.node.med_relationship.field_med_topic
+    - node.type.med_relationship
+  module:
+    - link
+    - user
+id: node.med_relationship.default
+targetEntityType: node
+bundle: med_relationship
+mode: default
+content:
+  field_med_provenance:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+      link_rel: canonical
+    third_party_settings: {  }
+    weight: 104
+    region: content
+  field_med_relation_type:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+      link_rel: canonical
+    third_party_settings: {  }
+    weight: 103
+    region: content
+  field_med_target:
+    type: entity_reference_label
+    label: above
+    settings:
+      link: true
+    third_party_settings: {  }
+    weight: 102
+    region: content
+  field_med_target_source_id:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+      link_rel: canonical
+    third_party_settings: {  }
+    weight: 105
+    region: content
+  field_med_target_title:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+      link_rel: canonical
+    third_party_settings: {  }
+    weight: 106
+    region: content
+  field_med_target_url:
+    type: link
+    label: above
+    settings:
+      trim_length: 80
+      url_only: false
+      url_plain: false
+      rel: ''
+      target: ''
+    third_party_settings: {  }
+    weight: 107
+    region: content
+  field_med_topic:
+    type: entity_reference_label
+    label: above
+    settings:
+      link: true
+    third_party_settings: {  }
+    weight: 101
+    region: content
+  links:
+    settings: {  }
+    third_party_settings: {  }
+    weight: 100
+    region: content
+hidden:
+  field_med_key: true

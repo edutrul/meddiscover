@@ -1,0 +1,24 @@
+uuid: a999233c-f715-481d-84ad-e228d81b1278
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_med_groups
+    - node.type.med_health_topic
+    - taxonomy.vocabulary.med_groups
+id: node.med_health_topic.field_med_groups
+field_name: field_med_groups
+entity_type: node
+bundle: med_health_topic
+label: 'Medical groups'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:taxonomy_term'
+  handler_settings:
+    target_bundles:
+      med_groups: med_groups
+field_type: entity_reference

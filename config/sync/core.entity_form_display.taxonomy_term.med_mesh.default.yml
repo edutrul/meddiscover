@@ -1,0 +1,82 @@
+uuid: cad6262c-260a-42f3-b3fe-a45cf24473d3
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.taxonomy_term.med_mesh.field_med_descriptor_label
+    - field.field.taxonomy_term.med_mesh.field_med_key
+    - field.field.taxonomy_term.med_mesh.field_med_qualifier_id
+    - field.field.taxonomy_term.med_mesh.field_med_qualifier_label
+    - field.field.taxonomy_term.med_mesh.field_med_source_id
+    - taxonomy.vocabulary.med_mesh
+  module:
+    - text
+id: taxonomy_term.med_mesh.default
+targetEntityType: taxonomy_term
+bundle: med_mesh
+mode: default
+content:
+  description:
+    type: text_textfield
+    weight: 0
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_med_descriptor_label:
+    type: string_textfield
+    weight: 103
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_med_key:
+    type: string_textfield
+    weight: 101
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_med_qualifier_id:
+    type: string_textfield
+    weight: 104
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_med_qualifier_label:
+    type: string_textfield
+    weight: 105
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_med_source_id:
+    type: string_textfield
+    weight: 102
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  name:
+    type: string_textfield
+    weight: -5
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  status:
+    type: boolean_checkbox
+    weight: 100
+    region: content
+    settings:
+      display_label: true
+    third_party_settings: {  }
+hidden: {  }

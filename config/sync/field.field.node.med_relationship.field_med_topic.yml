@@ -1,0 +1,24 @@
+uuid: 9790ed66-18dd-4ca8-a535-69f9f5f44e67
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_med_topic
+    - node.type.med_health_topic
+    - node.type.med_relationship
+id: node.med_relationship.field_med_topic
+field_name: field_med_topic
+entity_type: node
+bundle: med_relationship
+label: 'Source health topic'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:node'
+  handler_settings:
+    target_bundles:
+      med_health_topic: med_health_topic
+field_type: entity_reference

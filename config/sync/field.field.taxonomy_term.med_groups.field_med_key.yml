@@ -1,0 +1,19 @@
+uuid: 132f84ab-f424-4473-9399-a6f150b1ca7c
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.taxonomy_term.field_med_key
+    - taxonomy.vocabulary.med_groups
+id: taxonomy_term.med_groups.field_med_key
+field_name: field_med_key
+entity_type: taxonomy_term
+bundle: med_groups
+label: 'Migration identifier'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

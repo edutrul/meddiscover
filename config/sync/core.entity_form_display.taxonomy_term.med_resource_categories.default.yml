@@ -1,0 +1,46 @@
+uuid: 83ca0fa3-c12f-4d5d-91b8-25afbbd82f0e
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.taxonomy_term.med_resource_categories.field_med_key
+    - taxonomy.vocabulary.med_resource_categories
+  module:
+    - text
+id: taxonomy_term.med_resource_categories.default
+targetEntityType: taxonomy_term
+bundle: med_resource_categories
+mode: default
+content:
+  description:
+    type: text_textfield
+    weight: 0
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_med_key:
+    type: string_textfield
+    weight: 101
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  name:
+    type: string_textfield
+    weight: -5
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  status:
+    type: boolean_checkbox
+    weight: 100
+    region: content
+    settings:
+      display_label: true
+    third_party_settings: {  }
+hidden: {  }

@@ -1,0 +1,23 @@
+uuid: 591a5da3-3e8b-43a3-a119-3f89844157f3
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_med_target_url
+    - node.type.med_relationship
+  module:
+    - link
+id: node.med_relationship.field_med_target_url
+field_name: field_med_target_url
+entity_type: node
+bundle: med_relationship
+label: 'Target source URL'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  title: 0
+  link_type: 16
+field_type: link

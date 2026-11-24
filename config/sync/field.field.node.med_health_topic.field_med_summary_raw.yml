@@ -1,0 +1,19 @@
+uuid: c360c86c-3685-479a-8ef1-7f959f5ce6b9
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_med_summary_raw
+    - node.type.med_health_topic
+id: node.med_health_topic.field_med_summary_raw
+field_name: field_med_summary_raw
+entity_type: node
+bundle: med_health_topic
+label: 'Original summary (source markup)'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string_long

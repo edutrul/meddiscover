@@ -1,0 +1,9 @@
+uuid: 9b098690-d417-46d4-bc84-d575b7ca78c3
+langcode: en
+status: true
+dependencies: {  }
+name: 'Resource Categories'
+vid: med_resource_categories
+description: null
+weight: 0
+new_revision: false

@@ -1,0 +1,23 @@
+uuid: ebb38434-7b71-4fe7-a080-74eb0a22670d
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_med_source_url
+    - node.type.med_health_topic
+  module:
+    - link
+id: node.med_health_topic.field_med_source_url
+field_name: field_med_source_url
+entity_type: node
+bundle: med_health_topic
+label: 'Source URL'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  title: 0
+  link_type: 16
+field_type: link

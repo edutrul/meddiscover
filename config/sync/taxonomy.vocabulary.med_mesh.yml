@@ -1,0 +1,9 @@
+uuid: c0aae91e-5578-4b4f-96a5-e3575a129100
+langcode: en
+status: true
+dependencies: {  }
+name: 'MeSH Headings'
+vid: med_mesh
+description: null
+weight: 0
+new_revision: false

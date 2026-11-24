@@ -1,0 +1,11 @@
+uuid: 5ae23611-2966-409c-b18f-78576cd27dcd
+langcode: en
+status: true
+dependencies: {  }
+name: 'Resource Assignment'
+type: med_resource
+description: null
+help: null
+new_revision: true
+preview_mode: 1
+display_submitted: false

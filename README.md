@@ -1,6 +1,6 @@
 # medDiscover
 
-Educational healthcare search and discovery POC. Current implementation: **Phase 01 — Project Foundation**. Public pages use core Olivero and administration uses core Claro. Authenticated administrators have the classic core toolbar enhanced by Admin Toolbar dropdowns and Extra Tools. Content migration and search are not implemented. [Master plan](PLAN.md) · [Agent rules](AGENTS.md) · [Foundation report](docs/delivery/phase-01.md)
+Educational healthcare search and discovery POC. Current implementation: **Phase 02 — Content Modeling & Migration**. Public pages use core Olivero and administration uses core Claro. Authenticated administrators have the classic core toolbar enhanced by Admin Toolbar dropdowns and Extra Tools. The approved English corpus is migrated with Drupal Migrate API; search is not implemented. [Master plan](PLAN.md) · [Agent rules](AGENTS.md) · [Foundation report](docs/delivery/phase-01.md) · [Content schema](docs/architecture/002-content-model.md) · [Migration instructions](docs/migration.md) · [Phase 02 report](docs/delivery/phase-02.md)
 
 Source: MedlinePlus, National Library of Medicine.
 
@@ -13,7 +13,7 @@ Docker with sufficient available memory, DDEV 1.25.2 or later, Git. Tested local
 ```sh
 git clone https://github.com/edutrul/meddiscover.git
 cd meddiscover
-# Until the foundation PR is merged, check out med-1-project-foundation.
+# Before Phase 02 merges, use: git switch med-3-content-migration
 ddev start
 ddev composer install --no-interaction
 ddev drush site:install --existing-config --account-name=admin --account-mail=admin@example.invalid -y
@@ -29,6 +29,7 @@ The installer creates a local administrator password; do not share its output. T
 ```sh
 ddev composer validate --strict
 ddev composer audit
+ddev exec vendor/bin/phpcs
 ddev drush status
 ddev drush php:script scripts/foundation/check.php
 ddev drush config:status
@@ -39,10 +40,10 @@ DDEV post-start hooks idempotently enable `pg_trgm` and `vector` in Drupal's `db
 
 ## Discovery evidence
 
-Historical reports, original selection and scripts are preserved under `docs/discovery` and `scripts/discovery`. The separately approved English corpus has **24 topics, 882 resource assignments and 744 unique resource URLs**. No topics have been imported into Drupal.
+Historical reports, original selection and scripts are preserved under `docs/discovery` and `scripts/discovery`. The separately approved English corpus has **24 topics, 882 resource assignments and 744 unique resource URLs**. The local Drupal database contains all 24 approved topics, their resource assignments and typed relationships. A fresh clone needs the original XML and the documented migration command to populate content.
 
 Raw XML and exhaustive generated analysis remain local and excluded from Git. See [preservation and reuse assessment](docs/discovery/PRESERVATION.md). Historical verification requires the exact XML snapshot and locally generated `dataset-profile.json`; it cannot run from a public clone alone. It does not validate the external DTD or destination-page availability.
 
 ## Workflow
 
-Use GitHub milestones and issues, issue-specific branches and reviewed PRs. See [CONTRIBUTING.md](CONTRIBUTING.md). The minimal bootstrap commit established main with README, supplied PLAN and ignore rules before issue-based implementation was possible. No further direct commits to main are allowed. Owner approval is required for merging and for Phase 02.
+Use GitHub milestones and issues, issue-specific branches and reviewed PRs. See [CONTRIBUTING.md](CONTRIBUTING.md). The minimal bootstrap commit established main with README, supplied PLAN and ignore rules before issue-based implementation was possible. No further direct commits to main are allowed. Owner approval is required for merging and for Phase 03.

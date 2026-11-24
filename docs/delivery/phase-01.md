@@ -1,12 +1,12 @@
 # Phase 01 implementation report
 
-Date: 2026-11-24. Status: implementation ready for review; phase acceptance and merge require owner approval. Approved scope ends at Phase 01.
+Date: 2026-11-24. Status: PR #2 merged, issue #1 closed, CI passed; owner authorized Phase 02 on 2026-11-24. The implementation below records the Phase 01 boundary.
 
 ## Issue and pull request
 
 - Issue: https://github.com/edutrul/meddiscover/issues/1 — all Phase 01.1–01.5 foundation work grouped in one reviewable infrastructure change.
-- PR: https://github.com/edutrul/meddiscover/pull/2 — owner review requested; issue remains open until approved merge.
-- Completed/closed implementation issues: none yet, because review and merge are required by the definition of done.
+- PR: https://github.com/edutrul/meddiscover/pull/2 — merged; issue #1 closed.
+- Completed/closed implementation issue: #1.
 
 ## Delivered
 
@@ -34,10 +34,10 @@ Drupal recommended-project 11.4.13 and Drush 13.8.1, minimal profile, PHP 8.4.20
 
 ## Limitations and blockers
 
-Merge/review and owner phase acceptance remain pending. Phase 01 is not formally complete until then. No Phase 02 work has started. No medical topics, embeddings, Solr, search interfaces or conversational features exist in Drupal yet.
+At the end of Phase 01, content migration and all search features remained unimplemented. Subsequent Phase 02 work is recorded separately.
 
 Formal DTD validation and external resource availability checks remain outstanding discovery limitations. Raw data/evidence are local; public clones need the exact XML snapshot to regenerate historical analysis. External bodies and licensed images are not reproduced. DDEV development settings are unsuitable for production; production deployment is outside scope. Infrastructure package revisions are not byte-pinned.
 
 ## Next step
 
-Owner reviews the foundation PR and authorizes merge after successful checks. Then verify issue closure and Phase 01 acceptance. Recommended next phase is Phase 02 — Content Modeling & Migration, only after explicit approval.
+Foundation merge and issue closure were verified before starting the owner-authorized Phase 02. See the separate Phase 02 report for current status.

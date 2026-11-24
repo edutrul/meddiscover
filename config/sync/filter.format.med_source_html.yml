@@ -1,0 +1,17 @@
+uuid: fa18ac15-834d-4431-8c97-b236005c9a64
+langcode: en
+status: true
+dependencies: {  }
+name: 'MedlinePlus source HTML'
+format: med_source_html
+weight: 0
+filters:
+  filter_html:
+    id: filter_html
+    provider: filter
+    status: true
+    weight: -10
+    settings:
+      allowed_html: '<p> <a href title> <ul> <ol> <li> <strong> <em> <b> <i> <br> <h2> <h3> <h4> <blockquote>'
+      filter_html_help: false
+      filter_html_nofollow: true

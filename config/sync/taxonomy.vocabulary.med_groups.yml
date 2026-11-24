@@ -1,0 +1,9 @@
+uuid: 5fad4576-36ca-4ae5-8b91-a264fc762086
+langcode: en
+status: true
+dependencies: {  }
+name: 'Medical Groups'
+vid: med_groups
+description: null
+weight: 0
+new_revision: false

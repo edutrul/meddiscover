@@ -1,0 +1,82 @@
+uuid: e1bc6930-bf6d-43be-b91b-adc9984222a0
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.node.med_resource.field_med_categories
+    - field.field.node.med_resource.field_med_key
+    - field.field.node.med_resource.field_med_mapped_url
+    - field.field.node.med_resource.field_med_organizations
+    - field.field.node.med_resource.field_med_standard_desc
+    - field.field.node.med_resource.field_med_topic
+    - field.field.node.med_resource.field_med_url
+    - node.type.med_resource
+  module:
+    - link
+    - user
+id: node.med_resource.default
+targetEntityType: node
+bundle: med_resource
+mode: default
+content:
+  field_med_categories:
+    type: entity_reference_label
+    label: above
+    settings:
+      link: true
+    third_party_settings: {  }
+    weight: 106
+    region: content
+  field_med_mapped_url:
+    type: link
+    label: above
+    settings:
+      trim_length: 80
+      url_only: false
+      url_plain: false
+      rel: ''
+      target: ''
+    third_party_settings: {  }
+    weight: 103
+    region: content
+  field_med_organizations:
+    type: basic_string
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    weight: 104
+    region: content
+  field_med_standard_desc:
+    type: basic_string
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    weight: 105
+    region: content
+  field_med_topic:
+    type: entity_reference_label
+    label: above
+    settings:
+      link: true
+    third_party_settings: {  }
+    weight: 101
+    region: content
+  field_med_url:
+    type: link
+    label: above
+    settings:
+      trim_length: 80
+      url_only: false
+      url_plain: false
+      rel: ''
+      target: ''
+    third_party_settings: {  }
+    weight: 102
+    region: content
+  links:
+    settings: {  }
+    third_party_settings: {  }
+    weight: 100
+    region: content
+hidden:
+  field_med_key: true

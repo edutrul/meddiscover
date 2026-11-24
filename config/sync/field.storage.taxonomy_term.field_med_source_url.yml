@@ -1,0 +1,19 @@
+uuid: 1ba6fa9e-907a-452c-8649-3c1f1b77ca9b
+langcode: en
+status: true
+dependencies:
+  module:
+    - link
+    - taxonomy
+id: taxonomy_term.field_med_source_url
+field_name: field_med_source_url
+entity_type: taxonomy_term
+type: link
+settings: {  }
+module: link
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

@@ -1,0 +1,90 @@
+"id": "med_topics"
+"label": "MedlinePlus topics"
+"migration_tags":
+  - "med"
+"source":
+  "plugin": "med_xml"
+  "collection": "topics"
+  "path": "data/raw/mplus_topics_2026-11-24.xml"
+  "sha256": "b71e4ae9d979fe8061ddb0651326fa78a9db93d5c0d7f8bd55b8fdfee0140e93"
+  "selection":
+    - "304"
+    - "3924"
+    - "1250"
+    - "23"
+    - "5673"
+    - "417"
+    - "157"
+    - "1532"
+    - "284"
+    - "6308"
+    - "6121"
+    - "4"
+    - "5930"
+    - "6661"
+    - "5784"
+    - "273"
+    - "3157"
+    - "24"
+    - "4746"
+    - "1256"
+    - "6257"
+    - "1433"
+    - "486"
+    - "192"
+  "track_changes": true
+"process":
+  "field_med_key": "key"
+  "langcode":
+    "plugin": "default_value"
+    "default_value": "en"
+  "title": "title"
+  "uid":
+    "plugin": "default_value"
+    "default_value": 1
+  "status":
+    "plugin": "default_value"
+    "default_value": 1
+  "field_med_source_id": "source_id"
+  "field_med_description": "description"
+  "field_med_summary_raw": "summary_raw"
+  "field_med_summary_plain": "summary_plain"
+  "field_med_source_date": "source_date"
+  "field_med_snapshot_date": "snapshot_date"
+  "field_med_attribution": "attribution"
+  "field_med_also_called": "also_called"
+  "field_med_see_reference": "see_reference"
+  "field_med_source_url/uri": "url"
+  "field_med_summary_html/value": "summary_html"
+  "field_med_summary_html/format":
+    "plugin": "default_value"
+    "default_value": "med_source_html"
+  "field_med_groups":
+    "plugin": "sub_process"
+    "source": "groups"
+    "process":
+      "target_id":
+        "plugin": "migration_lookup"
+        "migration": "med_groups"
+        "source": "key"
+        "no_stub": true
+  "field_med_mesh":
+    "plugin": "sub_process"
+    "source": "mesh"
+    "process":
+      "target_id":
+        "plugin": "migration_lookup"
+        "migration": "med_mesh"
+        "source": "key"
+        "no_stub": true
+  "type":
+    "plugin": "default_value"
+    "default_value": "med_health_topic"
+"destination":
+  "plugin": "entity:node"
+  "default_bundle": "med_health_topic"
+  "validate": true
+"migration_dependencies":
+  "required":
+    - "med_groups"
+    - "med_mesh"

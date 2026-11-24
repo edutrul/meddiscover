@@ -1,0 +1,22 @@
+uuid: 1c4e3275-dbde-4e69-9cab-72edbd1e4439
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_med_summary_html
+    - node.type.med_health_topic
+  module:
+    - text
+id: node.med_health_topic.field_med_summary_html
+field_name: field_med_summary_html
+entity_type: node
+bundle: med_health_topic
+label: 'Sanitized summary'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  allowed_formats: {  }
+field_type: text_long

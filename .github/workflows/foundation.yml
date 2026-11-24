@@ -23,6 +23,7 @@ jobs:
           ddev composer install --no-interaction --prefer-dist
           ddev composer validate --strict
           ddev composer audit
+          ddev exec vendor/bin/phpcs
       - name: Install from exported configuration
         run: |
           # Suppress installer output because it may contain a generated password.
@@ -33,3 +34,8 @@ jobs:
           ddev drush config:export -y
           git diff --exit-code -- config/sync
           curl --fail --silent --show-error http://meddiscover.ddev.site/user/login > /dev/null
+      - name: Validate synthetic content migrations
+        run: |
+          ddev drush php:script scripts/migration/test_fixture.php
+          ddev exec php -l web/modules/custom/med_content/src/Corpus.php
+          ddev exec php -l web/modules/custom/med_content/src/Plugin/migrate/source/MedXml.php
