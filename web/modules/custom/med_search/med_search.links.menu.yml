@@ -1,0 +1,6 @@
+med_search.semantic:
+  title: 'Semantic Search'
+  description: 'Find educational health topics using natural language.'
+  route_name: med_search.semantic
+  menu_name: main
+  weight: 0

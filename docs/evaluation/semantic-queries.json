@@ -1,0 +1,140 @@
+{
+  "review": "Editorial synthetic relevance expectations, reviewed against corpus titles and source descriptions on 2026-11-24; not clinical judgments or exhaustive relevance labels. Holdout queries were not used to select the threshold.",
+  "cases": [
+    {
+      "id": "cal-01",
+      "split": "calibration",
+      "query": "My knees hurt when I walk",
+      "expected_ids": [
+        "304",
+        "1250",
+        "5673"
+      ]
+    },
+    {
+      "id": "cal-02",
+      "split": "calibration",
+      "query": "What is HbA1c?",
+      "expected_ids": [
+        "6308"
+      ]
+    },
+    {
+      "id": "cal-03",
+      "split": "calibration",
+      "query": "What is backache?",
+      "expected_ids": [
+        "157"
+      ]
+    },
+    {
+      "id": "cal-04",
+      "split": "calibration",
+      "query": "Information about blood sugar",
+      "expected_ids": [
+        "6121",
+        "4"
+      ]
+    },
+    {
+      "id": "cal-05",
+      "split": "calibration",
+      "query": "Why do my joints hurt?",
+      "expected_ids": [
+        "23",
+        "1250"
+      ]
+    },
+    {
+      "id": "cal-06",
+      "split": "calibration",
+      "query": "Information about seasonal allergies",
+      "expected_ids": [
+        "4746",
+        "24"
+      ]
+    },
+    {
+      "id": "cal-07",
+      "split": "calibration",
+      "query": "How do I repair a bicycle chain?",
+      "expected_ids": []
+    },
+    {
+      "id": "cal-08",
+      "split": "calibration",
+      "query": "Explain JavaScript closures",
+      "expected_ids": []
+    },
+    {
+      "id": "cal-09",
+      "split": "calibration",
+      "query": "What is the capital of France?",
+      "expected_ids": []
+    },
+    {
+      "id": "cal-10",
+      "split": "calibration",
+      "query": "How do I bake sourdough bread?",
+      "expected_ids": []
+    },
+    {
+      "id": "hold-01",
+      "split": "holdout",
+      "query": "What is knee arthroplasty?",
+      "expected_ids": [
+        "3924"
+      ]
+    },
+    {
+      "id": "hold-02",
+      "split": "holdout",
+      "query": "A herniated disk causing shooting pain down my leg",
+      "expected_ids": [
+        "284",
+        "1532"
+      ]
+    },
+    {
+      "id": "hold-03",
+      "split": "holdout",
+      "query": "Can I prevent type 2 diabetes?",
+      "expected_ids": [
+        "6661",
+        "5930"
+      ]
+    },
+    {
+      "id": "hold-04",
+      "split": "holdout",
+      "query": "A severe allergic reaction called anaphylaxis",
+      "expected_ids": [
+        "6257"
+      ]
+    },
+    {
+      "id": "hold-05",
+      "split": "holdout",
+      "query": "How can I configure a Linux firewall?",
+      "expected_ids": []
+    },
+    {
+      "id": "hold-06",
+      "split": "holdout",
+      "query": "How do telescopes detect distant galaxies?",
+      "expected_ids": []
+    },
+    {
+      "id": "scope-01",
+      "split": "scope_probe",
+      "query": "Information about cataract surgery",
+      "expected_ids": []
+    },
+    {
+      "id": "scope-02",
+      "split": "scope_probe",
+      "query": "Ear infection in a toddler",
+      "expected_ids": []
+    }
+  ]
+}

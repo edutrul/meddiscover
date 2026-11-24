@@ -1,0 +1,7 @@
+services:
+  med_search.embedder:
+    class: Drupal\med_search\OllamaEmbedder
+    arguments: ['@http_client', '@config.factory']
+  med_search.search:
+    class: Drupal\med_search\SemanticSearch
+    arguments: ['@database', '@entity_type.manager', '@med_search.embedder', '@config.factory', '@lock', '@datetime.time']

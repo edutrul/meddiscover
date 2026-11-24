@@ -1,0 +1,7 @@
+med_search.semantic:
+  path: '/search/semantic'
+  defaults:
+    _form: '\Drupal\med_search\Form\SemanticSearchForm'
+    _title: 'medDiscover — Semantic Search'
+  requirements:
+    _permission: 'access content'

@@ -39,3 +39,7 @@ jobs:
           ddev drush php:script scripts/migration/test_fixture.php
           ddev exec php -l web/modules/custom/med_content/src/Corpus.php
           ddev exec php -l web/modules/custom/med_content/src/Plugin/migrate/source/MedXml.php
+      - name: Validate semantic retrieval with synthetic vectors
+        run: |
+          ddev drush php:script scripts/search/test.php
+          ddev exec php -l web/modules/custom/med_search/med_search.install

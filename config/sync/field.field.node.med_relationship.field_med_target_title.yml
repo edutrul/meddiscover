@@ -9,7 +9,7 @@ id: node.med_relationship.field_med_target_title
 field_name: field_med_target_title
 entity_type: node
 bundle: med_relationship
-label: 'Target title'
+label: 'Target source title (original language)'
 description: ''
 required: false
 translatable: true
