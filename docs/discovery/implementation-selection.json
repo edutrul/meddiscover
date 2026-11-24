@@ -1,0 +1,180 @@
+{
+  "status": "Approved English-only selection; not imported",
+  "source_sha256": "b71e4ae9d979fe8061ddb0651326fa78a9db93d5c0d7f8bd55b8fdfee0140e93",
+  "attribution": "Source: MedlinePlus, National Library of Medicine.",
+  "metrics": {
+    "topics": 24,
+    "resource_assignments": 882,
+    "unique_resource_urls": 744
+  },
+  "topics": [
+    {
+      "id": "304",
+      "title": "Knee Injuries and Disorders",
+      "language": "English",
+      "url": "https://medlineplus.gov/kneeinjuriesanddisorders.html",
+      "rationale": "Knee symptom language, ACL/meniscus terms, links and directories"
+    },
+    {
+      "id": "3924",
+      "title": "Knee Replacement",
+      "language": "English",
+      "url": "https://medlineplus.gov/kneereplacement.html",
+      "rationale": "Knee arthroplasty alias; explicit knee relationship"
+    },
+    {
+      "id": "1250",
+      "title": "Osteoarthritis",
+      "language": "English",
+      "url": "https://medlineplus.gov/osteoarthritis.html",
+      "rationale": "OA and degenerative joint disease; symptom paraphrase candidate"
+    },
+    {
+      "id": "23",
+      "title": "Arthritis",
+      "language": "English",
+      "url": "https://medlineplus.gov/arthritis.html",
+      "rationale": "Joint inflammation; broad arthritis family"
+    },
+    {
+      "id": "5673",
+      "title": "Walking Problems",
+      "language": "English",
+      "url": "https://medlineplus.gov/walkingproblems.html",
+      "rationale": "Gait Abnormalities; walking phrase and knee edge"
+    },
+    {
+      "id": "417",
+      "title": "Sprains and Strains",
+      "language": "English",
+      "url": "https://medlineplus.gov/sprainsandstrains.html",
+      "rationale": "Injury-language contrast; shared musculoskeletal group"
+    },
+    {
+      "id": "157",
+      "title": "Back Pain",
+      "language": "English",
+      "url": "https://medlineplus.gov/backpain.html",
+      "rationale": "Backache/Lumbago/Low Back Pain; back journey"
+    },
+    {
+      "id": "1532",
+      "title": "Sciatica",
+      "language": "English",
+      "url": "https://medlineplus.gov/sciatica.html",
+      "rationale": "Explicit spine neighbor and controlled term"
+    },
+    {
+      "id": "284",
+      "title": "Herniated Disk",
+      "language": "English",
+      "url": "https://medlineplus.gov/herniateddisk.html",
+      "rationale": "Intervertebral Disc Displacement MeSH versus lay title"
+    },
+    {
+      "id": "6308",
+      "title": "A1C",
+      "language": "English",
+      "url": "https://medlineplus.gov/a1c.html",
+      "rationale": "HbA1c variants, no outgoing related edge, Spanish mapping"
+    },
+    {
+      "id": "6121",
+      "title": "Blood Glucose",
+      "language": "English",
+      "url": "https://medlineplus.gov/bloodglucose.html",
+      "rationale": "Blood sugar synonym; diabetes/A1C relationships"
+    },
+    {
+      "id": "4",
+      "title": "Diabetes",
+      "language": "English",
+      "url": "https://medlineplus.gov/diabetes.html",
+      "rationale": "DM/Diabetes mellitus; highly connected hub"
+    },
+    {
+      "id": "5930",
+      "title": "Diabetes Type 2",
+      "language": "English",
+      "url": "https://medlineplus.gov/diabetestype2.html",
+      "rationale": "Sugar Diabetes ambiguity; D003924 overlap"
+    },
+    {
+      "id": "6661",
+      "title": "How to Prevent Diabetes",
+      "language": "English",
+      "url": "https://medlineplus.gov/howtopreventdiabetes.html",
+      "rationale": "D003924 with prevention & control qualifier"
+    },
+    {
+      "id": "5784",
+      "title": "Prediabetes",
+      "language": "English",
+      "url": "https://medlineplus.gov/prediabetes.html",
+      "rationale": "Insulin Resistance index term; A1C summary target"
+    },
+    {
+      "id": "273",
+      "title": "Headache",
+      "language": "English",
+      "url": "https://medlineplus.gov/headache.html",
+      "rationale": "Vascular Headache ambiguity; headache journey"
+    },
+    {
+      "id": "3157",
+      "title": "Migraine",
+      "language": "English",
+      "url": "https://medlineplus.gov/migraine.html",
+      "rationale": "Shared ambiguous alias; explicit headache neighbor"
+    },
+    {
+      "id": "24",
+      "title": "Allergy",
+      "language": "English",
+      "url": "https://medlineplus.gov/allergy.html",
+      "rationale": "Hypersensitivity; Allergic Rhinitis ambiguity"
+    },
+    {
+      "id": "4746",
+      "title": "Hay Fever",
+      "language": "English",
+      "url": "https://medlineplus.gov/hayfever.html",
+      "rationale": "Allergic Rhinitis; explicit allergy neighbor"
+    },
+    {
+      "id": "1256",
+      "title": "Food Allergy",
+      "language": "English",
+      "url": "https://medlineplus.gov/foodallergy.html",
+      "rationale": "Food-specific aliases; narrower allergy intent"
+    },
+    {
+      "id": "6257",
+      "title": "Anaphylaxis",
+      "language": "English",
+      "url": "https://medlineplus.gov/anaphylaxis.html",
+      "rationale": "Safety-boundary example; no diagnostic action"
+    },
+    {
+      "id": "1433",
+      "title": "Choosing a Doctor or Health Care Service",
+      "language": "English",
+      "url": "https://medlineplus.gov/choosingadoctororhealthcareservice.html",
+      "rationale": "Provider-selection education and directory link-outs"
+    },
+    {
+      "id": "486",
+      "title": "Health Facilities",
+      "language": "English",
+      "url": "https://medlineplus.gov/healthfacilities.html",
+      "rationale": "Facility selection and directory gap"
+    },
+    {
+      "id": "192",
+      "title": "Clinical Trials",
+      "language": "English",
+      "url": "https://medlineplus.gov/clinicaltrials.html",
+      "rationale": "Clinical-trial education versus live trial data"
+    }
+  ]
+}

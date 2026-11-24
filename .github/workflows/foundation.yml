@@ -1,0 +1,35 @@
+name: Foundation
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  foundation:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: ddev/github-action-setup-ddev@222a22f69087994aeb075fd87c45a8c8cd61ae76
+        with:
+          version: 1.25.2
+          autostart: false
+      - name: Validate publication boundaries
+        run: python3 scripts/foundation/check_publication.py
+      - name: Start PostgreSQL and install dependencies
+        run: |
+          ddev start
+          ddev composer install --no-interaction --prefer-dist
+          ddev composer validate --strict
+          ddev composer audit
+      - name: Install from exported configuration
+        run: |
+          # Suppress installer output because it may contain a generated password.
+          ddev drush site:install --existing-config --account-name=admin --account-mail=admin@example.invalid -y > /tmp/med-install.log 2>&1 || { sed '/[Pp]ass/d' /tmp/med-install.log; exit 1; }
+          ddev drush php:script scripts/foundation/check.php
+          ddev exec php -l scripts/foundation/check.php
+          ddev exec php -l web/sites/default/settings.php
+          ddev drush config:export -y
+          git diff --exit-code -- config/sync
+          curl --fail --silent --show-error http://meddiscover.ddev.site/user/login > /dev/null

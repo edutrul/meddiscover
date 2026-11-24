@@ -21,3 +21,9 @@ auth.json
 __pycache__/
 *.pyc
 /.local/
+/.editorconfig
+/.gitattributes
+!/web/sites/default/settings.php
+!/scripts/foundation/extensions.sql
+/web/sites/clean-foundation/
+/web/sites/sites.php
