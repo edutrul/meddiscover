@@ -1,0 +1,28 @@
+med_search.settings:
+  type: config_object
+  label: 'Semantic search settings'
+  mapping:
+    endpoint:
+      type: string
+      label: 'Local Ollama endpoint'
+    model:
+      type: string
+      label: 'Embedding model tag'
+    model_digest:
+      type: string
+      label: 'Pinned model digest'
+    dimensions:
+      type: integer
+      label: 'Vector dimensions'
+    context_length:
+      type: integer
+      label: 'Embedding context length'
+    include_metadata:
+      type: boolean
+      label: 'Include aliases and MeSH labels in input'
+    result_limit:
+      type: integer
+      label: 'Maximum displayed results'
+    threshold:
+      type: float
+      label: 'Minimum cosine similarity'

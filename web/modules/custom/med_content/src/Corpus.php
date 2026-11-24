@@ -148,7 +148,7 @@ final class Corpus {
         foreach ($topic->{$tag} as $target) {
           $target_id = (string) $target['id'];
           $rows['relationships'][] = self::edge($id, $type, $ordinal++, $target_id,
-            trim((string) $target), (string) $target['url'], $selection);
+            trim((string) $target), (string) $target['url'], $selection, trim((string) $topic['title']));
         }
       }
       $doc = Html::load($original);
@@ -163,7 +163,7 @@ final class Corpus {
         $target_id = $urls[$canonical] ?? '';
         $target_title = $target_id ? (string) $index[$target_id]['title'] : trim($anchor->textContent);
         $rows['relationships'][] = self::edge($id, 'summary_link', $ordinal++, $target_id,
-          $target_title, $url, $selection);
+          $target_title, $url, $selection, trim((string) $topic['title']));
       }
     }
     foreach ($rows as &$collection) {
@@ -237,10 +237,22 @@ final class Corpus {
   /**
    * Builds a typed edge without creating out-of-corpus entity references.
    */
-  private static function edge(string $source, string $type, int $ordinal, string $target, string $title, string $url, array $selection): array {
+  private static function edge(string $source, string $type, int $ordinal, string $target, string $title, string $url, array $selection, string $source_title): array {
+    $labels = [
+      'curated' => 'Curated link',
+      'summary_link' => 'Summary hyperlink',
+      'language_mapping' => 'External language mapping',
+    ];
+    $target_label = $type === 'language_mapping' ? 'Spanish counterpart' : ($title ?: $url);
+    if ($type === 'summary_link' && $target === '') {
+      // Identical anchor words can name different external destination pages.
+      $target_label .= ' (' . (parse_url($url, PHP_URL_PATH) ?: $url) . ')';
+    }
+    $suffix = ' [' . $labels[$type] . ']';
+    $label = mb_substr($source_title . ' → ' . $target_label, 0, 255 - mb_strlen($suffix)) . $suffix;
     return [
       'key' => $source . ':' . $type . ':' . $ordinal,
-      'title' => mb_substr($source . ' → ' . ($title ?: $url), 0, 255),
+      'title' => mb_substr($label, 0, 255),
       'topic' => $source,
       'target' => in_array($target, array_map('strval', $selection), TRUE) ? $target : '',
       'target_source_id' => $target,

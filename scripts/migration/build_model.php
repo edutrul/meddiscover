@@ -105,7 +105,7 @@ foreach (['organizations' => 'Organizations', 'standard_desc' => 'Standard descr
 med_ref($b, 'field_med_categories', 'Resource categories', 'taxonomy_term', 'med_resource_categories');
 $b = 'med_relationship';
 med_ref($b, 'field_med_target', 'Imported target topic (when in corpus)', 'node', 'med_health_topic', 1);
-foreach (['relation_type' => 'Relationship type', 'provenance' => 'Relationship provenance', 'target_source_id' => 'Target source ID', 'target_title' => 'Target title'] as $suffix => $label) {
+foreach (['relation_type' => 'Relationship type', 'provenance' => 'Relationship provenance', 'target_source_id' => 'Target source ID', 'target_title' => 'Target source title (original language)'] as $suffix => $label) {
   med_field('node', $b, 'field_med_' . $suffix, $label);
 }
 med_field('node', $b, 'field_med_target_url', 'Target source URL', 'link', 1, ['link_type' => 16, 'title' => 0]);

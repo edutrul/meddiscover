@@ -32,6 +32,8 @@ Core Drush also provides `migrate:messages` for errors. A rollback removes impor
 
 The original summary is an unformatted field hidden from public display. Sanitized summary uses the restricted `med_source_html` format. Only administrators have full configuration access; no new broad role permissions are granted. Out-of-corpus relationship references are empty and their source title/URL remain available.
 
+Relationship labels read `Source topic → Target [Curated link | Summary hyperlink | External language mapping]`. External summary links append the destination path so identical anchor text stays distinguishable, and language mappings read “Spanish counterpart”. The original target title is preserved in `field_med_target_title`. Run `ddev drush php:script scripts/migration/audit.php` to validate every imported entity and fail on ambiguous labels or duplicate edges.
+
 ## CI
 
 Foundation CI installs a clean database from exported configuration, verifies a no-diff export, then runs `scripts/migration/test_fixture.php`. The fixture test refuses nonempty imported content, uses the real source/process/entity destination plugins with a synthetic two-topic selection, checks checksum/language/entity rejection, malicious markup, qualifiers, external references, repeated resource URLs and idempotence. Source-count dependency checks are disabled only in the fixture test because production counts refer to 24 topics; its import order is explicit. The full production dependency chain is validated locally against the original XML.

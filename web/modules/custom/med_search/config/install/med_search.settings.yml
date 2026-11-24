@@ -1,0 +1,8 @@
+endpoint: 'http://host.docker.internal:11434'
+model: 'nomic-embed-text:v1.5'
+model_digest: '0a109f422b47e3a30ba2b10eca18548e944e8a23073ee3f3e947efcf3c45e59f'
+dimensions: 768
+context_length: 2048
+include_metadata: true
+result_limit: 5
+threshold: 0.62

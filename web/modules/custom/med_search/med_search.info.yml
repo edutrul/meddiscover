@@ -1,0 +1,7 @@
+name: medDiscover Semantic Search
+type: module
+description: Exact same-database semantic topic retrieval using local embeddings.
+package: medDiscover
+core_version_requirement: ^11
+dependencies:
+  - med_content:med_content

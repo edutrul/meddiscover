@@ -1,6 +1,6 @@
 # medDiscover
 
-Educational healthcare search and discovery POC. Current implementation: **Phase 02 — Content Modeling & Migration**. Public pages use core Olivero and administration uses core Claro. Authenticated administrators have the classic core toolbar enhanced by Admin Toolbar dropdowns and Extra Tools. The approved English corpus is migrated with Drupal Migrate API; search is not implemented. [Master plan](PLAN.md) · [Agent rules](AGENTS.md) · [Foundation report](docs/delivery/phase-01.md) · [Content schema](docs/architecture/002-content-model.md) · [Migration instructions](docs/migration.md) · [Phase 02 report](docs/delivery/phase-02.md)
+Educational healthcare search and discovery POC. Current implementation: **Phase 03 — Basic Semantic Search**. Public pages use core Olivero and administration uses core Claro. Authenticated administrators have the classic core toolbar enhanced by Admin Toolbar dropdowns and Extra Tools. The approved English corpus is migrated with Drupal Migrate API. Semantic search at `/search/semantic` uses a local Ollama embedding model and exact pgvector retrieval. [Master plan](PLAN.md) · [Agent rules](AGENTS.md) · [Foundation report](docs/delivery/phase-01.md) · [Content schema](docs/architecture/002-content-model.md) · [Migration instructions](docs/migration.md) · [Phase 02 report](docs/delivery/phase-02.md) · [Semantic search setup](docs/search.md) · [Search design](docs/architecture/003-semantic-search.md) · [Phase 03 report](docs/delivery/phase-03.md)
 
 Source: MedlinePlus, National Library of Medicine.
 

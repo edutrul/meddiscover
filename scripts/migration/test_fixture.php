@@ -99,6 +99,10 @@ foreach ($storage->loadMultiple($ids) as $node) {
     $target_id = $node->field_med_target_source_id->value;
     med_expect($target_id === 'test-2' ? !$node->field_med_target->isEmpty() : $node->field_med_target->isEmpty(), 'External target created a stub');
     med_expect(!$node->field_med_target_url->isEmpty(), 'External source URL missing');
+    if ($node->field_med_relation_type->value === 'language_mapping') {
+      med_expect(str_contains($node->label(), 'External language mapping') && !str_contains($node->label(), 'Synthetic Spanish'), 'Language-mapping label must use English interface text');
+      med_expect($node->field_med_target_title->value === 'Synthetic Spanish', 'Original external-language metadata must remain preserved');
+    }
   }
 }
 med_import_fixture($manager, $order, $relative_path, $hash, $selection);

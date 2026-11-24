@@ -13,6 +13,7 @@ module:
   filter: 0
   link: 0
   med_content: 0
+  med_search: 0
   migrate: 0
   node: 0
   page_cache: 0
