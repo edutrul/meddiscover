@@ -14,7 +14,7 @@ Public repository, main bootstrap exception, all twelve phase milestones, seven 
 
 Separate English-only selection was verified against the fixed XML checksum: 24 topics, 882 resource assignments, 744 unique URLs. Phase 00 remains historical discovery, not an import. MedlinePlus reuse conditions and attribution documented separately.
 
-Drupal recommended-project 11.4.13 and Drush 13.8.1, minimal profile, PHP 8.4.20, PostgreSQL 17, pg_trgm 1.6 and pgvector 0.8.7. Claro is configured as the administration theme; Stark remains the minimal public theme. DDEV package configuration and post-start SQL hooks make extensions reproducible in the Drupal database. Initial Drupal configuration exported. See ADR 001 for choices and quality-tool scope.
+Drupal recommended-project 11.4.13 and Drush 13.8.1, minimal profile, PHP 8.4.20, PostgreSQL 17, pg_trgm 1.6 and pgvector 0.8.7. Claro is configured as the administration theme; Olivero is configured as the public theme, matching Drupal 11 standard-profile defaults. DDEV package configuration and post-start SQL hooks make extensions reproducible in the Drupal database. Initial Drupal configuration exported. See ADR 001 for choices and quality-tool scope.
 
 ## Validation evidence
 
