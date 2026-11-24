@@ -5,3 +5,6 @@ services:
   med_search.search:
     class: Drupal\med_search\SemanticSearch
     arguments: ['@database', '@entity_type.manager', '@med_search.embedder', '@config.factory', '@lock', '@datetime.time']
+  med_search.enricher:
+    class: Drupal\med_search\ResultEnricher
+    arguments: ['@entity_type.manager']

@@ -43,3 +43,5 @@ jobs:
         run: |
           ddev drush php:script scripts/search/test.php
           ddev exec php -l web/modules/custom/med_search/med_search.install
+      - name: Validate deterministic result enrichment
+        run: ddev drush php:script scripts/search/test_enrichment.php

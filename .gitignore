@@ -27,3 +27,4 @@ __pycache__/
 !/scripts/foundation/extensions.sql
 /web/sites/clean-foundation/
 /web/sites/sites.php
+/.idea/
