@@ -1,6 +1,6 @@
 # medDiscover
 
-Educational healthcare search and discovery POC. Current implementation: **Phase 01 — Project Foundation**. Public pages use core Olivero and administration uses core Claro. Content migration and search are not implemented. [Master plan](PLAN.md) · [Agent rules](AGENTS.md) · [Foundation report](docs/delivery/phase-01.md)
+Educational healthcare search and discovery POC. Current implementation: **Phase 01 — Project Foundation**. Public pages use core Olivero and administration uses core Claro. Authenticated administrators have the classic core toolbar enhanced by Admin Toolbar dropdowns and Extra Tools. Content migration and search are not implemented. [Master plan](PLAN.md) · [Agent rules](AGENTS.md) · [Foundation report](docs/delivery/phase-01.md)
 
 Source: MedlinePlus, National Library of Medicine.
 

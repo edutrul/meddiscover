@@ -30,6 +30,8 @@ Drupal recommended-project 11.4.13 and Drush 13.8.1, minimal profile, PHP 8.4.20
 
 - Follow-up browser verification: `/admin/structure` renders with Claro; both aggregated Claro CSS requests returned HTTP 200. Configuration exported for fresh installations.
 
+- Administration usability follow-up: installed Admin Toolbar 3.6.3 and Extra Tools with core Toolbar/breakpoint dependencies. Enabled classic dropdown navigation and exported configuration. Composer validation and database smoke checks passed.
+
 ## Limitations and blockers
 
 Merge/review and owner phase acceptance remain pending. Phase 01 is not formally complete until then. No Phase 02 work has started. No medical topics, embeddings, Solr, search interfaces or conversational features exist in Drupal yet.
