@@ -78,6 +78,8 @@ Open <https://meddiscover.ddev.site/search/semantic>, `/search/lexical` or `/sea
 
 If nothing matches, the page says so.
 
+Each result also shows **Next steps** (`med_activation`, [ADR 007](architecture/007-activation.md)): up to three calls to action such as *Explore Directory* or *Explore Clinical Trials*, plus one related topic. Each one links the first MedlinePlus-listed resource of its category with its source URL, organization and a reason. Words in the search (for example “doctor”, “trial” or “research”) move the matching action first. Administrators manage the rules at `/admin/config/search/med-activation`.
+
 Each result has three collapsible sections, built from imported data without extra AI calls ([ADR 004](architecture/004-result-enrichment.md)):
 
 - **Explore Health Information**: alternative terms, MedlinePlus groups, MeSH descriptors and non-topic links from the summary.
@@ -95,6 +97,8 @@ ddev drush php:script scripts/search/compare.php         # real corpus, Solr and
 ddev drush php:script scripts/search/test_conversation.php     # synthetic fixture; stub retrieval and model
 ddev drush php:script scripts/search/evaluate_conversation.php # real corpus and model; grounding and safety
 ddev drush php:script scripts/search/llm_bakeoff.php           # compare installed local chat models
+ddev drush php:script scripts/activation/test_activation.php   # synthetic fixture; activation rules and CTAs
+ddev drush php:script scripts/activation/report.php            # real corpus; CTA coverage and URL fidelity
 ddev drush php:script scripts/search/check_privacy.php  # after submitting "What is backache?" in the forms
 ddev exec -s solr grep -rlc "backache" /var/solr/logs || echo "no query text in Solr logs"
 ```

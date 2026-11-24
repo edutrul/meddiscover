@@ -1,0 +1,20 @@
+uuid: 028c2e98-da3a-4783-b006-cd20950eed5c
+langcode: en
+status: true
+dependencies: {  }
+_core:
+  default_config_hash: RvRYCVSAB2nbcfXNneTRGkp8Xj2ja4dAHY9QWRCIW8s
+id: patient_handouts
+label: 'Patient handouts'
+weight: 1
+category: 'Patient Handouts'
+cta_label: 'Read Patient Resources'
+keywords:
+  - handout
+  - handouts
+  - printable
+  - print
+  - guide
+  - instructions
+  - 'at home'
+require_organization: false

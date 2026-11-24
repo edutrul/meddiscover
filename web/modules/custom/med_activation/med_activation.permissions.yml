@@ -1,0 +1,4 @@
+administer med activation:
+  title: 'Administer activation rules'
+  description: 'Configure which MedlinePlus resource categories become calls to action, their labels, priority and limits.'
+  restrict access: true

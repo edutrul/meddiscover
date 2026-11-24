@@ -1,0 +1,20 @@
+uuid: 1c37982d-92fb-40b8-a296-6b05ee06d433
+langcode: en
+status: true
+dependencies: {  }
+_core:
+  default_config_hash: w_8Rj03xDoZhKJd-me3yEX_azAPi5DKCmCucKugEJ6o
+id: journal_articles
+label: 'Journal articles'
+weight: 4
+category: 'Journal Articles'
+cta_label: 'Explore Research'
+keywords:
+  - research
+  - journal
+  - article
+  - articles
+  - evidence
+  - latest
+  - scientific
+require_organization: false

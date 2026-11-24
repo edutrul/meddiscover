@@ -1,0 +1,11 @@
+services:
+  _defaults:
+    autowire: true
+  med_activation.engine:
+    class: Drupal\med_activation\ActivationEngine
+    arguments: ['@entity_type.manager', '@config.factory', '@med_search.enricher']
+  Drupal\med_activation\ActivationEngine: '@med_activation.engine'
+  med_activation.builder:
+    class: Drupal\med_activation\ActivationBuilder
+    arguments: ['@request_stack']
+  Drupal\med_activation\ActivationBuilder: '@med_activation.builder'

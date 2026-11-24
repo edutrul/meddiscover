@@ -1,0 +1,54 @@
+med_activation.settings:
+  type: config_object
+  label: 'medDiscover activation settings'
+  mapping:
+    max_ctas:
+      type: integer
+      label: 'Maximum resource calls to action per topic'
+      constraints:
+        Range:
+          min: 0
+          max: 10
+    external_behavior:
+      type: string
+      label: 'External link behavior'
+      constraints:
+        Choice:
+          - same_window
+          - new_window
+    include_related_topic:
+      type: boolean
+      label: 'Recommend the first explicitly related topic'
+
+med_activation.rule.*:
+  type: config_entity
+  label: 'Activation rule'
+  mapping:
+    id:
+      type: machine_name
+      label: 'ID'
+    label:
+      type: required_label
+      label: 'Administrative label'
+    weight:
+      type: weight
+      label: 'Display priority'
+    category:
+      type: string
+      label: 'MedlinePlus resource category'
+      constraints:
+        NotBlank: []
+    cta_label:
+      type: label
+      label: 'Call-to-action label'
+      constraints:
+        NotBlank: []
+    keywords:
+      type: sequence
+      label: 'Search-context keywords that raise this rule'
+      sequence:
+        type: string
+        label: 'Keyword'
+    require_organization:
+      type: boolean
+      label: 'Only link resources that name the providing organization'

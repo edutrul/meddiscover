@@ -1,0 +1,18 @@
+uuid: df6a1aa3-dba4-4000-9192-d17d9da98aa4
+langcode: en
+status: true
+dependencies: {  }
+_core:
+  default_config_hash: WQHYfDUzJig_85Tk0l93R_AM-C_6smhadeYNklttego
+id: start_here
+label: 'Start here'
+weight: 0
+category: 'Start Here'
+cta_label: 'Start Here'
+keywords:
+  - 'what is'
+  - overview
+  - basics
+  - 'learn about'
+  - explain
+require_organization: false

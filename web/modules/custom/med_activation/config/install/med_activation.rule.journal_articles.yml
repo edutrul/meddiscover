@@ -1,0 +1,17 @@
+langcode: en
+status: true
+dependencies: {  }
+id: journal_articles
+label: 'Journal articles'
+weight: 4
+category: 'Journal Articles'
+cta_label: 'Explore Research'
+keywords:
+  - 'research'
+  - 'journal'
+  - 'article'
+  - 'articles'
+  - 'evidence'
+  - 'latest'
+  - 'scientific'
+require_organization: false

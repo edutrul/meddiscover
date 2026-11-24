@@ -1,0 +1,13 @@
+langcode: en
+status: true
+dependencies: {  }
+id: learn_more
+label: 'Learn more'
+weight: 5
+category: 'Learn More'
+cta_label: 'Learn More'
+keywords:
+  - 'more information'
+  - 'learn more'
+  - 'details'
+require_organization: false
