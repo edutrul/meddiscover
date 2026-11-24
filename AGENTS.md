@@ -1,6 +1,6 @@
 # Agent instructions
 
-Read PLAN.md and this file before work. Approved phase: **Phase 05 — Lexical & Hybrid Search**, authorized by the owner on 2026-11-24 with the merge of Phase 04 PR #9. Phase 06 and later require explicit owner approval.
+Read PLAN.md and this file before work. Approved phase: **Phase 06 — Conversational AI**, authorized by the owner on 2026-11-24 with the merge of Phase 05 PR #11. Phase 07 and later require explicit owner approval.
 
 - Inspect repository status, existing issues and documentation before changes. Preserve unrelated edits.
 - Every implementation task needs an issue first. Use `med-{issue}-{short-title}` branches and `MED-{issue}: Title` PR titles. Never commit to main after bootstrap.

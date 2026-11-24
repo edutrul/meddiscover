@@ -53,3 +53,5 @@ jobs:
         run: |
           ddev drush php:script scripts/search/test_hybrid.php
           ddev exec -s solr bash -c '! grep -rlq "Synthetic Topic One" /var/solr/logs'
+      - name: Validate conversational search grounding and safety contract
+        run: ddev drush php:script scripts/search/test_conversation.php

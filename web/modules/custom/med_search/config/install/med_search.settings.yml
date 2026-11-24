@@ -10,3 +10,11 @@ lexical_index: med_topics
 lexical_min_match: '2<75%'
 hybrid_depth: 20
 hybrid_rrf_k: 60
+generation_model: 'gemma3:12b'
+generation_model_digest: 'b92b218582c521ba287f38f1d6057dcd3c6cbff036f13cac97b5d861f5e58ec3'
+generation_context_length: 8192
+generation_max_tokens: 800
+generation_timeout: 90
+rag_strategy: semantic
+rag_sources: 3
+rag_source_chars: 2500

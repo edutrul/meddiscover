@@ -7,6 +7,7 @@ use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Database\Connection;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Lock\LockBackendInterface;
+use Drupal\Core\Session\AccountInterface;
 use Drupal\node\NodeInterface;
 
 /**
@@ -23,6 +24,7 @@ class SemanticSearch {
     private ConfigFactoryInterface $configFactory,
     private LockBackendInterface $lock,
     private TimeInterface $time,
+    private AccountInterface $currentUser,
   ) {}
 
   /**
@@ -130,7 +132,7 @@ class SemanticSearch {
       }
       $node = $storage->load($row->topic_id);
       if (!$node || $node->bundle() !== 'med_health_topic' || !$node->isPublished()
-        || $node->language()->getId() !== 'en' || !$node->access('view')
+        || $node->language()->getId() !== 'en' || !$node->access('view', $this->currentUser)
         || hash('sha256', $this->input($node)) !== $row->content_hash) {
         continue;
       }

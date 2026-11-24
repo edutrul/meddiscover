@@ -38,3 +38,27 @@ med_search.settings:
     hybrid_rrf_k:
       type: integer
       label: 'Reciprocal Rank Fusion constant k'
+    generation_model:
+      type: string
+      label: 'Local Ollama chat model tag'
+    generation_model_digest:
+      type: string
+      label: 'Pinned chat model digest'
+    generation_context_length:
+      type: integer
+      label: 'Chat context length (tokens)'
+    generation_max_tokens:
+      type: integer
+      label: 'Maximum generated tokens'
+    generation_timeout:
+      type: integer
+      label: 'Generation timeout in seconds'
+    rag_strategy:
+      type: string
+      label: 'Retrieval strategy for conversational search'
+    rag_sources:
+      type: integer
+      label: 'Retrieved topics given to the model'
+    rag_source_chars:
+      type: integer
+      label: 'Characters of each topic given to the model'

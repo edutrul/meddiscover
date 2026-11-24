@@ -3,6 +3,7 @@
 namespace Drupal\med_search;
 
 use Drupal\Core\Entity\EntityTypeManagerInterface;
+use Drupal\Core\Session\AccountInterface;
 use Drupal\node\NodeInterface;
 
 /**
@@ -43,7 +44,10 @@ class ResultEnricher {
     'NIH MedlinePlus Magazine', 'Reference Desk',
   ];
 
-  public function __construct(private EntityTypeManagerInterface $entities) {}
+  public function __construct(
+    private EntityTypeManagerInterface $entities,
+    private AccountInterface $currentUser,
+  ) {}
 
   /**
    * Enrich one published English health topic.
@@ -193,7 +197,7 @@ class ResultEnricher {
     $related[$key] = [
       'title' => $item['title'],
       // Link imported topics locally; out-of-corpus topics go to MedlinePlus.
-      'node' => $item['node'] instanceof NodeInterface && $item['node']->isPublished() && $item['node']->access('view') ? $item['node'] : NULL,
+      'node' => $item['node'] instanceof NodeInterface && $item['node']->isPublished() && $item['node']->access('view', $this->currentUser) ? $item['node'] : NULL,
       'url' => $item['url'],
       'source' => $item['source'],
       'explicit' => in_array($item['source'], ['curated', 'summary_link'], TRUE),
