@@ -79,31 +79,60 @@ class SearchForm extends FormBase {
     $form_state->disableCache();
     $form['#cache']['max-age'] = 0;
     [$label, $explanation] = self::STRATEGIES[$this->search->id()];
-    $modes = [];
-    foreach (self::STRATEGIES as $id => [$mode]) {
-      $modes[] = $id === $this->search->id()
-        ? ['#type' => 'html_tag', '#tag' => 'strong', '#value' => $mode]
-        : ['#type' => 'link', '#title' => $mode, '#url' => Url::fromRoute('med_search.' . $id)];
-    }
-    $form['modes'] = [
-      '#theme' => 'item_list',
-      '#title' => $this->t('Search mode'),
-      '#items' => $modes,
-      '#attributes' => ['class' => ['inline']],
-    ];
+    $conversational = $this->search->id() === 'conversational';
+    // The header main menu switches modes; the page only explains this one.
     $form['intro'] = [
       '#type' => 'html_tag',
       '#tag' => 'p',
-      '#value' => $this->t('@explanation Explore educational health topics. This proof of concept does not provide diagnosis or personalized medical advice.', ['@explanation' => $explanation]),
+      '#attributes' => ['class' => ['med-search__lead']],
+      '#value' => $this->t('@explanation Educational information only, not diagnosis or medical advice.', ['@explanation' => $explanation]),
     ];
+    $examples = $conversational
+      ? ['What is HbA1c?', 'How can I prevent type 2 diabetes?', 'What can trigger a migraine?']
+      : ['Knee pain when walking', 'Seasonal allergies', 'Lower back pain'];
     $form['query'] = [
       '#type' => 'textfield',
-      '#title' => $this->t('Search health information'),
-      '#required' => TRUE,
+      '#title' => $conversational ? $this->t('Your health question') : $this->t('Search health topics'),
+      '#description' => $this->t('Use your own words. Do not include names or other personal details.'),
       '#maxlength' => 500,
-      '#attributes' => ['autocomplete' => 'off'],
+      '#attributes' => [
+        'autocomplete' => 'off',
+        'placeholder' => $this->t('e.g. @example', ['@example' => $examples[2]]),
+        // Native check for an empty box; examples skip it (formnovalidate).
+        'required' => 'required',
+      ],
     ];
-    $form['submit'] = ['#type' => 'submit', '#value' => $this->t('Search')];
+    $form['submit'] = [
+      '#type' => 'submit',
+      '#value' => $conversational ? $this->t('Ask') : $this->t('Search'),
+    ];
+    // One-click examples: real submit buttons, so they work without
+    // JavaScript and with HTMX alike.
+    $form['examples'] = [
+      '#type' => 'container',
+      '#attributes' => ['class' => ['med-examples']],
+      'label' => [
+        '#type' => 'html_tag',
+        '#tag' => 'p',
+        '#attributes' => ['class' => ['med-examples__label'], 'id' => 'med-examples-label'],
+        '#value' => $this->t('Try an example:'),
+      ],
+    ];
+    $current = trim((string) ($form_state->getUserInput()['query'] ?? ''));
+    foreach ($examples as $delta => $example) {
+      $selected = $current !== '' && mb_strtolower($current) === mb_strtolower($example);
+      $form['examples']['example_' . $delta] = [
+        '#type' => 'submit',
+        '#name' => 'example_' . $delta,
+        '#value' => $example,
+        '#med_example' => $example,
+        '#attributes' => [
+          'class' => $selected ? ['med-examples__button', 'is-selected'] : ['med-examples__button'],
+          'aria-describedby' => 'med-examples-label',
+          'formnovalidate' => 'formnovalidate',
+        ] + ($selected ? ['aria-current' => 'true'] : []),
+      ];
+    }
     // Progressive enhancement with core HTMX: post in place and swap only
     // this form. Without JavaScript the regular POST and rebuild still work.
     $form['#attributes']['data-med-search'] = $this->search->id();
@@ -139,6 +168,24 @@ class SearchForm extends FormBase {
       ->applyTo($form);
     $form['#attached']['library'][] = 'med_search/search';
     $response = $form_state->getTemporaryValue('med_response');
+    if ($response === NULL && !$form_state->getTemporaryValue('med_error')) {
+      $form['howto'] = [
+        '#type' => 'container',
+        '#attributes' => ['class' => ['med-howto']],
+        'heading' => ['#type' => 'html_tag', '#tag' => 'h2', '#value' => $this->t('How it works')],
+        'steps' => [
+          '#theme' => 'item_list',
+          '#list_type' => 'ol',
+          '#items' => [
+            $this->t('medDiscover searches 24 MedlinePlus health topics from the National Library of Medicine.'),
+            $conversational
+              ? $this->t('The answer uses only those topics, cites each statement, and says so when the topics do not answer your question.')
+              : $this->t('Each result says why it matched and links to the original MedlinePlus page.'),
+            $this->t('Next steps point to trusted resources listed by MedlinePlus. Urgent symptoms get emergency guidance first.'),
+          ],
+        ],
+      ];
+    }
     if ($response !== NULL) {
       $form['results'] = [
         '#type' => 'container',
@@ -194,19 +241,30 @@ class SearchForm extends FormBase {
             '#tag' => 'p',
             '#value' => $this->t('@description', ['@description' => $node->field_med_description->value]),
           ],
-          'score' => [
-            '#type' => 'html_tag',
-            '#tag' => 'p',
-            '#value' => $this->t('@score', ['@score' => $this->search->describeScore($result)]),
-          ],
-          'source' => self::track([
+          // Scores mean nothing to patients and can read like medical
+          // confidence; only users who debug or demo ranking see them.
+          'score' => $this->currentUser()->hasPermission('view med search ranking details') ? [
+            '#type' => 'details',
+            '#title' => $this->t('Ranking details'),
+            '#attributes' => ['class' => ['med-ranking-details', 'med-debug']],
+            'text' => [
+              '#type' => 'html_tag',
+              '#tag' => 'p',
+              '#value' => $this->t('@score', ['@score' => $this->search->describeScore($result)]),
+            ],
+          ] : [],
+          'source' => self::track(self::external([
             '#type' => 'link',
             '#title' => $this->t('Source: MedlinePlus, National Library of Medicine.'),
             '#url' => Url::fromUri($node->field_med_source_url->uri),
-          ], 'external_resource_clicked', 'source'),
+          ]), 'external_resource_clicked', 'source'),
         ] + $this->buildEnrichment($enrichment);
       }
-      $this->reportOnce($form_state, $response, (hrtime(TRUE) - $enrichment_start) / 1e6);
+      $enrichment_ms = (hrtime(TRUE) - $enrichment_start) / 1e6;
+      $this->reportOnce($form_state, $response, $enrichment_ms);
+      if ($this->currentUser()->hasPermission('view med search ranking details')) {
+        $form['results']['debug'] = $this->debugPanel($response, (float) $form_state->getTemporaryValue('med_search_ms'), $enrichment_ms);
+      }
     }
     $error = $form_state->getTemporaryValue('med_error');
     if ($error) {
@@ -258,12 +316,12 @@ class SearchForm extends FormBase {
               '#url' => $node->toUrl(),
               '#prefix' => '[' . $number . '] ',
             ],
-            'origin' => self::track([
+            'origin' => self::track(self::external([
               '#prefix' => ' — ',
               '#type' => 'link',
               '#title' => $this->t('MedlinePlus, National Library of Medicine'),
               '#url' => Url::fromUri($node->field_med_source_url->uri),
-            ], 'external_resource_clicked', 'citation'),
+            ]), 'external_resource_clicked', 'citation'),
           ];
         }
         $build['sources'] = ['#theme' => 'item_list', '#title' => $this->t('Sources'), '#items' => $sources];
@@ -392,6 +450,43 @@ class SearchForm extends FormBase {
   }
 
   /**
+   * Developer-mode panel: strategy, stage timings and answer status.
+   */
+  private function debugPanel(array $response, float $search_ms, float $enrichment_ms): array {
+    $t = $response['timings'];
+    $rows = [[$this->t('Strategy'), $this->search->id()]];
+    foreach ([
+      'embedding_ms' => $this->t('Query embedding'),
+      'lexical_ms' => $this->t('Solr retrieval'),
+      'semantic_ms' => $this->t('pgvector retrieval'),
+      'fusion_ms' => $this->t('RRF fusion'),
+      'generation_ms' => $this->t('LLM generation'),
+    ] as $key => $label) {
+      if (isset($t[$key])) {
+        $rows[] = [$label, number_format($t[$key], 1) . ' ms'];
+      }
+    }
+    $rows[] = [$this->t('Enrichment (all results)'), number_format($enrichment_ms, 1) . ' ms'];
+    $rows[] = [$this->t('Total server time'), number_format($search_ms + $enrichment_ms, 1) . ' ms'];
+    $rows[] = [$this->t('Results shown'), count($response['results'])];
+    if (isset($response['answer'])) {
+      $status = $response['answer']['status'];
+      if (isset($response['answer']['reason'])) {
+        $status .= ' (' . $response['answer']['reason'] . ')';
+      }
+      $rows[] = [$this->t('Answer status'), $status];
+    }
+    return [
+      '#type' => 'details',
+      '#title' => $this->t('Developer details for this search'),
+      '#open' => TRUE,
+      '#weight' => -50,
+      '#attributes' => ['class' => ['med-debug', 'med-debug-panel']],
+      'table' => ['#type' => 'table', '#rows' => $rows],
+    ];
+  }
+
+  /**
    * Mark a link for aggregate click counting (inert without med_analytics).
    */
   public static function track(array $link, string $event, string $dimension): array {
@@ -411,7 +506,17 @@ class SearchForm extends FormBase {
    * External link to an original source URL.
    */
   private function link(string $title, string $url): array {
-    return ['#type' => 'link', '#title' => $title, '#url' => Url::fromUri($url)];
+    return self::external(['#type' => 'link', '#title' => $title, '#url' => Url::fromUri($url)]);
+  }
+
+  /**
+   * Mark an off-site link: icon via the theme, hidden text for screen readers.
+   */
+  public static function external(array $link): array {
+    $link['#attributes']['class'][] = 'med-link--external';
+    $link['#attributes']['rel'] = 'noopener noreferrer';
+    $link['#suffix'] = '<span class="visually-hidden"> ' . t('(external site)') . '</span>' . ($link['#suffix'] ?? '');
+    return $link;
   }
 
   /**
@@ -419,6 +524,23 @@ class SearchForm extends FormBase {
    */
   private function itemList($title, array $items): array {
     return ['#theme' => 'item_list', '#title' => $title, '#items' => $items];
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function validateForm(array &$form, FormStateInterface $form_state): void {
+    $example = $form_state->getTriggeringElement()['#med_example'] ?? NULL;
+    if ($example !== NULL) {
+      $form_state->setValue('query', $example);
+      // Show the chosen example in the box after the rebuild.
+      $input = $form_state->getUserInput();
+      $input['query'] = $example;
+      $form_state->setUserInput($input);
+    }
+    elseif (trim((string) $form_state->getValue('query')) === '') {
+      $form_state->setErrorByName('query', $this->t('Enter a health question or choose an example.'));
+    }
   }
 
   /**

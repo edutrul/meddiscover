@@ -9,6 +9,7 @@
  */
 
 use Drupal\Core\Form\FormState;
+use Drupal\Core\Session\UserSession;
 use Drupal\med_search\Form\SearchForm;
 use Drupal\med_search\SearchStrategyInterface;
 
@@ -97,7 +98,17 @@ $html = $build([
   'answer' => ['status' => 'answered', 'statements' => [['text' => 'Synthetic statement.', 'citations' => ['test-1']]], 'dropped' => 0],
 ]);
 ui_expect(str_contains($html, 'class="med-result result-card"') && str_contains($html, 'result-card__title') && str_contains($html, 'Synthetic Topic One'), 'Results must render through the result-card component.');
-ui_expect(str_contains($html, 'Synthetic score: 0.9') && str_contains($html, 'Source: MedlinePlus, National Library of Medicine.'), 'Score explanation and source attribution must be kept.');
+ui_expect(!str_contains($html, 'Synthetic score') && str_contains($html, 'Source: MedlinePlus, National Library of Medicine.'), 'Public visitors see source attribution but no ranking scores.');
+ui_expect(str_contains($html, 'med-link--external') && str_contains($html, '(external site)'), 'External links must be marked for the icon and screen readers.');
+$switcher = \Drupal::service('account_switcher');
+$switcher->switchTo(new UserSession(['uid' => 1, 'roles' => ['authenticated']]));
+try {
+  $debug_html = $build(['results' => [$result], 'timings' => [], 'notices' => []]);
+}
+finally {
+  $switcher->switchBack();
+}
+ui_expect(str_contains($debug_html, 'Ranking details') && str_contains($debug_html, 'Synthetic score: 0.9'), 'Users with the ranking permission see scores in a disclosure.');
 ui_expect(str_contains($html, 'med-next-steps') && str_contains($html, 'Explore Health Information'), 'Next steps and enrichment must be kept inside the card.');
 ui_expect(str_contains($html, 'med-answer--answered') && (bool) preg_match('#<li>\[1\] <a [^>]*>Synthetic Topic One</a>#', $html), 'Answers must show numbered sources.');
 ui_expect(str_contains($html, 'med-state--notice') && str_contains($html, 'Synthetic notice.'), 'Notices must be styled states.');
@@ -109,7 +120,29 @@ ui_expect((bool) preg_match('#id="med-search-loading"[^>]*role="status"|role="st
 ui_expect(str_contains($html, 'data-med-search-error') && str_contains($html, 'hidden="hidden"') && str_contains($html, 'role="alert"'), 'A hidden alert must exist for request errors.');
 ui_expect(str_contains($html, 'data-med-results-heading') && str_contains($html, 'tabindex="-1"'), 'The results heading must be focusable for focus management.');
 
-// 5. States.
+// 5. Entry guidance: no duplicate mode list, examples, hint and headings.
+$empty = $build(['results' => [], 'timings' => [], 'notices' => [], 'answer' => ['status' => 'abstained', 'reason' => 'no_evidence']]);
+$form_state = (new FormState())->setFormObject($form_object);
+$fresh = \Drupal::formBuilder()->buildForm($form_object, $form_state);
+$fresh_html = (string) $renderer->renderInIsolation($fresh);
+ui_expect(!str_contains($fresh_html, 'Search mode') && str_contains($fresh_html, 'How it works') && !preg_match('#<h3#', preg_replace('#<article.*?</article>#s', '', $fresh_html)), 'The empty page must explain how it works without skipping heading levels.');
+ui_expect(str_contains($fresh_html, 'placeholder="e.g. What can trigger a migraine?"') && str_contains($fresh_html, 'required="required"') && str_contains($fresh_html, 'Do not include names or other personal details') && preg_match('#aria-describedby="(edit-query[^"]*--description)"#', $fresh_html, $described) && str_contains($fresh_html, 'id="' . $described[1] . '"'), 'The box needs an example placeholder, native required check and a linked privacy hint.');
+ui_expect(substr_count($fresh_html, 'med-examples__button') === 3 && substr_count($fresh_html, 'formnovalidate="formnovalidate"') === 3 && str_contains($fresh_html, 'value="Ask"'), 'Three example buttons must skip native validation; conversational submits with Ask.');
+$example_state = (new FormState())->setFormObject($form_object);
+$example_state->setTriggeringElement(['#med_example' => 'What is HbA1c?']);
+$example_form = [];
+$form_object->validateForm($example_form, $example_state);
+ui_expect($example_state->getValue('query') === 'What is HbA1c?' && $example_state->getUserInput()['query'] === 'What is HbA1c?' && !$example_state->hasAnyErrors(), 'An example button must become the query.');
+$chosen_state = (new FormState())->setFormObject($form_object)->setUserInput(['query' => 'what can trigger a migraine?']);
+$chosen = \Drupal::formBuilder()->buildForm($form_object, $chosen_state);
+ui_expect(in_array('is-selected', $chosen['examples']['example_2']['#attributes']['class'], TRUE) && $chosen['examples']['example_2']['#attributes']['aria-current'] === 'true' && !in_array('is-selected', $chosen['examples']['example_0']['#attributes']['class'], TRUE), 'The example matching the query must be marked selected.');
+$blank_state = (new FormState())->setFormObject($form_object)->setValue('query', '   ');
+$blank_state->setTriggeringElement(['#name' => 'op']);
+$form_object->validateForm($example_form, $blank_state);
+ui_expect($blank_state->hasAnyErrors(), 'A blank query must be rejected server-side.');
+ui_expect(\Drupal::moduleHandler()->moduleExists('inline_form_errors'), 'Inline form errors must be enabled so HTMX swaps include validation messages.');
+
+// 6. States.
 $html = $build(['results' => [], 'timings' => [], 'notices' => [], 'answer' => ['status' => 'urgent', 'type' => 'emergency']]);
 ui_expect(str_contains($html, 'med-answer--urgent') && str_contains($html, '911') && str_contains($html, 'med-state--empty'), 'Urgent and empty states must be distinct.');
 

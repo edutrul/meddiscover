@@ -11,6 +11,7 @@ module:
   field: 0
   field_ui: 0
   filter: 0
+  inline_form_errors: 0
   language: 0
   link: 0
   med_activation: 0
