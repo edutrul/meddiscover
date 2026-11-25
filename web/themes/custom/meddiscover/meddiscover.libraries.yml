@@ -121,3 +121,4 @@ global:
       css/layout/site.css: {}
     component:
       css/components/med-search.css: {}
+      css/components/med-login.css: {}
