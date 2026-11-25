@@ -12,3 +12,4 @@ dependencies:
   - drupal:datetime
   - drupal:text
   - drupal:migrate
+  - drupal:path_alias
