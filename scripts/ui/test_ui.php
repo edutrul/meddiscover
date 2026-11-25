@@ -32,7 +32,7 @@ foreach ($topics as $topic) {
 // 1. Theme configuration.
 $theme = \Drupal::config('system.theme');
 ui_expect($theme->get('default') === 'meddiscover' && $theme->get('admin') === 'claro', 'medDiscover must be the default theme and Claro the admin theme.');
-ui_expect(\Drupal::config('system.site')->get('page.front') === '/search/conversational', 'The front page must be the conversational search.');
+ui_expect(\Drupal::config('system.site')->get('page.front') === '/search', 'The front page must be automatic search.');
 ui_expect(\Drupal::service('theme.manager')->getActiveTheme()->getName() === 'meddiscover', 'Rendering must use the medDiscover theme.');
 $block = \Drupal::entityTypeManager()->getStorage('block')->load('meddiscover_powered');
 ui_expect($block && !$block->status(), 'The Powered by Drupal block must stay disabled.');
