@@ -11,6 +11,7 @@ dependencies:
     - content_moderation
     - med_analytics
     - node
+    - system
     - toolbar
 id: content_editor
 label: 'Content editor'
@@ -33,3 +34,4 @@ permissions:
   - 'view any unpublished content'
   - 'view latest version'
   - 'view med analytics'
+  - 'view the administration theme'
