@@ -39,7 +39,10 @@
         }
         const suggestions = form.querySelector('[data-med-suggestions]');
         if (box && suggestions) {
-          const titles = JSON.parse(suggestions.dataset.medSuggestions);
+          const phrases = [
+            ...Array.from(buttons, (button) => button.value),
+            ...JSON.parse(suggestions.dataset.medSuggestions),
+          ];
           const submit = form.querySelector('input[type="submit"]:not(.med-examples__button)');
           const close = () => {
             suggestions.hidden = true;
@@ -47,11 +50,16 @@
           box.addEventListener('input', () => {
             const query = box.value.trim().toLowerCase();
             suggestions.replaceChildren();
+            const matched = new Set();
             const prefixMatches = [];
             const otherMatches = [];
             if (query.length >= 2) {
-              titles.forEach((title) => {
+              phrases.forEach((title) => {
                 const normalized = title.toLowerCase();
+                if (matched.has(normalized)) {
+                  return;
+                }
+                matched.add(normalized);
                 if (normalized.startsWith(query)) {
                   prefixMatches.push(title);
                 }
