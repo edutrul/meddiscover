@@ -91,7 +91,8 @@ try {
   $html = (string) $renderer->renderInIsolation($builder->build($engine->recommend($one), 'same_window'));
   act_expect(str_contains($html, 'href="https://example.org/resource"') && str_contains($html, 'rel="noopener noreferrer"') && str_contains($html, '(external site: example.org)'), 'External CTAs must show their destination and use rel=noopener.');
   act_expect(!str_contains($html, 'target="_blank"') && str_contains($html, 'provided by Fixture Org A, Fixture Org B, listed by MedlinePlus') && str_contains($html, 'not medical recommendations'), 'Same-window links, attribution and the non-clinical notice must render.');
-  act_expect((bool) preg_match('#<a href="/node/' . $two->id() . '"[^>]*>Explore: Synthetic Topic Two</a>#', $html), 'Imported related topics link locally without an external notice.');
+  $related_path = preg_quote($two->toUrl()->toString(), '#');
+  act_expect((bool) preg_match('#<a href="' . $related_path . '"[^>]*>Explore: Synthetic Topic Two</a>#', $html), 'Imported related topics link locally without an external notice.');
   $html = (string) $renderer->renderInIsolation($builder->build($engine->recommend($one), 'new_window'));
   act_expect(str_contains($html, 'target="_blank"') && str_contains($html, 'opens in a new tab'), 'New-window links must be announced.');
   act_expect($builder->build([], 'same_window') === [], 'No CTAs render nothing.');

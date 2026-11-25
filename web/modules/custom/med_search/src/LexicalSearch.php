@@ -69,11 +69,13 @@ class LexicalSearch implements SearchStrategyInterface {
     $parse_mode = $this->parseModes->createInstance('terms');
     $parse_mode->setConjunction('OR');
     $search = $index->query(['limit' => $limit]);
-    $search->setParseMode($parse_mode)->keys($query);
+    // Ignore question framing consistently across all queried fields.
+    $keys = preg_replace('/^(?:how do i|what (?:is|are)|information about)\s+/iu', '', $query);
+    $search->setParseMode($parse_mode)->keys($keys !== '' ? $keys : $query);
     $search->addCondition('status', TRUE);
     $search->setLanguages(['en']);
     $search->setOption('solr_param_defType', 'edismax');
-    $search->setOption('solr_param_mm', (string) $config->get('lexical_min_match'));
+    $search->setOption('solr_param_mm', $keys !== $query ? '4<75%' : (string) $config->get('lexical_min_match'));
     $search->setOption('solr_param_pf', implode(' ', $phrase_fields));
 
     $start = hrtime(TRUE);

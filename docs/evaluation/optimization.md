@@ -84,3 +84,14 @@ Real corpus (24 topics), local DDEV on the host machine, 48 retrieval queries (P
   3. Stream the answer.
   4. Cache enrichment per topic only if the corpus grows; it is not worth it at 24 topics.
 - **Errors.** None in 154 benchmark searches.
+
+## Follow-up for issue #12
+
+Normalize a small set of leading question phrases before lexical retrieval. A broader word-stripping candidate was rejected after five development regressions, including lost HbA1c and backache matches. Require all terms when a stripped query has four or fewer clauses. Leave field boosts, semantic threshold and fusion unchanged.
+
+| Evaluation set | Lexical MRR@5 | Lexical recall@5 | Hybrid MRR@5 | Lexical unrelated queries returning nothing |
+|---|---:|---:|---:|---:|
+| Phase 05 development | 0.816 → 0.842 | 0.794 → 0.807 | 0.974 → 0.987 | 9/10 → 10/10 |
+| Previously used Phase 08 validation | 0.520 → 0.560 | 0.500 → 0.560 | 0.880 → 0.880 | 9/10 → 10/10 |
+
+The regression command passed on both existing sets. The Phase 08 set was previously examined and does not independently validate the change. A fresh owner-reviewed set remains part of issue #13.
