@@ -38,6 +38,7 @@ function enrich_topic(array &$created, string $id, array $values): Node {
     'title' => "Synthetic Inferred $id",
     'langcode' => 'en',
     'status' => 1,
+    'moderation_state' => ($values['status'] ?? 1) === 0 ? 'draft' : 'published',
     'field_med_source_id' => "test-inferred-$id",
     'field_med_source_url' => "https://medlineplus.gov/test-inferred-$id.html",
   ]);
@@ -77,6 +78,7 @@ try {
   // A non-topic summary link is further reading, not a related topic.
   $edge = Node::create([
     'type' => 'med_relationship',
+    'moderation_state' => 'published',
     'title' => 'Synthetic further reading',
     'field_med_key' => 'test-1:summary_link:99',
     'field_med_topic' => $one->id(),

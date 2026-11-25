@@ -1,0 +1,33 @@
+uuid: 31fead4e-b6c6-475f-aa74-2351461b34c9
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.med_health_topic
+    - node.type.med_relationship
+    - node.type.med_resource
+    - workflows.workflow.editorial
+  module:
+    - content_moderation
+    - node
+    - toolbar
+id: content_editor
+label: 'Content editor'
+weight: 2
+is_admin: false
+permissions:
+  - 'access content overview'
+  - 'access toolbar'
+  - 'create med_health_topic content'
+  - 'create med_relationship content'
+  - 'create med_resource content'
+  - 'edit any med_health_topic content'
+  - 'edit any med_relationship content'
+  - 'edit any med_resource content'
+  - 'use editorial transition archive'
+  - 'use editorial transition archived_draft'
+  - 'use editorial transition archived_published'
+  - 'use editorial transition create_new_draft'
+  - 'use editorial transition publish'
+  - 'view any unpublished content'
+  - 'view latest version'
