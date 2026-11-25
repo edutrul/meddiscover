@@ -704,6 +704,24 @@ a[data-med-external]::after {
   color: #fff;
 }
 
+.med-search-panel .med-loading[data-med-loading-mode='answer'] {
+  border-inline-start-color: #c4b5fd;
+  background: linear-gradient(105deg, #124a51, #253569, #563166, #124a51);
+  background-size: 240% 100%;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .med-search-panel .med-loading[data-med-loading-mode='answer'].htmx-request {
+    animation: med-answer-glow 3s ease-in-out infinite alternate;
+  }
+}
+
+@keyframes med-answer-glow {
+  to {
+    background-position: 100% 50%;
+  }
+}
+
 .med-search-panel .med-loading::before {
   flex-shrink: 0;
   border-color: #72989a;
