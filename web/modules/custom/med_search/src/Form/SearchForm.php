@@ -45,6 +45,11 @@ class SearchForm extends FormBase {
     ],
   ];
 
+  /**
+   * Question syntax shared with the homepage loading indicator.
+   */
+  private const QUESTION_PATTERN = '\?$|^(?:what|why|when|where|who|which|how)\s+\S|^(?:can|could|should|do|does|did|is|are|will)\s+(?:i|we|you|it|there|my|the)\b';
+
   public function __construct(
     private SearchStrategyInterface $search,
     private ResultEnricher $enricher,
@@ -154,6 +159,25 @@ class SearchForm extends FormBase {
         '#value' => $this->t('Try an example:'),
       ],
     ];
+    if ($automatic) {
+      $form['examples']['#attributes']['class'][] = 'med-examples--grouped';
+      unset($form['examples']['label']);
+      foreach ([
+        'answer' => $this->t('✨ Ask a question'),
+        'topic' => $this->t('Search a topic'),
+      ] as $group => $label) {
+        $form['examples'][$group] = [
+          '#type' => 'container',
+          '#attributes' => ['class' => ['med-examples__group']],
+          'label' => [
+            '#type' => 'html_tag',
+            '#tag' => 'p',
+            '#attributes' => ['class' => ['med-examples__label'], 'id' => 'med-examples-' . $group],
+            '#value' => $label,
+          ],
+        ];
+      }
+    }
     $current = trim((string) ($form_state->getUserInput()['query'] ?? ''));
     $public_example = NULL;
     foreach ($examples as $delta => $example) {
@@ -161,17 +185,24 @@ class SearchForm extends FormBase {
       if ($selected) {
         $public_example = $example;
       }
-      $form['examples']['example_' . $delta] = [
+      $group = preg_match('/' . self::QUESTION_PATTERN . '/iu', $example) ? 'answer' : 'topic';
+      $button = [
         '#type' => 'submit',
         '#name' => 'example_' . $delta,
         '#value' => $example,
         '#med_example' => $example,
         '#attributes' => [
           'class' => $selected ? ['med-examples__button', 'is-selected'] : ['med-examples__button'],
-          'aria-describedby' => 'med-examples-label',
+          'aria-describedby' => $automatic ? 'med-examples-' . $group : 'med-examples-label',
           'formnovalidate' => 'formnovalidate',
         ] + ($selected ? ['aria-current' => 'true'] : []),
       ];
+      if ($automatic) {
+        $form['examples'][$group]['example_' . $delta] = $button;
+      }
+      else {
+        $form['examples']['example_' . $delta] = $button;
+      }
     }
     $form['search_panel'] = [
       '#type' => 'container',
@@ -226,7 +257,12 @@ class SearchForm extends FormBase {
     $form['search_panel']['loading'] = [
       '#type' => 'html_tag',
       '#tag' => 'p',
-      '#attributes' => ['id' => 'med-search-loading', 'class' => ['med-loading', 'htmx-indicator'], 'role' => 'status'],
+      '#attributes' => [
+        'id' => 'med-search-loading',
+        'class' => ['med-loading', 'htmx-indicator'],
+        'role' => 'status',
+        'data-med-loading-mode' => $conversational && !$automatic ? 'answer' : 'search',
+      ] + ($automatic ? ['data-med-question-pattern' => self::QUESTION_PATTERN] : []),
       '#value' => $conversational && !$automatic
         ? $this->t('Writing an answer from the MedlinePlus sources. This usually takes 10 to 20 seconds.')
         : $this->t('Searching…'),
@@ -750,8 +786,7 @@ class SearchForm extends FormBase {
     $strategy = $this->search;
     // Always preserve the fixed urgent response, including terse queries.
     if ($this->automaticStrategies && !$this->urgency?->detect($query)
-      && !str_ends_with($query, '?')
-      && !preg_match('/^(?:what|why|when|where|who|which|how)\s+\S|^(?:can|could|should|do|does|did|is|are|will)\s+(?:i|we|you|it|there|my|the)\b/iu', $query)) {
+      && !preg_match('/' . self::QUESTION_PATTERN . '/iu', $query)) {
       $strategy = $this->automaticStrategies->get('hybrid');
     }
     $form_state->setTemporaryValue('med_strategy', $strategy);

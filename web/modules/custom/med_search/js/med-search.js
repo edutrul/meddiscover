@@ -121,7 +121,15 @@
           });
           form.addEventListener('submit', close);
         }
+        const loading = form.querySelector('[data-med-question-pattern]');
+        const questionPattern = loading && new RegExp(loading.dataset.medQuestionPattern, 'iu');
         form.addEventListener('htmx:beforeRequest', () => {
+          if (loading && box) {
+            const answer = questionPattern.test(box.value.trim());
+            loading.dataset.medLoadingMode = answer ? 'answer' : 'search';
+            loading.textContent = answer ? Drupal.t('Writing a cited answer from MedlinePlus…') :
+              Drupal.t('Searching MedlinePlus topics…');
+          }
           if (error) {
             error.hidden = true;
           }
