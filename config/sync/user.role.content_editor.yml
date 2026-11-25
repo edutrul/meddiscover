@@ -20,9 +20,6 @@ is_admin: false
 permissions:
   - 'access content overview'
   - 'access toolbar'
-  - 'create med_health_topic content'
-  - 'create med_relationship content'
-  - 'create med_resource content'
   - 'edit any med_health_topic content'
   - 'edit any med_relationship content'
   - 'edit any med_resource content'
