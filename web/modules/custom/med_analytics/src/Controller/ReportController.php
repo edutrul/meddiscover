@@ -50,6 +50,26 @@ class ReportController implements ContainerInjectionInterface {
       '#value' => $this->t('Daily aggregates for the last @days days (UTC). No search text, topic, destination URL, user, session or IP address is stored. Clicks are navigation to educational resources; they are not appointments, treatments or healthcare outcomes.', ['@days' => $days]),
     ];
 
+    $labels = [
+      'lexical' => $this->t('Keyword'),
+      'semantic' => $this->t('Semantic'),
+      'hybrid' => $this->t('Hybrid'),
+      'conversational' => $this->t('Ask'),
+    ];
+    $volume = $duration = [];
+    foreach ($labels as $id => $label) {
+      $volume[$id] = $count('search_performed', $id);
+      $latency = $t['latency']["$id:total"] ?? NULL;
+      $duration[$id] = !empty($latency['count']) ? $latency['total_ms'] / $latency['count'] : NULL;
+    }
+    $build['overview'] = [
+      '#type' => 'container',
+      '#attributes' => ['class' => ['med-report-charts']],
+      '#attached' => ['library' => ['med_analytics/report']],
+      'volume' => $this->barChart($this->t('Searches by mode'), $labels, $volume),
+      'duration' => $this->barChart($this->t('Mean response time by mode'), $labels, $duration, 'ms'),
+    ];
+
     $rows = [];
     foreach (AnalyticsRecorder::STRATEGIES as $strategy) {
       $performed = $count('search_performed', $strategy);
@@ -157,6 +177,43 @@ class ReportController implements ContainerInjectionInterface {
     ];
     $build['#cache']['max-age'] = 0;
     return $build;
+  }
+
+  /**
+   * Build a labeled bar chart with a consistent scale within each measure.
+   */
+  private function barChart(string $title, array $labels, array $values, string $unit = ''): array {
+    $max = max(1, ...array_values($values));
+    $rows = [];
+    foreach ($labels as $id => $label) {
+      $value = $values[$id];
+      $rows[] = [
+        'label' => $label,
+        'bar' => $value,
+        'value' => $value === NULL ? $this->t('No samples') : trim(number_format($value) . ' ' . $unit),
+      ];
+    }
+    return [
+      '#type' => 'inline_template',
+      '#template' => '
+        <section class="med-report-chart">
+          <h2>{{ title }}</h2>
+          <dl>
+            {% for row in rows %}
+              <div class="med-report-chart__row">
+                <dt>{{ row.label }}</dt>
+                <dd>
+                  <span>{{ row.value }}</span>
+                  {% if row.bar is not null %}
+                    <meter min="0" max="{{ max }}" value="{{ row.bar }}" aria-hidden="true"></meter>
+                  {% endif %}
+                </dd>
+              </div>
+            {% endfor %}
+          </dl>
+        </section>',
+      '#context' => ['title' => $title, 'rows' => $rows, 'max' => $max],
+    ];
   }
 
 }
