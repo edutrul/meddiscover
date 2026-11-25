@@ -174,21 +174,6 @@ class SearchForm extends FormBase {
       $form['search_panel']['query_bar'][$key] = $form[$key];
       unset($form[$key]);
     }
-    $form['modes'] = [
-      '#type' => 'details',
-      '#title' => $this->t('Compare search modes'),
-      '#weight' => 90,
-      'links' => ['#theme' => 'item_list', '#items' => []],
-    ];
-    foreach (self::STRATEGIES as $mode => [$name]) {
-      if ($mode !== $this->search->id()) {
-        $form['modes']['links']['#items'][] = [
-          '#type' => 'link',
-          '#title' => $this->t('@mode', ['@mode' => $name]),
-          '#url' => Url::fromRoute('med_search.' . $mode),
-        ];
-      }
-    }
     $form['recovery'] = [
       '#type' => 'container',
       '#weight' => 95,
@@ -273,6 +258,11 @@ class SearchForm extends FormBase {
         '#tag' => 'h2',
         '#attributes' => ['tabindex' => '-1', 'data-med-results-heading' => '', 'class' => ['med-results__heading']],
         '#value' => $this->t('Search results'),
+      ];
+      $form['results']['compare'] = [
+        '#type' => 'link',
+        '#title' => $this->t('Compare search modes'),
+        '#url' => Url::fromRoute('med_search.compare'),
       ];
       foreach ($response['notices'] as $delta => $notice) {
         $form['results']['notice_' . $delta] = [

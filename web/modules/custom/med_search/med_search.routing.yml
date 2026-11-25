@@ -37,3 +37,10 @@ med_search.build:
     _title: 'How medDiscover was built'
   requirements:
     _permission: 'access content'
+med_search.compare:
+  path: '/search/compare'
+  defaults:
+    _form: '\Drupal\med_search\Form\CompareSearchForm'
+    _title: 'Compare search modes'
+  requirements:
+    _permission: 'access content'

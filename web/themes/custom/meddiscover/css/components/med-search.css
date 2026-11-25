@@ -609,3 +609,65 @@ a[data-med-external]::after {
 .med-search-panel .med-examples__button.is-selected {
   font-weight: 700;
 }
+
+.med-compare {
+  display: grid;
+  gap: 1rem;
+}
+
+.med-compare > .form-submit {
+  justify-self: start;
+}
+
+.med-comparison-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.med-comparison-grid section {
+  min-inline-size: 0;
+  padding: 1rem;
+  border-block-start: 3px solid var(--md-color-primary);
+  background: var(--md-color-surface);
+}
+
+.med-comparison-grid li + li {
+  margin-block-start: 0.5rem;
+}
+
+@media (min-width: 56rem) {
+  .med-comparison-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+.med-compare .form-item-query {
+  margin: 0;
+}
+
+.med-compare .form-item-query label {
+  display: block;
+  font-weight: 650;
+}
+
+.med-compare .form-item-query input {
+  box-sizing: border-box;
+  inline-size: min(100%, 42rem);
+  min-block-size: 3rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--md-color-primary);
+  border-radius: var(--md-radius-small);
+  font: inherit;
+}
+
+.med-compare > .form-submit,
+.med-compare .med-examples input {
+  margin: 0;
+}
+
+.med-compare .med-examples input {
+  padding-inline: 0.65rem;
+  background: transparent;
+  color: var(--md-color-link);
+  text-decoration: underline;
+}
