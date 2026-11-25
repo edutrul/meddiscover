@@ -28,7 +28,7 @@ class SemanticStrategy implements SearchStrategyInterface {
     foreach ($response['results'] as $position => $row) {
       $results[] = [
         'node' => $row['node'],
-        'id' => (string) $row['node']->field_med_source_id->value,
+        'id' => (string) ($row['node']->field_med_source_id->value ?: 'local:' . $row['node']->id()),
         'score' => $row['similarity'],
         'ranks' => ['semantic' => $position + 1],
       ];

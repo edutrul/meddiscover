@@ -96,7 +96,7 @@ class LexicalSearch implements SearchStrategyInterface {
         || !$node->isPublished() || $node->language()->getId() !== 'en' || !$node->access('view', $this->currentUser)) {
         continue;
       }
-      $id = (string) $node->field_med_source_id->value;
+      $id = (string) ($node->field_med_source_id->value ?: 'local:' . $node->id());
       if (isset($results[$id])) {
         continue;
       }
