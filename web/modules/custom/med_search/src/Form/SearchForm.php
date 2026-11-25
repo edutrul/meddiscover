@@ -198,7 +198,7 @@ class SearchForm extends FormBase {
     // this form. Without JavaScript the regular POST and rebuild still work.
     $form['#attributes']['data-med-search'] = $this->search->id();
     $form['#attributes']['class'][] = 'med-search';
-    $form['loading'] = [
+    $form['search_panel']['loading'] = [
       '#type' => 'html_tag',
       '#tag' => 'p',
       '#attributes' => ['id' => 'med-search-loading', 'class' => ['med-loading', 'htmx-indicator'], 'role' => 'status'],

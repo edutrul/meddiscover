@@ -404,12 +404,6 @@ a[data-med-external]::after {
   font-weight: 400;
 }
 
-.med-search .med-examples__button.is-selected {
-  border-color: var(--md-color-primary);
-  background: var(--md-color-primary);
-  color: #fff;
-}
-
 /* Developer mode: debug details are rendered only for permitted users and
    hidden until the header switch turns them on. Without JavaScript they stay
    visible to those users. */
@@ -594,9 +588,7 @@ a[data-med-external]::after {
   background-color: #d5fff4;
 }
 
-.med-search-panel .med-examples__button,
-.med-search-panel .med-examples__button:hover,
-.med-search-panel .med-examples__button.is-selected {
+.med-search-panel .med-examples__button {
   margin: 0;
   padding-inline: 0.35rem;
   border-color: transparent;
@@ -606,8 +598,33 @@ a[data-med-external]::after {
   text-underline-offset: 0.2em;
 }
 
+.med-search-panel .med-examples__button:hover {
+  border-color: #a9f4e1;
+  background: transparent;
+  color: #fff;
+}
+
 .med-search-panel .med-examples__button.is-selected {
+  border-color: #a9f4e1;
+  background: #a9f4e1;
+  color: #092f36;
   font-weight: 700;
+  text-decoration: none;
+  opacity: 1;
+  transition: none;
+}
+
+.med-search-panel .med-loading {
+  padding: 0.75rem 1rem;
+  border-inline-start: 3px solid #a9f4e1;
+  background: #15434a;
+  color: #fff;
+}
+
+.med-search-panel .med-loading::before {
+  flex-shrink: 0;
+  border-color: #72989a;
+  border-top-color: #a9f4e1;
 }
 
 .med-compare {
