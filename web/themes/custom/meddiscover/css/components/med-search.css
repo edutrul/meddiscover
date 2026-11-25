@@ -210,12 +210,24 @@
   gap: var(--md-space-4);
 }
 
-.med-results > .med-answer {
+.med-results .med-answer {
   max-inline-size: 58rem;
 }
 
 .med-results__heading {
+  margin: 0;
+}
+
+.med-results__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
   margin-top: var(--md-space-4);
+}
+
+.med-results__toolbar > a {
+  margin-inline-start: auto;
 }
 
 .med-results__heading:focus {

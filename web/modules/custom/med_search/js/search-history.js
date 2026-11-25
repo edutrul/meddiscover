@@ -32,8 +32,7 @@
     }
     const topicResults = results.querySelector('[data-med-topic-results]');
     if (topicResults) {
-      topicResults.hidden = view === 'answer';
-      topicResults.querySelector('.med-topic-facet').hidden = false;
+      topicResults.querySelector('.med-topic-facet').hidden = view === 'answer';
       topicResults.querySelectorAll('[data-med-topic-filter]').forEach((button) => {
         button.setAttribute('aria-pressed', String(button.dataset.medTopicFilter === topic));
       });
@@ -42,10 +41,14 @@
     results.querySelectorAll('.med-answer:not(.med-answer--urgent)').forEach((answer) => {
       answer.hidden = view === 'topics';
     });
+    let matching = 0;
     results.querySelectorAll('.result-card').forEach((card) => {
       const groups = (card.dataset.medTopicGroups ?? '').split(' ');
-      card.hidden = view === 'answer' || (topic !== 'all' && !groups.includes(topic));
+      const matches = topic === 'all' || groups.includes(topic);
+      matching += Number(matches);
+      card.hidden = view === 'answer' || !matches;
     });
+    results.querySelector('[data-med-results-heading]').textContent = Drupal.formatPlural(matching, '1 health topic', '@count health topics');
     results.querySelectorAll('[data-med-topic-heading]').forEach((heading) => {
       heading.hidden = view === 'answer';
     });

@@ -262,7 +262,7 @@ class SearchForm extends FormBase {
         '#type' => 'html_tag',
         '#tag' => 'h2',
         '#attributes' => ['tabindex' => '-1', 'data-med-results-heading' => '', 'class' => ['med-results__heading']],
-        '#value' => $browsing ? $this->t('Browse health topics') : $this->t('Search results'),
+        '#value' => $this->formatPlural(count($response['results']), '1 health topic', '@count health topics'),
       ];
       $form['results']['compare'] = [
         '#type' => 'link',
@@ -296,14 +296,25 @@ class SearchForm extends FormBase {
             'role' => 'group',
             'aria-label' => $this->t('Result view'),
           ],
-          'all' => $this->viewOption('all', $this->t('All results')),
+          'all' => $this->viewOption('all', $this->t('All')),
           'answer' => $this->viewOption('answer', $this->t('Answer')),
-          'topics' => $this->viewOption('topics', $this->t('Health topics')),
+          'topics' => $this->viewOption('topics', $this->t('Topics')),
           '#weight' => -2,
         ];
         $form['results']['heading']['#weight'] = -3;
         $form['results']['compare']['#weight'] = -1;
       }
+      $toolbar = [
+        '#type' => 'container',
+        '#attributes' => ['class' => ['med-results__toolbar']],
+        'heading' => $form['results']['heading'],
+        'compare' => $form['results']['compare'],
+      ];
+      if (isset($form['results']['view'])) {
+        $toolbar['view'] = $form['results']['view'];
+      }
+      unset($form['results']['heading'], $form['results']['compare'], $form['results']['view']);
+      $form['results']['toolbar'] = $toolbar + ['#weight' => -10];
       if (!$response['results']) {
         $form['results']['empty'] = [
           '#type' => 'html_tag',
@@ -364,9 +375,11 @@ class SearchForm extends FormBase {
       if ($facets) {
         $form['results']['topics'] = $this->topicFacet($facets, count($response['results']));
         $items = &$form['results']['topics']['items'];
-        if (isset($form['results']['supporting'])) {
-          $items['supporting'] = $form['results']['supporting'];
-          unset($form['results']['supporting']);
+        foreach (['answer', 'supporting'] as $section) {
+          if (isset($form['results'][$section])) {
+            $items[$section] = $form['results'][$section];
+            unset($form['results'][$section]);
+          }
         }
         foreach (array_keys($response['results']) as $delta) {
           $items[$delta] = $form['results'][$delta];
