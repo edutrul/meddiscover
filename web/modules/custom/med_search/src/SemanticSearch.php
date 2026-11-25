@@ -53,16 +53,20 @@ class SemanticSearch {
   /**
    * Generate missing/changed embeddings; publish each row only after success.
    */
-  public function indexTopics(): array {
+  public function indexTopics(?int $topic_id = NULL): array {
     if (!$this->lock->acquire('med_search_index', 900)) {
       throw new \RuntimeException('A topic embedding import is already running.');
     }
     try {
-      $this->embedder->verifyModel();
       $config = $this->configFactory->get('med_search.settings');
       $storage = $this->entities->getStorage('node');
-      $ids = $storage->getQuery()->accessCheck(FALSE)->condition('type', 'med_health_topic')
-        ->condition('langcode', 'en')->condition('status', 1)->execute();
+      $query = $storage->getQuery()->accessCheck(FALSE)->condition('type', 'med_health_topic')
+        ->condition('langcode', 'en')->condition('status', 1);
+      if ($topic_id !== NULL) {
+        $query->condition('nid', $topic_id);
+      }
+      $ids = $query->execute();
+      $model_verified = FALSE;
       $counts = ['generated' => 0, 'skipped' => 0];
       foreach ($storage->loadMultiple($ids) as $node) {
         $text = $this->input($node);
@@ -72,6 +76,10 @@ class SemanticSearch {
         if ($existing && $existing['content_hash'] === $hash && (int) $existing['dimensions'] === (int) $config->get('dimensions')) {
           $counts['skipped']++;
           continue;
+        }
+        if (!$model_verified) {
+          $this->embedder->verifyModel();
+          $model_verified = TRUE;
         }
         $vector = $this->embedder->embed($text);
         $args += [
