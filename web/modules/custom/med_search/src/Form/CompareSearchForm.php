@@ -76,6 +76,9 @@ final class CompareSearchForm extends FormBase {
     if ($response === NULL) {
       return $form;
     }
+    if ($example = $form_state->getTriggeringElement()['#med_example'] ?? NULL) {
+      $form['#attributes']['data-med-public-example'] = $example;
+    }
     $form['heading'] = [
       '#type' => 'html_tag',
       '#tag' => 'h2',

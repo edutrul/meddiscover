@@ -254,6 +254,9 @@ class SearchForm extends FormBase {
       ];
     }
     if ($response !== NULL) {
+      if (!$browsing && ($example = $form_state->getTriggeringElement()['#med_example'] ?? NULL)) {
+        $form['#attributes']['data-med-public-example'] = $example;
+      }
       $form['results'] = [
         '#type' => 'container',
         '#attributes' => ['aria-live' => 'polite', 'class' => ['med-results']],
@@ -419,6 +422,7 @@ class SearchForm extends FormBase {
         '#attributes' => [
           'type' => 'button',
           'data-med-topic-filter' => $id,
+          'data-med-topic-label' => $facet['label'],
           'aria-pressed' => $id === 'all' ? 'true' : 'false',
         ],
         '#value' => $this->t('@topic (@count)', ['@topic' => $facet['label'], '@count' => $facet['count']]),
