@@ -762,6 +762,7 @@ a[data-med-external]::after {
 
 .med-topic-results__items {
   display: grid;
+  align-self: start;
   min-inline-size: 0;
   gap: var(--md-space-4);
 }
