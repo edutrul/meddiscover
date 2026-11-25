@@ -186,6 +186,14 @@ class SearchForm extends FormBase {
       '#weight' => -1,
       '#attributes' => ['class' => ['med-query-bar']],
     ];
+    if ($automatic) {
+      $form['search_panel']['query_bar']['sparkle'] = [
+        '#type' => 'html_tag',
+        '#tag' => 'span',
+        '#attributes' => ['class' => ['med-query-bar__sparkle'], 'aria-hidden' => 'true'],
+        '#value' => '✨',
+      ];
+    }
     $form['search_panel']['intro']['#weight'] = -2;
     foreach (['query', 'submit', 'suggestions'] as $key) {
       $form['search_panel']['query_bar'][$key] = $form[$key];

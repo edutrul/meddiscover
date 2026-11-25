@@ -608,6 +608,21 @@ a[data-med-external]::after {
   padding-inline-end: 4rem;
 }
 
+.med-query-bar__sparkle {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-start: 1rem;
+  display: grid;
+  block-size: 3.5rem;
+  align-items: center;
+  font-size: 1rem;
+  pointer-events: none;
+}
+
+.med-query-bar:has(.med-query-bar__sparkle) input[type="text"] {
+  padding-inline-start: 2.75rem;
+}
+
 .med-search .med-query-bar > .form-submit {
   position: absolute;
   inset-block-start: 0;
