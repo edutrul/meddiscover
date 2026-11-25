@@ -1,0 +1,5 @@
+med_analytics.editor_report:
+  title: 'Search analytics'
+  route_name: med_analytics.report
+  base_route: system.admin_content
+  weight: 20
