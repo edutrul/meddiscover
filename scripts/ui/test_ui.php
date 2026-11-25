@@ -135,7 +135,7 @@ $form_object->validateForm($example_form, $example_state);
 ui_expect($example_state->getValue('query') === 'What is HbA1c?' && $example_state->getUserInput()['query'] === 'What is HbA1c?' && !$example_state->hasAnyErrors(), 'An example button must become the query.');
 $chosen_state = (new FormState())->setFormObject($form_object)->setUserInput(['query' => 'what can trigger a migraine?']);
 $chosen = \Drupal::formBuilder()->buildForm($form_object, $chosen_state);
-ui_expect(in_array('is-selected', $chosen['examples']['example_2']['#attributes']['class'], TRUE) && $chosen['examples']['example_2']['#attributes']['aria-current'] === 'true' && !in_array('is-selected', $chosen['examples']['example_0']['#attributes']['class'], TRUE), 'The example matching the query must be marked selected.');
+ui_expect(in_array('is-selected', $chosen['search_panel']['examples']['example_2']['#attributes']['class'], TRUE) && $chosen['search_panel']['examples']['example_2']['#attributes']['aria-current'] === 'true' && !in_array('is-selected', $chosen['search_panel']['examples']['example_0']['#attributes']['class'], TRUE), 'The example matching the query must be marked selected.');
 $blank_state = (new FormState())->setFormObject($form_object)->setValue('query', '   ');
 $blank_state->setTriggeringElement(['#name' => 'op']);
 $form_object->validateForm($example_form, $blank_state);

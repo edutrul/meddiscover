@@ -23,13 +23,13 @@
   gap: var(--md-space-4);
 }
 
-.med-search > .form-item-query input {
+.med-search-panel > .form-item-query input {
   min-block-size: 3.5rem;
   border-color: var(--md-color-primary);
   box-shadow: 0 0 0 0.25rem var(--md-color-info-bg);
 }
 
-.med-search > .form-submit {
+.med-search-panel > .form-submit {
   min-block-size: 2.75rem;
 }
 
@@ -300,7 +300,7 @@
   margin-inline: 0;
 }
 
-.med-search > .form-submit {
+.med-search-panel > .form-submit {
   justify-self: start;
   margin: 0;
 }
@@ -512,4 +512,65 @@ a[data-med-external]::after {
     background-position: right center;
     background-size: 33% auto;
   }
+}
+
+
+/* Search controls and the Drupal page title share one full-width surface. */
+.site-main:has(.med-search) {
+  --med-search-band: #092f36;
+  padding-block-start: 0;
+}
+
+.site-main:has(.med-search) .block-page-title-block,
+.med-search-panel {
+  background: var(--med-search-band);
+  box-shadow: 0 0 0 100vmax var(--med-search-band);
+  clip-path: inset(0 -100vmax);
+  color: #fff;
+}
+
+.site-main:has(.med-search) .block-page-title-block {
+  padding-block: clamp(1.75rem, 5vw, 3.5rem) 0.5rem;
+}
+
+.site-main:has(.med-search) .page-title {
+  margin: 0;
+  color: inherit;
+}
+
+.med-search-panel {
+  display: grid;
+  gap: 0.875rem;
+  min-inline-size: 0;
+  padding-block: 0.5rem clamp(1.5rem, 4vw, 2.75rem);
+}
+
+.med-search-panel .med-search__lead,
+.med-search-panel .description,
+.med-search-panel .med-examples__label {
+  color: #cae5df;
+}
+
+.med-search-panel input[type="text"] {
+  color: var(--md-color-ink);
+  box-shadow: none;
+}
+
+.med-search-panel :focus-visible {
+  outline-color: #a9f4e1;
+}
+
+.med-suggestions button:focus-visible {
+  outline: 2px solid var(--md-color-focus);
+  outline-offset: -3px;
+}
+
+.med-search .med-search-panel > .form-submit {
+  justify-self: start;
+  background: #a9f4e1;
+  color: #092f36;
+}
+
+.med-search .med-search-panel > .form-submit:hover {
+  background: #d5fff4;
 }

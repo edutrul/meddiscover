@@ -155,6 +155,14 @@ class SearchForm extends FormBase {
         ] + ($selected ? ['aria-current' => 'true'] : []),
       ];
     }
+    $form['search_panel'] = [
+      '#type' => 'container',
+      '#attributes' => ['class' => ['med-search-panel']],
+    ];
+    foreach (['intro', 'query', 'suggestions', 'submit', 'examples'] as $key) {
+      $form['search_panel'][$key] = $form[$key];
+      unset($form[$key]);
+    }
     $form['modes'] = [
       '#type' => 'details',
       '#title' => $this->t('Compare search modes'),
