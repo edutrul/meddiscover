@@ -3,36 +3,100 @@
  * Search page: form, mode switcher, states, answer and next steps.
  * Result cards and notices are Single Directory Components.
  */
+/* Keep the search workspace distinct from content and administration pages. */
+.site-main:has(.med-search) {
+  --med-workspace-width: 58rem;
+  width: min(100% - 2rem, var(--med-workspace-width));
+}
+
+.site-main:has(.med-search) .block-page-title-block {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: flex;
+  align-items: end;
+  box-sizing: border-box;
+  min-block-size: clamp(8rem, 17vw, 12rem);
+  margin-block-end: 1.5rem;
+  padding: clamp(1.25rem, 4vw, 3rem);
+  border-radius: 1.5rem 1.5rem 0.4rem 0.4rem;
+  background: #092f36;
+  color: #fff;
+}
+
+.site-main:has(.med-search) .block-page-title-block::before {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  background: repeating-radial-gradient(
+    ellipse at 88% 106%,
+    transparent 0 1.25rem,
+    rgb(145 228 210 / 18%) 1.28rem 1.34rem,
+    transparent 1.38rem 2.1rem
+  );
+  mask-image: linear-gradient(105deg, transparent 30%, #000 92%);
+  content: "";
+  pointer-events: none;
+}
+
+.site-main:has(.med-search) .page-title {
+  max-inline-size: 18ch;
+  margin: 0;
+  font-family: Georgia, serif;
+  font-size: clamp(2.15rem, 6vw, 4.25rem);
+  font-weight: 400;
+  line-height: 1.04;
+  letter-spacing: -0.035em;
+}
+
 .med-search {
   display: grid;
   gap: var(--md-space-4);
 }
 
-.med-search .item-list.inline ul,
-.med-search .inline ul {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--md-space-2);
-  margin: 0;
-  padding: 0;
-  list-style: none;
+.med-search > .form-item-query input {
+  min-block-size: 3.5rem;
 }
 
-/* Mode switcher: current mode is a strong, the others links. */
-.med-search > .item-list:first-of-type li > *,
-.med-search > div > .item-list li > * {
-  display: inline-block;
-  padding: var(--md-space-1) var(--md-space-3);
-  border: 1px solid var(--md-color-border);
-  border-radius: 999px;
-  background: var(--md-color-surface);
-  text-decoration: none;
+.med-search > .form-submit {
+  min-block-size: 2.75rem;
 }
 
-.med-search > .item-list:first-of-type li > strong {
-  border-color: var(--md-color-primary);
-  background: var(--md-color-primary);
-  color: #fff;
+.med-search .med-examples__button {
+  min-block-size: 2.75rem;
+  max-inline-size: 100%;
+  white-space: normal;
+}
+
+.med-search .button,
+.med-search .med-examples__button {
+  transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease;
+}
+
+.med-search .med-howto {
+  padding-inline: 0;
+  border: 0;
+  border-block-start: 1px solid var(--md-color-border);
+  border-radius: 0;
+  background: transparent;
+}
+
+.med-search .med-answer--answered {
+  box-shadow: none;
+}
+
+@keyframes med-result-enter {
+  from {
+    opacity: 0;
+    transform: translateY(0.25rem);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .med-results,
+  .med-answer--answered {
+    animation: med-result-enter 200ms ease-out both;
+  }
 }
 
 .med-search .form-item {
@@ -419,4 +483,24 @@ a[data-med-external]::after {
 
 .med-debug-panel td {
   padding: var(--md-space-1) var(--md-space-4) var(--md-space-1) 0;
+}
+
+.med-demo-guide {
+  margin-block-start: 1.5rem;
+  padding: 1rem 0;
+  border: 0;
+  border-block-start: 1px solid var(--md-color-border);
+}
+
+.med-demo-guide summary {
+  color: var(--md-color-primary-strong);
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.med-search .med-demo-guide ol {
+  display: grid;
+  gap: 0.75rem;
+  padding-inline-start: 1.5rem;
+  max-inline-size: 65ch;
 }

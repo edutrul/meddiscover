@@ -133,6 +133,22 @@ class SearchForm extends FormBase {
         ] + ($selected ? ['aria-current' => 'true'] : []),
       ];
     }
+    $form['demo_guide'] = [
+      '#type' => 'details',
+      '#title' => $this->t('Explore the four-layer demo'),
+      '#weight' => 90,
+      '#attributes' => ['class' => ['med-demo-guide']],
+      'layers' => [
+        '#theme' => 'item_list',
+        '#list_type' => 'ol',
+        '#items' => [
+          $this->t('Experience — ask a health question or compare keyword, semantic and hybrid search.'),
+          $this->t('Data — Drupal organizes MedlinePlus topics and MeSH terms. Solr and PostgreSQL with pgvector power retrieval.'),
+          $this->t('Activation — follow cited sources and links to relevant health resources and services.'),
+          $this->t('Optimization — use relevance tests and aggregate latency, empty-result and resource click metrics to improve the experience.'),
+        ],
+      ],
+    ];
     // Progressive enhancement with core HTMX: post in place and swap only
     // this form. Without JavaScript the regular POST and rebuild still work.
     $form['#attributes']['data-med-search'] = $this->search->id();

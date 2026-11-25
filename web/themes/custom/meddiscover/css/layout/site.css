@@ -78,18 +78,22 @@
   font-size: 0.9375rem;
 }
 
-.site-header .site-branding {
+.site-header .block-system-branding-block {
   display: flex;
   gap: var(--md-space-2);
   align-items: center;
 }
 
-.site-header .site-branding img {
+.site-header .site-logo img {
+  display: block;
   width: 40px;
   height: 40px;
 }
 
-.site-header .site-branding__name a {
+.site-header .site-name a {
+  color: var(--md-color-primary-strong);
+  font-size: 1.25rem;
+  font-weight: 750;
   text-decoration: none;
 }
 
