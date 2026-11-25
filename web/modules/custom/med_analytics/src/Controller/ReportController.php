@@ -34,7 +34,15 @@ class ReportController implements ContainerInjectionInterface {
     $days = (int) $this->configFactory->get('med_analytics.settings')->get('report_days');
     $t = $this->recorder->totals($days);
     $count = fn(string $event, string $dimension) => $t[$event][$dimension]['count'] ?? 0;
-    $rate = fn(int $part, int $whole) => $whole ? number_format(100 * $part / $whole, 1) . ' %' : '–';
+    // Rates render as a native <meter> bar plus the number, so the value is
+    // available to assistive technology and without color.
+    $rate = fn(int $part, int $whole) => $whole ? [
+      'data' => [
+        '#type' => 'inline_template',
+        '#template' => '<meter min="0" max="100" value="{{ value }}"></meter> {{ value }} %',
+        '#context' => ['value' => number_format(100 * $part / $whole, 1)],
+      ],
+    ] : '–';
 
     $build['intro'] = [
       '#type' => 'html_tag',

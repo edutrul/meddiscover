@@ -1,0 +1,32 @@
+.result-card {
+  padding: var(--md-space-6);
+  border: 1px solid var(--md-color-border);
+  border-radius: var(--md-radius);
+  background: var(--md-color-surface);
+  box-shadow: var(--md-shadow);
+}
+
+.result-card__title {
+  margin-bottom: var(--md-space-2);
+  font-size: 1.25rem;
+}
+
+.result-card__title a {
+  color: var(--md-color-primary-strong);
+}
+
+.result-card__description p {
+  margin: 0 0 var(--md-space-3);
+}
+
+.result-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--md-space-1) var(--md-space-4);
+  color: var(--md-color-muted);
+  font-size: 0.875rem;
+}
+
+.result-card__meta p {
+  margin: 0;
+}

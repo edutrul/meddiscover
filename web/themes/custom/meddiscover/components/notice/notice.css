@@ -1,0 +1,24 @@
+.notice {
+  padding: var(--md-space-3) var(--md-space-4);
+  border-left: 4px solid var(--md-color-primary);
+  border-radius: var(--md-radius-small);
+  background: var(--md-color-info-bg);
+}
+
+.notice--warning {
+  border-left-color: var(--md-color-warning-border);
+  background: var(--md-color-warning-bg);
+}
+
+.notice__heading {
+  margin: 0 0 var(--md-space-1);
+  font-weight: 700;
+}
+
+.notice__content p {
+  margin: 0;
+}
+
+.notice__content p + p {
+  margin-top: var(--md-space-1);
+}

@@ -59,3 +59,5 @@ jobs:
         run: ddev drush php:script scripts/activation/test_activation.php
       - name: Validate privacy-preserving analytics
         run: ddev drush php:script scripts/analytics/test_analytics.php
+      - name: Validate the search UI contract
+        run: ddev drush php:script scripts/ui/test_ui.php

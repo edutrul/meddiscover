@@ -1,6 +1,6 @@
 # Agent instructions
 
-Read PLAN.md and this file before work. Approved phase: **Phase 08 — Optimization**, authorized by the owner on 2026-11-24 with the merge of Phase 07 PR #24. Phase 09 and later require explicit owner approval.
+Read PLAN.md and this file before work. Approved phase: **Phase 09 — UI/UX Enhancement**, authorized by the owner on 2026-11-24 with the merge of Phase 08 PR #26. Phase 10 and later require explicit owner approval.
 
 - Inspect repository status, existing issues and documentation before changes. Preserve unrelated edits.
 - Every implementation task needs an issue first. Use `med-{issue}-{short-title}` branches and `MED-{issue}: Title` PR titles. Never commit to main after bootstrap.

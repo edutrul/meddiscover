@@ -1,0 +1,22 @@
+uuid: d3b8904a-7546-4d43-a496-4c27bd93779e
+langcode: en
+status: true
+dependencies:
+  module:
+    - system
+  theme:
+    - meddiscover
+_core:
+  default_config_hash: VhBzWb7lMRtIOg9G7VSw_0uopi-7zXeHq4vXqqV1HFE
+id: meddiscover_breadcrumbs
+theme: meddiscover
+region: breadcrumb
+weight: 0
+provider: null
+plugin: system_breadcrumb_block
+settings:
+  id: system_breadcrumb_block
+  label: Breadcrumbs
+  label_display: '0'
+  provider: system
+visibility: {  }

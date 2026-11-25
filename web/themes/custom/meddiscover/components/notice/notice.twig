@@ -1,0 +1,5 @@
+{% set variant = variant|default('info') %}
+<aside{{ attributes.addClass('notice', 'notice--' ~ variant) }}{% if heading %} aria-label="{{ heading }}"{% endif %}>
+  {% if heading %}<p class="notice__heading">{{ heading }}</p>{% endif %}
+  <div class="notice__content">{% block content %}{% endblock %}</div>
+</aside>

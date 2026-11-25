@@ -1,0 +1,10 @@
+<article{{ attributes.addClass('result-card') }}>
+  <h3 class="result-card__title">{% block title %}{% endblock %}</h3>
+  <div class="result-card__description">{% block description %}{% endblock %}</div>
+  <div class="result-card__meta">
+    <span class="result-card__source">{% block source %}{% endblock %}</span>
+    <span class="result-card__score">{% block meta %}{% endblock %}</span>
+  </div>
+  {% block next_steps %}{% endblock %}
+  {% block details %}{% endblock %}
+</article>
