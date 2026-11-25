@@ -285,25 +285,19 @@ class SearchForm extends FormBase {
         $form['results']['view'] = [
           '#type' => 'html_tag',
           '#tag' => 'div',
-          '#attributes' => ['class' => ['med-result-filter'], 'hidden' => TRUE],
-          'label' => [
-            '#type' => 'html_tag',
-            '#tag' => 'label',
-            '#attributes' => ['for' => 'med-result-view'],
-            '#value' => $this->t('Show'),
+          '#attributes' => [
+            'class' => ['med-result-filter'],
+            'hidden' => TRUE,
+            'role' => 'group',
+            'aria-label' => $this->t('Result view'),
           ],
-          'select' => [
-            '#type' => 'html_tag',
-            '#tag' => 'select',
-            '#attributes' => ['id' => 'med-result-view', 'data-med-result-view' => ''],
-            'all' => $this->viewOption('all', $this->t('Answer and topics')),
-            'answer' => $this->viewOption('answer', $this->t('Answer only')),
-            'topics' => $this->viewOption('topics', $this->t('Topics only')),
-          ],
-          '#weight' => -1,
+          'all' => $this->viewOption('all', $this->t('All results')),
+          'answer' => $this->viewOption('answer', $this->t('Answer')),
+          'topics' => $this->viewOption('topics', $this->t('Health topics')),
+          '#weight' => -2,
         ];
         $form['results']['heading']['#weight'] = -3;
-        $form['results']['compare']['#weight'] = -2;
+        $form['results']['compare']['#weight'] = -1;
       }
       if (!$response['results']) {
         $form['results']['empty'] = [
@@ -617,7 +611,16 @@ class SearchForm extends FormBase {
    * Builds a presentation filter option outside the submitted search values.
    */
   private function viewOption(string $value, string $label): array {
-    return ['#type' => 'html_tag', '#tag' => 'option', '#attributes' => ['value' => $value], '#value' => $label];
+    return [
+      '#type' => 'html_tag',
+      '#tag' => 'button',
+      '#attributes' => [
+        'type' => 'button',
+        'data-med-result-view' => $value,
+        'aria-pressed' => $value === 'all' ? 'true' : 'false',
+      ],
+      '#value' => $label,
+    ];
   }
 
   /**
