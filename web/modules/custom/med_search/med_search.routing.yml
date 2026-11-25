@@ -30,3 +30,10 @@ med_search.conversational:
     strategy: conversational
   requirements:
     _permission: 'access content'
+med_search.build:
+  path: '/how-it-was-built'
+  defaults:
+    _controller: '\Drupal\med_search\Controller\BuildOverview::page'
+    _title: 'How medDiscover was built'
+  requirements:
+    _permission: 'access content'

@@ -9,43 +9,12 @@
   width: min(100% - 2rem, var(--med-workspace-width));
 }
 
-.site-main:has(.med-search) .block-page-title-block {
-  position: relative;
-  isolation: isolate;
-  overflow: hidden;
-  display: flex;
-  align-items: end;
-  box-sizing: border-box;
-  min-block-size: clamp(8rem, 17vw, 12rem);
-  margin-block-end: 1.5rem;
-  padding: clamp(1.25rem, 4vw, 3rem);
-  border-radius: 1.5rem 1.5rem 0.4rem 0.4rem;
-  background: #092f36;
-  color: #fff;
-}
-
-.site-main:has(.med-search) .block-page-title-block::before {
-  position: absolute;
-  z-index: -1;
-  inset: 0;
-  background: repeating-radial-gradient(
-    ellipse at 88% 106%,
-    transparent 0 1.25rem,
-    rgb(145 228 210 / 18%) 1.28rem 1.34rem,
-    transparent 1.38rem 2.1rem
-  );
-  mask-image: linear-gradient(105deg, transparent 30%, #000 92%);
-  content: "";
-  pointer-events: none;
-}
-
 .site-main:has(.med-search) .page-title {
-  max-inline-size: 18ch;
-  margin: 0;
+  margin-block: clamp(0.75rem, 3vw, 2rem) 0.75rem;
+  color: var(--md-color-primary-strong);
   font-family: Georgia, serif;
-  font-size: clamp(2.15rem, 6vw, 4.25rem);
+  font-size: clamp(2.15rem, 6vw, 3.6rem);
   font-weight: 400;
-  line-height: 1.04;
   letter-spacing: -0.035em;
 }
 
@@ -56,6 +25,8 @@
 
 .med-search > .form-item-query input {
   min-block-size: 3.5rem;
+  border-color: var(--md-color-primary);
+  box-shadow: 0 0 0 0.25rem var(--md-color-info-bg);
 }
 
 .med-search > .form-submit {
@@ -87,7 +58,6 @@
 
 @keyframes med-result-enter {
   from {
-    opacity: 0;
     transform: translateY(0.25rem);
   }
 }
@@ -485,22 +455,35 @@ a[data-med-external]::after {
   padding: var(--md-space-1) var(--md-space-4) var(--md-space-1) 0;
 }
 
-.med-demo-guide {
-  margin-block-start: 1.5rem;
-  padding: 1rem 0;
-  border: 0;
-  border-block-start: 1px solid var(--md-color-border);
+.med-suggestions:not([hidden]) {
+  display: grid;
+  border: 1px solid var(--md-color-border);
+  background: var(--md-color-surface);
 }
 
-.med-demo-guide summary {
+.med-suggestions button {
+  padding: 0.65rem 1rem;
+  border: 0;
+  border-block-end: 1px solid var(--md-color-border);
+  background: transparent;
   color: var(--md-color-primary-strong);
-  font-weight: 650;
+  font: inherit;
+  text-align: start;
   cursor: pointer;
 }
 
-.med-search .med-demo-guide ol {
+.med-suggestions button:hover,
+.med-suggestions button:focus-visible {
+  background: var(--md-color-info-bg);
+}
+
+.med-build-overview {
   display: grid;
-  gap: 0.75rem;
-  padding-inline-start: 1.5rem;
-  max-inline-size: 65ch;
+  gap: 1.25rem;
+  max-inline-size: 46rem;
+}
+
+.med-build-overview section {
+  padding-block-start: 1rem;
+  border-block-start: 1px solid var(--md-color-border);
 }

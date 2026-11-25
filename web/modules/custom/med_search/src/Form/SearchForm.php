@@ -2,6 +2,7 @@
 
 namespace Drupal\med_search\Form;
 
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Htmx\Htmx;
@@ -47,6 +48,7 @@ class SearchForm extends FormBase {
     private SearchStrategyInterface $search,
     private ResultEnricher $enricher,
     private EventDispatcherInterface $eventDispatcher,
+    private EntityTypeManagerInterface $entityTypeManager,
   ) {}
 
   /**
@@ -62,6 +64,7 @@ class SearchForm extends FormBase {
       $container->get('med_search.strategies')->get($strategy),
       $container->get('med_search.enricher'),
       $container->get('event_dispatcher'),
+      $container->get('entity_type.manager'),
     );
   }
 
@@ -78,14 +81,13 @@ class SearchForm extends FormBase {
   public function buildForm(array $form, FormStateInterface $form_state): array {
     $form_state->disableCache();
     $form['#cache']['max-age'] = 0;
-    [$label, $explanation] = self::STRATEGIES[$this->search->id()];
     $conversational = $this->search->id() === 'conversational';
-    // The header main menu switches modes; the page only explains this one.
+    // Keep the visitor-facing introduction brief.
     $form['intro'] = [
       '#type' => 'html_tag',
       '#tag' => 'p',
       '#attributes' => ['class' => ['med-search__lead']],
-      '#value' => $this->t('@explanation Educational information only, not diagnosis or medical advice.', ['@explanation' => $explanation]),
+      '#value' => $this->t('Find trusted health information from MedlinePlus.'),
     ];
     $examples = $conversational
       ? ['What is HbA1c?', 'How can I prevent type 2 diabetes?', 'What can trigger a migraine?']
@@ -100,6 +102,26 @@ class SearchForm extends FormBase {
         'placeholder' => $this->t('e.g. @example', ['@example' => $examples[2]]),
         // Native check for an empty box; examples skip it (formnovalidate).
         'required' => 'required',
+      ],
+    ];
+    $storage = $this->entityTypeManager->getStorage('node');
+    $ids = $storage->getQuery()->accessCheck(TRUE)
+      ->condition('type', 'med_health_topic')->condition('status', 1)
+      ->condition('langcode', 'en')->sort('title')->range(0, 100)->execute();
+    $titles = [];
+    foreach ($storage->loadMultiple($ids) as $topic) {
+      if ($topic->access('view')) {
+        $titles[] = $topic->label();
+      }
+    }
+    $form['suggestions'] = [
+      '#type' => 'container',
+      '#attributes' => [
+        'class' => ['med-suggestions'],
+        'hidden' => TRUE,
+        'data-med-suggestions' => json_encode($titles, JSON_THROW_ON_ERROR),
+        'aria-label' => $this->t('Suggested health topics'),
+        'role' => 'group',
       ],
     ];
     $form['submit'] = [
@@ -133,22 +155,21 @@ class SearchForm extends FormBase {
         ] + ($selected ? ['aria-current' => 'true'] : []),
       ];
     }
-    $form['demo_guide'] = [
+    $form['modes'] = [
       '#type' => 'details',
-      '#title' => $this->t('Explore the four-layer demo'),
+      '#title' => $this->t('Compare search modes'),
       '#weight' => 90,
-      '#attributes' => ['class' => ['med-demo-guide']],
-      'layers' => [
-        '#theme' => 'item_list',
-        '#list_type' => 'ol',
-        '#items' => [
-          $this->t('Experience — ask a health question or compare keyword, semantic and hybrid search.'),
-          $this->t('Data — Drupal organizes MedlinePlus topics and MeSH terms. Solr and PostgreSQL with pgvector power retrieval.'),
-          $this->t('Activation — follow cited sources and links to relevant health resources and services.'),
-          $this->t('Optimization — use relevance tests and aggregate latency, empty-result and resource click metrics to improve the experience.'),
-        ],
-      ],
+      'links' => ['#theme' => 'item_list', '#items' => []],
     ];
+    foreach (self::STRATEGIES as $mode => [$name]) {
+      if ($mode !== $this->search->id()) {
+        $form['modes']['links']['#items'][] = [
+          '#type' => 'link',
+          '#title' => $this->t('@mode', ['@mode' => $name]),
+          '#url' => Url::fromRoute('med_search.' . $mode),
+        ];
+      }
+    }
     // Progressive enhancement with core HTMX: post in place and swap only
     // this form. Without JavaScript the regular POST and rebuild still work.
     $form['#attributes']['data-med-search'] = $this->search->id();
@@ -175,6 +196,7 @@ class SearchForm extends FormBase {
     ];
     (new Htmx())
       ->post(Url::fromRoute('<current>'))
+      ->history()
       ->onlyMainContent()
       ->select('form[data-med-search]')
       ->target('this')

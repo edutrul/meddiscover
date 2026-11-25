@@ -37,6 +37,53 @@
         if (box) {
           box.addEventListener('input', () => select(box.value));
         }
+        const suggestions = form.querySelector('[data-med-suggestions]');
+        if (box && suggestions) {
+          const titles = JSON.parse(suggestions.dataset.medSuggestions);
+          const submit = form.querySelector('input[type="submit"]:not(.med-examples__button)');
+          const close = () => {
+            suggestions.hidden = true;
+          };
+          box.addEventListener('input', () => {
+            const query = box.value.trim().toLowerCase();
+            suggestions.replaceChildren();
+            const matches = query.length < 2 ? [] : titles
+              .filter((title) => title.toLowerCase().includes(query)).slice(0, 5);
+            matches.forEach((title) => {
+              const button = document.createElement('button');
+              button.type = 'button';
+              button.textContent = title;
+              button.addEventListener('click', () => {
+                box.value = title;
+                select(title);
+                close();
+                submit.click();
+              });
+              suggestions.append(button);
+            });
+            suggestions.hidden = matches.length === 0;
+          });
+          form.addEventListener('keydown', (event) => {
+            if (suggestions.hidden) {
+              return;
+            }
+            if (event.key === 'Escape' && (event.target === box || suggestions.contains(event.target))) {
+              event.preventDefault();
+              box.focus();
+              close();
+            }
+            if (event.key === 'ArrowDown' && event.target === box) {
+              event.preventDefault();
+              suggestions.querySelector('button')?.focus();
+            }
+          });
+          form.addEventListener('focusout', (event) => {
+            if (event.relatedTarget !== box && !suggestions.contains(event.relatedTarget)) {
+              close();
+            }
+          });
+          form.addEventListener('submit', close);
+        }
         form.addEventListener('htmx:beforeRequest', () => {
           if (error) {
             error.hidden = true;

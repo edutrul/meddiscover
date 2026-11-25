@@ -82,7 +82,7 @@ $stub = new class() implements SearchStrategyInterface {
   }
 
 };
-$form_object = new SearchForm($stub, \Drupal::service('med_search.enricher'), \Drupal::service('event_dispatcher'));
+$form_object = new SearchForm($stub, \Drupal::service('med_search.enricher'), \Drupal::service('event_dispatcher'), \Drupal::entityTypeManager());
 $build = function (array $response) use ($form_object, $renderer): string {
   $form_state = (new FormState())->setFormObject($form_object)->setValue('query', 'synthetic');
   $form_state->setTemporaryValue('med_response', $response)->setTemporaryValue('med_search_ms', 1.0);
