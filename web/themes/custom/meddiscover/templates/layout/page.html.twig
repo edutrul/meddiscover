@@ -68,7 +68,7 @@
       {% embed 'meddiscover:notice' with { heading: 'About medDiscover'|t } %}
         {% block content %}
           <p>{{ 'medDiscover is an educational proof of concept for finding health information. It does not provide diagnosis or medical advice. In an emergency, call 911 or your local emergency number.'|t }}</p>
-          <p>{{ 'Health information: <a href="https://medlineplus.gov/">MedlinePlus</a>, National Library of Medicine.'|t }}</p>
+          <p>{{ 'Health information: <a href="https://medlineplus.gov/" target="_blank" rel="noopener noreferrer" class="med-link--external">MedlinePlus<span class="visually-hidden"> (opens in a new tab)</span></a>, National Library of Medicine.'|t }}</p>
         {% endblock %}
       {% endembed %}
       {{ page.footer }}

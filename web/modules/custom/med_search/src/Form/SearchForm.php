@@ -2,6 +2,7 @@
 
 namespace Drupal\med_search\Form;
 
+use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Htmx\Htmx;
@@ -47,6 +48,7 @@ class SearchForm extends FormBase {
     private SearchStrategyInterface $search,
     private ResultEnricher $enricher,
     private EventDispatcherInterface $eventDispatcher,
+    private EntityTypeManagerInterface $entityTypeManager,
   ) {}
 
   /**
@@ -62,6 +64,7 @@ class SearchForm extends FormBase {
       $container->get('med_search.strategies')->get($strategy),
       $container->get('med_search.enricher'),
       $container->get('event_dispatcher'),
+      $container->get('entity_type.manager'),
     );
   }
 
@@ -78,14 +81,13 @@ class SearchForm extends FormBase {
   public function buildForm(array $form, FormStateInterface $form_state): array {
     $form_state->disableCache();
     $form['#cache']['max-age'] = 0;
-    [$label, $explanation] = self::STRATEGIES[$this->search->id()];
     $conversational = $this->search->id() === 'conversational';
-    // The header main menu switches modes; the page only explains this one.
+    // Keep the visitor-facing introduction brief.
     $form['intro'] = [
       '#type' => 'html_tag',
       '#tag' => 'p',
       '#attributes' => ['class' => ['med-search__lead']],
-      '#value' => $this->t('@explanation Educational information only, not diagnosis or medical advice.', ['@explanation' => $explanation]),
+      '#value' => $this->t('Find trusted health information from MedlinePlus.'),
     ];
     $examples = $conversational
       ? ['What is HbA1c?', 'How can I prevent type 2 diabetes?', 'What can trigger a migraine?']
@@ -93,6 +95,7 @@ class SearchForm extends FormBase {
     $form['query'] = [
       '#type' => 'textfield',
       '#title' => $conversational ? $this->t('Your health question') : $this->t('Search health topics'),
+      '#title_display' => 'invisible',
       '#description' => $this->t('Use your own words. Do not include names or other personal details.'),
       '#maxlength' => 500,
       '#attributes' => [
@@ -100,6 +103,26 @@ class SearchForm extends FormBase {
         'placeholder' => $this->t('e.g. @example', ['@example' => $examples[2]]),
         // Native check for an empty box; examples skip it (formnovalidate).
         'required' => 'required',
+      ],
+    ];
+    $storage = $this->entityTypeManager->getStorage('node');
+    $ids = $storage->getQuery()->accessCheck(TRUE)
+      ->condition('type', 'med_health_topic')->condition('status', 1)
+      ->condition('langcode', 'en')->sort('title')->range(0, 100)->execute();
+    $titles = [];
+    foreach ($storage->loadMultiple($ids) as $topic) {
+      if ($topic->access('view')) {
+        $titles[] = $topic->label();
+      }
+    }
+    $form['suggestions'] = [
+      '#type' => 'container',
+      '#attributes' => [
+        'class' => ['med-suggestions'],
+        'hidden' => TRUE,
+        'data-med-suggestions' => json_encode($titles, JSON_THROW_ON_ERROR),
+        'aria-label' => $this->t('Suggested health topics'),
+        'role' => 'group',
       ],
     ];
     $form['submit'] = [
@@ -133,6 +156,59 @@ class SearchForm extends FormBase {
         ] + ($selected ? ['aria-current' => 'true'] : []),
       ];
     }
+    $form['search_panel'] = [
+      '#type' => 'container',
+      '#attributes' => ['class' => ['med-search-panel']],
+    ];
+    foreach (['intro', 'examples'] as $key) {
+      $form['search_panel'][$key] = $form[$key];
+      unset($form[$key]);
+    }
+    $form['search_panel']['query_bar'] = [
+      '#type' => 'container',
+      '#weight' => -1,
+      '#attributes' => ['class' => ['med-query-bar']],
+    ];
+    $form['search_panel']['intro']['#weight'] = -2;
+    foreach (['query', 'submit', 'suggestions'] as $key) {
+      $form['search_panel']['query_bar'][$key] = $form[$key];
+      unset($form[$key]);
+    }
+    $form['modes'] = [
+      '#type' => 'details',
+      '#title' => $this->t('Compare search modes'),
+      '#weight' => 90,
+      'links' => ['#theme' => 'item_list', '#items' => []],
+    ];
+    foreach (self::STRATEGIES as $mode => [$name]) {
+      if ($mode !== $this->search->id()) {
+        $form['modes']['links']['#items'][] = [
+          '#type' => 'link',
+          '#title' => $this->t('@mode', ['@mode' => $name]),
+          '#url' => Url::fromRoute('med_search.' . $mode),
+        ];
+      }
+    }
+    $form['recovery'] = [
+      '#type' => 'container',
+      '#weight' => 95,
+      '#attributes' => ['class' => ['med-search-recovery']],
+      'heading' => [
+        '#type' => 'html_tag',
+        '#tag' => 'h2',
+        '#value' => $this->t('Not finding what you’re looking for?'),
+      ],
+      'suggestion' => [
+        '#type' => 'html_tag',
+        '#tag' => 'p',
+        '#value' => $this->t('Try a shorter phrase or a related topic. For more coverage, browse the full MedlinePlus health topics catalog.'),
+      ],
+      'catalog' => self::external([
+        '#type' => 'link',
+        '#title' => $this->t('Browse MedlinePlus health topics'),
+        '#url' => Url::fromUri('https://medlineplus.gov/healthtopics.html'),
+      ]),
+    ];
     // Progressive enhancement with core HTMX: post in place and swap only
     // this form. Without JavaScript the regular POST and rebuild still work.
     $form['#attributes']['data-med-search'] = $this->search->id();
@@ -159,6 +235,7 @@ class SearchForm extends FormBase {
     ];
     (new Htmx())
       ->post(Url::fromRoute('<current>'))
+      ->history()
       ->onlyMainContent()
       ->select('form[data-med-search]')
       ->target('this')
@@ -515,7 +592,8 @@ class SearchForm extends FormBase {
   public static function external(array $link): array {
     $link['#attributes']['class'][] = 'med-link--external';
     $link['#attributes']['rel'] = 'noopener noreferrer';
-    $link['#suffix'] = '<span class="visually-hidden"> ' . t('(external site)') . '</span>' . ($link['#suffix'] ?? '');
+    $link['#attributes']['target'] = '_blank';
+    $link['#suffix'] = '<span class="visually-hidden"> ' . t('(opens in a new tab)') . '</span>' . ($link['#suffix'] ?? '');
     return $link;
   }
 

@@ -82,7 +82,7 @@ $stub = new class() implements SearchStrategyInterface {
   }
 
 };
-$form_object = new SearchForm($stub, \Drupal::service('med_search.enricher'), \Drupal::service('event_dispatcher'));
+$form_object = new SearchForm($stub, \Drupal::service('med_search.enricher'), \Drupal::service('event_dispatcher'), \Drupal::entityTypeManager());
 $build = function (array $response) use ($form_object, $renderer): string {
   $form_state = (new FormState())->setFormObject($form_object)->setValue('query', 'synthetic');
   $form_state->setTemporaryValue('med_response', $response)->setTemporaryValue('med_search_ms', 1.0);
@@ -99,7 +99,7 @@ $html = $build([
 ]);
 ui_expect(str_contains($html, 'class="med-result result-card"') && str_contains($html, 'result-card__title') && str_contains($html, 'Synthetic Topic One'), 'Results must render through the result-card component.');
 ui_expect(!str_contains($html, 'Synthetic score') && str_contains($html, 'Source: MedlinePlus, National Library of Medicine.'), 'Public visitors see source attribution but no ranking scores.');
-ui_expect(str_contains($html, 'med-link--external') && str_contains($html, '(external site)'), 'External links must be marked for the icon and screen readers.');
+ui_expect(str_contains($html, 'med-link--external') && str_contains($html, '(opens in a new tab)') && str_contains($html, 'target="_blank"'), 'External links must be marked for the icon and screen readers.');
 $switcher = \Drupal::service('account_switcher');
 $switcher->switchTo(new UserSession(['uid' => 1, 'roles' => ['authenticated']]));
 try {
@@ -135,7 +135,7 @@ $form_object->validateForm($example_form, $example_state);
 ui_expect($example_state->getValue('query') === 'What is HbA1c?' && $example_state->getUserInput()['query'] === 'What is HbA1c?' && !$example_state->hasAnyErrors(), 'An example button must become the query.');
 $chosen_state = (new FormState())->setFormObject($form_object)->setUserInput(['query' => 'what can trigger a migraine?']);
 $chosen = \Drupal::formBuilder()->buildForm($form_object, $chosen_state);
-ui_expect(in_array('is-selected', $chosen['examples']['example_2']['#attributes']['class'], TRUE) && $chosen['examples']['example_2']['#attributes']['aria-current'] === 'true' && !in_array('is-selected', $chosen['examples']['example_0']['#attributes']['class'], TRUE), 'The example matching the query must be marked selected.');
+ui_expect(in_array('is-selected', $chosen['search_panel']['examples']['example_2']['#attributes']['class'], TRUE) && $chosen['search_panel']['examples']['example_2']['#attributes']['aria-current'] === 'true' && !in_array('is-selected', $chosen['search_panel']['examples']['example_0']['#attributes']['class'], TRUE), 'The example matching the query must be marked selected.');
 $blank_state = (new FormState())->setFormObject($form_object)->setValue('query', '   ');
 $blank_state->setTriggeringElement(['#name' => 'op']);
 $form_object->validateForm($example_form, $blank_state);

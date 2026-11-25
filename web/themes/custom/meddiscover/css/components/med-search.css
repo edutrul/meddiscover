@@ -3,36 +3,70 @@
  * Search page: form, mode switcher, states, answer and next steps.
  * Result cards and notices are Single Directory Components.
  */
+/* Keep the search workspace distinct from content and administration pages. */
+.site-main:has(.med-search) {
+  --med-workspace-width: 58rem;
+  width: min(100% - 2rem, var(--med-workspace-width));
+}
+
+.site-main:has(.med-search) .page-title {
+  margin-block: clamp(0.75rem, 3vw, 2rem) 0.75rem;
+  color: var(--md-color-primary-strong);
+  font-family: Georgia, serif;
+  font-size: clamp(1.85rem, 3.5vw, 2.65rem);
+  font-weight: 400;
+  letter-spacing: -0.035em;
+}
+
 .med-search {
   display: grid;
   gap: var(--md-space-4);
 }
 
-.med-search .item-list.inline ul,
-.med-search .inline ul {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--md-space-2);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-/* Mode switcher: current mode is a strong, the others links. */
-.med-search > .item-list:first-of-type li > *,
-.med-search > div > .item-list li > * {
-  display: inline-block;
-  padding: var(--md-space-1) var(--md-space-3);
-  border: 1px solid var(--md-color-border);
-  border-radius: 999px;
-  background: var(--md-color-surface);
-  text-decoration: none;
-}
-
-.med-search > .item-list:first-of-type li > strong {
+.med-search-panel > .form-item-query input {
+  min-block-size: 3.5rem;
   border-color: var(--md-color-primary);
-  background: var(--md-color-primary);
-  color: #fff;
+  box-shadow: 0 0 0 0.25rem var(--md-color-info-bg);
+}
+
+.med-search-panel > .form-submit {
+  min-block-size: 2.75rem;
+}
+
+.med-search .med-examples__button {
+  min-block-size: 2.75rem;
+  max-inline-size: 100%;
+  white-space: normal;
+}
+
+.med-search .button,
+.med-search .med-examples__button {
+  transition: background-color 160ms ease, border-color 160ms ease, color 160ms ease;
+}
+
+.med-search .med-howto {
+  padding-inline: 0;
+  border: 0;
+  border-block-start: 1px solid var(--md-color-border);
+  border-radius: 0;
+  background: transparent;
+}
+
+.med-search .med-answer--answered {
+  box-shadow: none;
+}
+
+@keyframes med-result-enter {
+  from {
+    transform: translateY(0.25rem);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .med-results,
+  .med-answer--answered {
+    animation: med-result-enter 200ms ease-out both;
+  }
 }
 
 .med-search .form-item {
@@ -266,7 +300,7 @@
   margin-inline: 0;
 }
 
-.med-search > .form-submit {
+.med-search-panel > .form-submit {
   justify-self: start;
   margin: 0;
 }
@@ -419,4 +453,159 @@ a[data-med-external]::after {
 
 .med-debug-panel td {
   padding: var(--md-space-1) var(--md-space-4) var(--md-space-1) 0;
+}
+
+.med-suggestions:not([hidden]) {
+  display: grid;
+  border: 1px solid var(--md-color-border);
+  background: var(--md-color-surface);
+}
+
+.med-suggestions button {
+  padding: 0.65rem 1rem;
+  border: 0;
+  border-block-end: 1px solid var(--md-color-border);
+  background: transparent;
+  color: var(--md-color-primary-strong);
+  font: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+
+.med-suggestions button:hover,
+.med-suggestions button:focus-visible {
+  background: var(--md-color-info-bg);
+}
+
+.med-build-overview {
+  display: grid;
+  gap: 1.25rem;
+  max-inline-size: 46rem;
+}
+
+.med-build-overview section {
+  padding-block-start: 1rem;
+  border-block-start: 1px solid var(--md-color-border);
+}
+
+.med-search-recovery {
+  margin-block-start: 1rem;
+  padding: 1.5rem;
+  border-block-start: 1px solid var(--md-color-border);
+  background: var(--md-color-info-bg);
+}
+
+.med-search-recovery h2 {
+  font-size: 1.35rem;
+}
+
+.med-search-recovery p {
+  max-inline-size: 47ch;
+}
+
+@media (min-width: 42rem) {
+  .med-search-recovery {
+    min-block-size: 11rem;
+    padding-inline-end: 37%;
+    background-image: url("../../images/search-recovery.jpg");
+    background-repeat: no-repeat;
+    background-position: right center;
+    background-size: 33% auto;
+  }
+}
+
+
+/* Search controls and the Drupal page title share one full-width surface. */
+.site-main:has(.med-search) {
+  --med-search-band: #092f36;
+  padding-block-start: 0;
+}
+
+.site-main:has(.med-search) .block-page-title-block,
+.med-search-panel {
+  background: var(--med-search-band);
+  box-shadow: 0 0 0 100vmax var(--med-search-band);
+  clip-path: inset(0 -100vmax);
+  color: #fff;
+}
+
+.site-main:has(.med-search) .block-page-title-block {
+  padding-block: clamp(1.25rem, 3vw, 2rem) 0.375rem;
+  /* Overlap the panel paint to avoid a fractional-pixel seam. */
+  clip-path: inset(0 -100vmax -2px);
+}
+
+.site-main:has(.med-search) .page-title {
+  margin: 0;
+  color: inherit;
+}
+
+.med-search-panel {
+  display: grid;
+  gap: 0.875rem;
+  min-inline-size: 0;
+  padding-block: 0.5rem clamp(1.5rem, 4vw, 2.75rem);
+}
+
+.med-search-panel .med-search__lead,
+.med-search-panel .description,
+.med-search-panel .med-examples__label {
+  color: #cae5df;
+}
+
+.med-search-panel input[type="text"] {
+  color: var(--md-color-ink);
+  box-shadow: none;
+}
+
+.med-search-panel :focus-visible {
+  outline-color: #a9f4e1;
+}
+
+.med-suggestions button:focus-visible {
+  outline: 2px solid var(--md-color-focus);
+  outline-offset: -3px;
+}
+
+.med-query-bar {
+  position: relative;
+}
+
+.med-query-bar input[type="text"] {
+  min-block-size: 3.5rem;
+  padding-inline-end: 4rem;
+}
+
+.med-search .med-query-bar > .form-submit {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-end: 0;
+  inline-size: 3.5rem;
+  block-size: 3.5rem;
+  margin: 0;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: var(--md-radius);
+  background: #a9f4e1 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23092f36' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='10.5' cy='10.5' r='6.5'/%3E%3Cpath d='m15.5 15.5 5 5'/%3E%3C/svg%3E") center / 1.3rem no-repeat;
+  font-size: 0;
+}
+
+.med-search .med-query-bar > .form-submit:hover {
+  background-color: #d5fff4;
+}
+
+.med-search-panel .med-examples__button,
+.med-search-panel .med-examples__button:hover,
+.med-search-panel .med-examples__button.is-selected {
+  margin: 0;
+  padding-inline: 0.35rem;
+  border-color: transparent;
+  background: transparent;
+  color: #d5fff4;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+.med-search-panel .med-examples__button.is-selected {
+  font-weight: 700;
 }

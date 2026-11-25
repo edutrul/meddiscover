@@ -1,5 +1,5 @@
 _core:
   default_config_hash: foJah5kZaEUIqfl1JjRUkGdSib0gKx6ad1OASVjcTLs
 max_ctas: 3
-external_behavior: same_window
+external_behavior: new_window
 include_related_topic: true

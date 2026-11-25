@@ -1,24 +1,10 @@
 med_search.conversational:
-  title: 'Ask'
-  description: 'A short educational answer with citations from MedlinePlus topics.'
+  title: 'Search'
   route_name: med_search.conversational
   menu_name: main
   weight: 0
-med_search.hybrid:
-  title: 'Hybrid search'
-  description: 'Keywords and meaning combined.'
-  route_name: med_search.hybrid
+med_search.build:
+  title: 'How it was built'
+  route_name: med_search.build
   menu_name: main
   weight: 1
-med_search.semantic:
-  title: 'Semantic search'
-  description: 'Find educational health topics using natural language.'
-  route_name: med_search.semantic
-  menu_name: main
-  weight: 2
-med_search.lexical:
-  title: 'Keyword search'
-  description: 'Match words against topic names, alternative terms and text.'
-  route_name: med_search.lexical
-  menu_name: main
-  weight: 3
