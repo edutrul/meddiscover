@@ -105,9 +105,6 @@ class SearchForm extends FormBase {
     $examples = $conversational
       ? ['What is HbA1c?', 'How can I prevent type 2 diabetes?', 'What can trigger a migraine?']
       : ['Knee pain when walking', 'Seasonal allergies', 'Lower back pain'];
-    if ($automatic) {
-      $examples[] = 'Knee pain when walking';
-    }
     $form['query'] = [
       '#type' => 'textfield',
       '#title' => $conversational && !$automatic ? $this->t('Your health question') : $this->t('Search health topics'),
@@ -156,28 +153,9 @@ class SearchForm extends FormBase {
         '#type' => 'html_tag',
         '#tag' => 'p',
         '#attributes' => ['class' => ['med-examples__label'], 'id' => 'med-examples-label'],
-        '#value' => $this->t('Try an example:'),
+        '#value' => $automatic ? $this->t('Ask a question:') : $this->t('Try an example:'),
       ],
     ];
-    if ($automatic) {
-      $form['examples']['#attributes']['class'][] = 'med-examples--grouped';
-      unset($form['examples']['label']);
-      foreach ([
-        'answer' => $this->t('✨ Ask a question'),
-        'topic' => $this->t('Search a topic'),
-      ] as $group => $label) {
-        $form['examples'][$group] = [
-          '#type' => 'container',
-          '#attributes' => ['class' => ['med-examples__group']],
-          'label' => [
-            '#type' => 'html_tag',
-            '#tag' => 'p',
-            '#attributes' => ['class' => ['med-examples__label'], 'id' => 'med-examples-' . $group],
-            '#value' => $label,
-          ],
-        ];
-      }
-    }
     $current = trim((string) ($form_state->getUserInput()['query'] ?? ''));
     $public_example = NULL;
     foreach ($examples as $delta => $example) {
@@ -185,24 +163,17 @@ class SearchForm extends FormBase {
       if ($selected) {
         $public_example = $example;
       }
-      $group = preg_match('/' . self::QUESTION_PATTERN . '/iu', $example) ? 'answer' : 'topic';
-      $button = [
+      $form['examples']['example_' . $delta] = [
         '#type' => 'submit',
         '#name' => 'example_' . $delta,
         '#value' => $example,
         '#med_example' => $example,
         '#attributes' => [
           'class' => $selected ? ['med-examples__button', 'is-selected'] : ['med-examples__button'],
-          'aria-describedby' => $automatic ? 'med-examples-' . $group : 'med-examples-label',
+          'aria-describedby' => 'med-examples-label',
           'formnovalidate' => 'formnovalidate',
         ] + ($selected ? ['aria-current' => 'true'] : []),
       ];
-      if ($automatic) {
-        $form['examples'][$group]['example_' . $delta] = $button;
-      }
-      else {
-        $form['examples']['example_' . $delta] = $button;
-      }
     }
     $form['search_panel'] = [
       '#type' => 'container',

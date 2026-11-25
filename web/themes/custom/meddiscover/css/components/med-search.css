@@ -398,22 +398,6 @@
   align-items: center;
 }
 
-.med-examples--grouped {
-  display: grid;
-  gap: 0;
-}
-
-.med-examples__group {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  column-gap: 0.5rem;
-}
-
-.med-examples__group .med-examples__label {
-  min-inline-size: 8rem;
-}
-
 .med-examples__label {
   margin: 0;
   color: var(--md-color-muted);
