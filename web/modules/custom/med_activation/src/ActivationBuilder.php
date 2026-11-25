@@ -43,7 +43,7 @@ class ActivationBuilder {
       $host = $this->externalHost($item['url']);
       // Inert data attributes for aggregate click counting (med_analytics).
       $attributes = [
-        'class' => ['button', 'button--small'],
+        'class' => ['med-next-steps__link'],
         'data-med-event' => $item['type'] === 'resource' ? 'cta_clicked' : 'recommendation_clicked',
         'data-med-dimension' => $item['type'] === 'resource' ? $item['rule'] : 'related_topic',
       ];
@@ -70,10 +70,16 @@ class ActivationBuilder {
           // The external-site notice is part of the link text, so it is
           // announced together with the link by assistive technology.
           '#title' => $suffix === '' ? $item['label'] : [
-            '#markup' => Html::escape($item['label']) . ' <span class="med-external">' . Html::escape($suffix) . '</span>',
+            '#markup' => Html::escape($item['label']) . ' <span class="visually-hidden">' . Html::escape($suffix) . '</span>',
           ],
           '#url' => $item['node'] ? $item['node']->toUrl() : Url::fromUri($item['url']),
           '#attributes' => $attributes,
+        ],
+        'destination' => $suffix === '' ? [] : [
+          '#type' => 'html_tag',
+          '#tag' => 'span',
+          '#attributes' => ['class' => ['med-external'], 'aria-hidden' => 'true'],
+          '#value' => $host,
         ],
         'details' => [
           '#type' => 'html_tag',
@@ -82,7 +88,7 @@ class ActivationBuilder {
             '@attribution' => $item['type'] === 'resource' ? $attribution : '',
             '@reason' => $item['reason'],
           ]),
-          '#prefix' => '<br>',
+          '#prefix' => ' ',
         ],
       ];
     }

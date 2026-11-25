@@ -260,8 +260,23 @@
   list-style: none;
 }
 
+.med-next-steps .med-next-steps__link {
+  font-weight: 700;
+  text-underline-offset: 0.15em;
+}
+
 .med-next-steps small {
   color: var(--md-color-muted);
+  font-size: 0.875rem;
+}
+
+.med-next-steps .med-external {
+  margin-inline: 0.25rem;
+  color: var(--md-color-muted);
+}
+
+.med-next-steps .med-external::after {
+  content: ' ·';
 }
 
 .med-external {
@@ -288,6 +303,15 @@
 .med-answer .item-list ul {
   margin: 0;
   padding: 0;
+}
+
+.med-result details .item-list ul {
+  padding-inline-start: 1.25rem;
+  margin-block: 0.3rem 0.65rem;
+}
+
+.med-result details .item-list + .item-list {
+  margin-block-start: 0.75rem;
 }
 
 .med-search .item-list li {
