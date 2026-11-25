@@ -214,10 +214,6 @@
   gap: var(--md-space-4);
 }
 
-.med-results .med-answer {
-  max-inline-size: 58rem;
-}
-
 .med-results__heading {
   margin: 0;
 }

@@ -155,8 +155,12 @@ class SearchForm extends FormBase {
       ],
     ];
     $current = trim((string) ($form_state->getUserInput()['query'] ?? ''));
+    $public_example = NULL;
     foreach ($examples as $delta => $example) {
       $selected = $current !== '' && mb_strtolower($current) === mb_strtolower($example);
+      if ($selected) {
+        $public_example = $example;
+      }
       $form['examples']['example_' . $delta] = [
         '#type' => 'submit',
         '#name' => 'example_' . $delta,
@@ -267,8 +271,8 @@ class SearchForm extends FormBase {
       ];
     }
     if ($response !== NULL) {
-      if (!$browsing && ($example = $form_state->getTriggeringElement()['#med_example'] ?? NULL)) {
-        $form['#attributes']['data-med-public-example'] = $example;
+      if (!$browsing && $public_example !== NULL) {
+        $form['#attributes']['data-med-public-example'] = $public_example;
       }
       $form['results'] = [
         '#type' => 'container',
