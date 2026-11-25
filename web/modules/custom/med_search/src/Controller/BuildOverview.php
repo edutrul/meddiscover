@@ -41,6 +41,11 @@ final class BuildOverview extends ControllerBase {
         'description' => ['#type' => 'html_tag', '#tag' => 'p', '#value' => $description],
       ];
     }
+    $page['workspace'] = [
+      '#type' => 'link',
+      '#title' => $this->t('Compare search modes'),
+      '#url' => Url::fromRoute('med_search.compare'),
+    ];
     $page['compare'] = [
       '#theme' => 'item_list',
       '#title' => $this->t('Try each search mode'),
