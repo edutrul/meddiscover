@@ -278,7 +278,32 @@ class SearchForm extends FormBase {
           '#type' => 'html_tag',
           '#tag' => 'h3',
           '#value' => $this->t('Supporting health topics'),
+          '#attributes' => ['data-med-topic-heading' => ''],
         ];
+      }
+      if (isset($response['answer']) && $response['results']) {
+        $form['results']['view'] = [
+          '#type' => 'html_tag',
+          '#tag' => 'div',
+          '#attributes' => ['class' => ['med-result-filter'], 'hidden' => TRUE],
+          'label' => [
+            '#type' => 'html_tag',
+            '#tag' => 'label',
+            '#attributes' => ['for' => 'med-result-view'],
+            '#value' => $this->t('Show'),
+          ],
+          'select' => [
+            '#type' => 'html_tag',
+            '#tag' => 'select',
+            '#attributes' => ['id' => 'med-result-view', 'data-med-result-view' => ''],
+            'all' => $this->viewOption('all', $this->t('Answer and topics')),
+            'answer' => $this->viewOption('answer', $this->t('Answer only')),
+            'topics' => $this->viewOption('topics', $this->t('Topics only')),
+          ],
+          '#weight' => -1,
+        ];
+        $form['results']['heading']['#weight'] = -3;
+        $form['results']['compare']['#weight'] = -2;
       }
       if (!$response['results']) {
         $form['results']['empty'] = [
@@ -335,6 +360,7 @@ class SearchForm extends FormBase {
     }
     $error = $form_state->getTemporaryValue('med_error');
     if ($error) {
+      [$label] = self::STRATEGIES[$this->search->id()];
       $form['error'] = [
         '#type' => 'container',
         '#attributes' => ['role' => 'alert', 'class' => ['med-state', 'med-state--error']],
@@ -585,6 +611,13 @@ class SearchForm extends FormBase {
     $link['#attributes']['target'] = '_blank';
     $link['#suffix'] = '<span class="visually-hidden"> ' . t('(opens in a new tab)') . '</span>' . ($link['#suffix'] ?? '');
     return $link;
+  }
+
+  /**
+   * Builds a presentation filter option outside the submitted search values.
+   */
+  private function viewOption(string $value, string $label): array {
+    return ['#type' => 'html_tag', '#tag' => 'option', '#attributes' => ['value' => $value], '#value' => $label];
   }
 
   /**
