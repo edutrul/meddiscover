@@ -18,28 +18,42 @@
     return snapshot;
   }
 
-  function applyView(form, view) {
-    const filter = form.querySelector('.med-result-filter');
-    if (!filter) {
+  function applyView(form, view, topic = 'all') {
+    const results = form.querySelector('.med-results');
+    if (!results) {
       return;
     }
-    filter.hidden = false;
-    filter.querySelectorAll('[data-med-result-view]').forEach((button) => {
-      button.setAttribute('aria-pressed', String(button.dataset.medResultView === view));
-    });
-    const results = filter.closest('.med-results');
+    const filter = results.querySelector('.med-result-filter');
+    if (filter) {
+      filter.hidden = false;
+      filter.querySelectorAll('[data-med-result-view]').forEach((button) => {
+        button.setAttribute('aria-pressed', String(button.dataset.medResultView === view));
+      });
+    }
+    const topicResults = results.querySelector('[data-med-topic-results]');
+    if (topicResults) {
+      topicResults.hidden = view === 'answer';
+      topicResults.querySelector('.med-topic-facet').hidden = false;
+      topicResults.querySelectorAll('[data-med-topic-filter]').forEach((button) => {
+        button.setAttribute('aria-pressed', String(button.dataset.medTopicFilter === topic));
+      });
+    }
     // Urgent notices and search errors are always visible.
     results.querySelectorAll('.med-answer:not(.med-answer--urgent)').forEach((answer) => {
       answer.hidden = view === 'topics';
     });
-    results.querySelectorAll('.result-card, [data-med-topic-heading]').forEach((topic) => {
-      topic.hidden = view === 'answer';
+    results.querySelectorAll('.result-card').forEach((card) => {
+      const groups = (card.dataset.medTopicGroups ?? '').split(' ');
+      card.hidden = view === 'answer' || (topic !== 'all' && !groups.includes(topic));
+    });
+    results.querySelectorAll('[data-med-topic-heading]').forEach((heading) => {
+      heading.hidden = view === 'answer';
     });
   }
 
-  function remember(form, view = 'all') {
+  function remember(form, view = 'all', topic = 'all') {
     const id = `${pageKey}-${++next}`;
-    snapshots.set(id, { form: copy(form), view });
+    snapshots.set(id, { form: copy(form), view, topic });
     if (snapshots.size > 16) {
       snapshots.delete(snapshots.keys().next().value);
     }
@@ -75,14 +89,17 @@
           }
         });
         document.addEventListener('click', (event) => {
-          const button = event.target.closest('[data-med-result-view]');
+          const button = event.target.closest('[data-med-result-view], [data-med-topic-filter]');
           if (!button || button.getAttribute('aria-pressed') === 'true') {
             return;
           }
           const current = button.closest(selector);
-          const view = button.dataset.medResultView;
-          applyView(current, view);
-          remember(current, view);
+          const selectedView = current.querySelector('[data-med-result-view][aria-pressed="true"]');
+          const selectedTopic = current.querySelector('[data-med-topic-filter][aria-pressed="true"]');
+          const view = button.dataset.medResultView ?? selectedView?.dataset.medResultView ?? 'all';
+          const topic = button.dataset.medTopicFilter ?? selectedTopic?.dataset.medTopicFilter ?? 'all';
+          applyView(current, view, topic);
+          remember(current, view, topic);
         });
         window.addEventListener('popstate', (event) => {
           const current = document.querySelector(selector);
@@ -93,7 +110,7 @@
           const snapshot = snapshots.get(event.state?.medSearch);
           const restored = (snapshot?.form ?? initial).cloneNode(true);
           tracked.add(restored);
-          applyView(restored, snapshot?.view ?? 'all');
+          applyView(restored, snapshot?.view ?? 'all', snapshot?.topic ?? 'all');
           Drupal.detachBehaviors(current);
           current.replaceWith(restored);
           window.htmx?.process(restored);

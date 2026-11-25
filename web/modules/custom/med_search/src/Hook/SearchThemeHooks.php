@@ -47,6 +47,7 @@ class SearchThemeHooks {
       }
     }
     $variables['attributes']['class'][] = 'med-result';
+    $variables['attributes']['data-med-topic-groups'] = implode(' ', $element['#med_topic_groups'] ?? []);
   }
 
 }

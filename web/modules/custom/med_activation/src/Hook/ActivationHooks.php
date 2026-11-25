@@ -30,8 +30,14 @@ class ActivationHooks {
     }
     $query = (string) $form_state->getValue('query', '');
     $behavior = (string) $this->configFactory->get('med_activation.settings')->get('external_behavior');
-    foreach (Element::children($form['results']) as $key) {
-      $result = &$form['results'][$key];
+    if (isset($form['results']['topics']['items'])) {
+      $results = &$form['results']['topics']['items'];
+    }
+    else {
+      $results = &$form['results'];
+    }
+    foreach (Element::children($results) as $key) {
+      $result = &$results[$key];
       if (!isset($result['#med_topic'])) {
         continue;
       }

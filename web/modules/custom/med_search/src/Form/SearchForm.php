@@ -307,15 +307,25 @@ class SearchForm extends FormBase {
           '#value' => $this->t('No topics matched closely enough. Try another educational health topic or a different search mode.'),
         ];
       }
+      $facets = [];
       $enrichment_start = hrtime(TRUE);
       foreach ($response['results'] as $delta => $result) {
         $node = $result['node'];
+        $groups = [];
+        foreach ($node->field_med_groups->referencedEntities() as $term) {
+          $groups[$term->id()] = $term;
+        }
+        foreach ($groups as $id => $group) {
+          $facets[$id] ??= ['label' => $group->label(), 'count' => 0];
+          $facets[$id]['count']++;
+        }
         $enrichment = $this->enricher->enrich($node);
         $form['results'][$delta] = [
           '#theme' => 'med_search_result',
           // For other modules (for example activation): the topic and its
           // already computed enrichment.
           '#med_topic' => $node,
+          '#med_topic_groups' => array_keys($groups),
           '#med_enrichment' => $enrichment,
           'title' => self::track(
             ['#type' => 'link', '#title' => $node->label(), '#url' => $node->toUrl()],
@@ -346,6 +356,18 @@ class SearchForm extends FormBase {
           ]), 'external_resource_clicked', 'source'),
         ] + $this->buildEnrichment($enrichment);
       }
+      if ($facets) {
+        $form['results']['topics'] = $this->topicFacet($facets, count($response['results']));
+        $items = &$form['results']['topics']['items'];
+        if (isset($form['results']['supporting'])) {
+          $items['supporting'] = $form['results']['supporting'];
+          unset($form['results']['supporting']);
+        }
+        foreach (array_keys($response['results']) as $delta) {
+          $items[$delta] = $form['results'][$delta];
+          unset($form['results'][$delta]);
+        }
+      }
       $enrichment_ms = (hrtime(TRUE) - $enrichment_start) / 1e6;
       $this->reportOnce($form_state, $response, $enrichment_ms);
       if ($this->currentUser()->hasPermission('view med search ranking details')) {
@@ -362,6 +384,41 @@ class SearchForm extends FormBase {
       ];
     }
     return $form;
+  }
+
+  /**
+   * Builds a filter for the topics in the returned ranking.
+   */
+  private function topicFacet(array $facets, int $total): array {
+    uasort($facets, fn(array $a, array $b) => strnatcasecmp($a['label'], $b['label']));
+    $build = [
+      '#type' => 'container',
+      '#attributes' => ['class' => ['med-topic-results'], 'data-med-topic-results' => ''],
+      'facet' => [
+        '#type' => 'html_tag',
+        '#tag' => 'details',
+        '#attributes' => ['class' => ['med-topic-facet'], 'hidden' => TRUE, 'open' => TRUE],
+        'heading' => ['#type' => 'html_tag', '#tag' => 'summary', '#value' => $this->t('Filter by topic')],
+      ],
+      'items' => [
+        '#type' => 'container',
+        '#attributes' => ['class' => ['med-topic-results__items']],
+      ],
+    ];
+    $facets = ['all' => ['label' => $this->t('All topics'), 'count' => $total]] + $facets;
+    foreach ($facets as $id => $facet) {
+      $build['facet']['topic_' . $id] = [
+        '#type' => 'html_tag',
+        '#tag' => 'button',
+        '#attributes' => [
+          'type' => 'button',
+          'data-med-topic-filter' => $id,
+          'aria-pressed' => $id === 'all' ? 'true' : 'false',
+        ],
+        '#value' => $this->t('@topic (@count)', ['@topic' => $facet['label'], '@count' => $facet['count']]),
+      ];
+    }
+    return $build;
   }
 
   /**

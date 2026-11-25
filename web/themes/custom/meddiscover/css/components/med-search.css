@@ -719,3 +719,58 @@ a[data-med-external]::after {
   background: var(--md-color-primary);
   color: white;
 }
+
+.med-topic-results:not([hidden]) {
+  display: grid;
+  gap: var(--md-space-4);
+}
+
+.med-topic-results__items {
+  display: grid;
+  min-inline-size: 0;
+  gap: var(--md-space-4);
+}
+
+.med-topic-facet {
+  align-self: start;
+  margin: 0;
+  padding: 0.75rem;
+  border: 1px solid var(--md-color-border);
+  border-radius: var(--md-radius-small);
+  background: var(--md-color-surface);
+}
+
+.med-topic-facet summary {
+  padding: 0.5rem;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.med-topic-facet button {
+  display: block;
+  width: 100%;
+  min-block-size: 44px;
+  padding: 0.5rem;
+  border: 0;
+  border-radius: var(--md-radius-small);
+  background: transparent;
+  color: var(--md-color-primary-strong);
+  cursor: pointer;
+  font: inherit;
+  text-align: start;
+}
+
+.med-topic-facet button:hover {
+  text-decoration: underline;
+}
+
+.med-topic-facet button[aria-pressed='true'] {
+  background: var(--md-color-info-bg);
+  font-weight: 700;
+}
+
+@media (min-width: 48rem) {
+  .med-topic-results:not([hidden]):has(.med-topic-facet:not([hidden])) {
+    grid-template-columns: minmax(12rem, 1fr) minmax(0, 3fr);
+  }
+}
