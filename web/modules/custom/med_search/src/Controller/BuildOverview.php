@@ -41,7 +41,12 @@ final class BuildOverview extends ControllerBase {
         'description' => ['#type' => 'html_tag', '#tag' => 'p', '#value' => $description],
       ];
     }
-    $page['workspace'] = [
+    $page['layer_1']['comparison_intro'] = [
+      '#type' => 'html_tag',
+      '#tag' => 'p',
+      '#value' => $this->t('Run the same query in Keyword, Semantic, and Hybrid to see how each mode ranks the topics.'),
+    ];
+    $page['layer_1']['workspace'] = [
       '#type' => 'link',
       '#title' => $this->t('Compare search modes'),
       '#url' => Url::fromRoute('med_search.compare'),

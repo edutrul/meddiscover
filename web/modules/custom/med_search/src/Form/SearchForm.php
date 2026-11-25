@@ -258,16 +258,16 @@ class SearchForm extends FormBase {
         '#type' => 'container',
         '#attributes' => ['aria-live' => 'polite', 'class' => ['med-results']],
       ];
-      $form['results']['heading'] = [
-        '#type' => 'html_tag',
-        '#tag' => 'h2',
-        '#attributes' => ['tabindex' => '-1', 'data-med-results-heading' => '', 'class' => ['med-results__heading']],
-        '#value' => $this->formatPlural(count($response['results']), '1 health topic', '@count health topics'),
-      ];
-      $form['results']['compare'] = [
-        '#type' => 'link',
-        '#title' => $this->t('Compare search modes'),
-        '#url' => Url::fromRoute('med_search.compare'),
+      $form['results']['toolbar'] = [
+        '#type' => 'container',
+        '#attributes' => ['class' => ['med-results__toolbar']],
+        '#weight' => -10,
+        'heading' => [
+          '#type' => 'html_tag',
+          '#tag' => 'h2',
+          '#attributes' => ['tabindex' => '-1', 'data-med-results-heading' => '', 'class' => ['med-results__heading']],
+          '#value' => $this->formatPlural(count($response['results']), '1 health topic', '@count health topics'),
+        ],
       ];
       foreach ($response['notices'] as $delta => $notice) {
         $form['results']['notice_' . $delta] = [
@@ -287,7 +287,7 @@ class SearchForm extends FormBase {
         ];
       }
       if (isset($response['answer']) && $response['results']) {
-        $form['results']['view'] = [
+        $form['results']['toolbar']['view'] = [
           '#type' => 'html_tag',
           '#tag' => 'div',
           '#attributes' => [
@@ -299,22 +299,8 @@ class SearchForm extends FormBase {
           'all' => $this->viewOption('all', $this->t('All')),
           'answer' => $this->viewOption('answer', $this->t('Answer')),
           'topics' => $this->viewOption('topics', $this->t('Topics')),
-          '#weight' => -2,
         ];
-        $form['results']['heading']['#weight'] = -3;
-        $form['results']['compare']['#weight'] = -1;
       }
-      $toolbar = [
-        '#type' => 'container',
-        '#attributes' => ['class' => ['med-results__toolbar']],
-        'heading' => $form['results']['heading'],
-        'compare' => $form['results']['compare'],
-      ];
-      if (isset($form['results']['view'])) {
-        $toolbar['view'] = $form['results']['view'];
-      }
-      unset($form['results']['heading'], $form['results']['compare'], $form['results']['view']);
-      $form['results']['toolbar'] = $toolbar + ['#weight' => -10];
       if (!$response['results']) {
         $form['results']['empty'] = [
           '#type' => 'html_tag',
