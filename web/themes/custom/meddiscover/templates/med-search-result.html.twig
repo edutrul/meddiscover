@@ -1,0 +1,14 @@
+{#
+/**
+ * @file
+ * Maps a med_search result to the result-card component.
+ */
+#}
+{% embed 'meddiscover:result-card' with { attributes: attributes } %}
+  {% block title %}{{ title }}{% endblock %}
+  {% block description %}{{ description }}{% endblock %}
+  {% block meta %}{{ score }}{% endblock %}
+  {% block source %}{{ source }}{% endblock %}
+  {% block next_steps %}{{ next_steps }}{% endblock %}
+  {% block details %}{{ details }}{% endblock %}
+{% endembed %}

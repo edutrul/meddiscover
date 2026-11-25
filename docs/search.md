@@ -9,7 +9,7 @@ medDiscover has three search modes over the same 24 English Health Topics, shari
 | `/search/hybrid` | Reciprocal Rank Fusion of the lexical and semantic rankings | [ADR 005](architecture/005-lexical-hybrid-search.md) |
 | `/search/conversational` | Short cited educational answer from retrieved topics (local LLM), with abstention and urgent-situation handling | [ADR 006](architecture/006-conversational-search.md) |
 
-Each page links to the other two, so the same question can be compared across modes. The comparison results are in [docs/evaluation/hybrid-search.md](evaluation/hybrid-search.md).
+Each page links to the other modes, so the same question can be compared across them. With JavaScript, the form submits in place (core HTMX) with a loading indicator; without it, the page reloads as before ([ADR 009](architecture/009-search-ui.md)). The comparison results are in [docs/evaluation/hybrid-search.md](evaluation/hybrid-search.md).
 
 ## Prerequisites
 
@@ -102,6 +102,7 @@ ddev drush php:script scripts/activation/report.php            # real corpus; CT
 ddev drush php:script scripts/analytics/test_analytics.php     # synthetic fixture; aggregate analytics contract
 ddev drush php:script scripts/optimization/quality.php queries=docs/evaluation/phase-08-holdout-queries.json baseline=docs/evaluation/baselines/holdout-before.json
 ddev drush php:script scripts/optimization/benchmark.php       # real stack; stage latency
+ddev drush php:script scripts/ui/test_ui.php                   # synthetic fixture; theme, components, HTMX and states
 ddev drush php:script scripts/search/check_privacy.php  # after submitting "What is backache?" in the forms
 ddev exec -s solr grep -rlc "backache" /var/solr/logs || echo "no query text in Solr logs"
 ```

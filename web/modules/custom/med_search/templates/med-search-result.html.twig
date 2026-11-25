@@ -1,0 +1,20 @@
+{#
+/**
+ * @file
+ * Default search result markup; themes may map the parts to a component.
+ *
+ * Available variables:
+ * - title, description, score, source: named result parts.
+ * - next_steps: calls to action added by other modules, if any.
+ * - details: enrichment sections and any other parts.
+ * - attributes: wrapper attributes.
+ */
+#}
+<article{{ attributes }}>
+  <h3 class="med-result__title">{{ title }}</h3>
+  {{ description }}
+  {{ score }}
+  <p class="med-result__source">{{ source }}</p>
+  {{ next_steps }}
+  {{ details }}
+</article>

@@ -4,6 +4,7 @@ namespace Drupal\med_search\Form;
 
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Htmx\Htmx;
 use Drupal\Core\Url;
 use Drupal\med_search\ResultEnricher;
 use Drupal\med_search\SearchStrategyInterface;
@@ -103,15 +104,57 @@ class SearchForm extends FormBase {
       '#attributes' => ['autocomplete' => 'off'],
     ];
     $form['submit'] = ['#type' => 'submit', '#value' => $this->t('Search')];
+    // Progressive enhancement with core HTMX: post in place and swap only
+    // this form. Without JavaScript the regular POST and rebuild still work.
+    $form['#attributes']['data-med-search'] = $this->search->id();
+    $form['#attributes']['class'][] = 'med-search';
+    $form['loading'] = [
+      '#type' => 'html_tag',
+      '#tag' => 'p',
+      '#attributes' => ['id' => 'med-search-loading', 'class' => ['med-loading', 'htmx-indicator'], 'role' => 'status'],
+      '#value' => $this->search->id() === 'conversational'
+        ? $this->t('Writing an answer from the MedlinePlus sources. This usually takes 10 to 20 seconds.')
+        : $this->t('Searching…'),
+    ];
+    $form['request_error'] = [
+      '#type' => 'html_tag',
+      '#tag' => 'p',
+      '#attributes' => [
+        'class' => ['med-state', 'med-state--error'],
+        'role' => 'alert',
+        'tabindex' => '-1',
+        'hidden' => 'hidden',
+        'data-med-search-error' => '',
+      ],
+      '#value' => $this->t('The search could not be completed. Check your connection and try again.'),
+    ];
+    (new Htmx())
+      ->post(Url::fromRoute('<current>'))
+      ->onlyMainContent()
+      ->select('form[data-med-search]')
+      ->target('this')
+      ->swap('outerHTML')
+      ->indicator('#med-search-loading')
+      ->disabledElt('find [type="submit"]')
+      ->applyTo($form);
+    $form['#attached']['library'][] = 'med_search/search';
     $response = $form_state->getTemporaryValue('med_response');
     if ($response !== NULL) {
-      $form['results'] = ['#type' => 'container', '#attributes' => ['aria-live' => 'polite']];
-      $form['results']['heading'] = ['#type' => 'html_tag', '#tag' => 'h2', '#value' => $this->t('Search results')];
+      $form['results'] = [
+        '#type' => 'container',
+        '#attributes' => ['aria-live' => 'polite', 'class' => ['med-results']],
+      ];
+      $form['results']['heading'] = [
+        '#type' => 'html_tag',
+        '#tag' => 'h2',
+        '#attributes' => ['tabindex' => '-1', 'data-med-results-heading' => '', 'class' => ['med-results__heading']],
+        '#value' => $this->t('Search results'),
+      ];
       foreach ($response['notices'] as $delta => $notice) {
         $form['results']['notice_' . $delta] = [
           '#type' => 'html_tag',
           '#tag' => 'p',
-          '#attributes' => ['role' => 'status'],
+          '#attributes' => ['role' => 'status', 'class' => ['med-state', 'med-state--notice']],
           '#value' => $this->t('@notice', ['@notice' => $notice]),
         ];
       }
@@ -124,14 +167,19 @@ class SearchForm extends FormBase {
         ];
       }
       if (!$response['results']) {
-        $form['results']['empty'] = ['#plain_text' => $this->t('No topics matched closely enough. Try another educational health topic or a different search mode.')];
+        $form['results']['empty'] = [
+          '#type' => 'html_tag',
+          '#tag' => 'p',
+          '#attributes' => ['class' => ['med-state', 'med-state--empty']],
+          '#value' => $this->t('No topics matched closely enough. Try another educational health topic or a different search mode.'),
+        ];
       }
       $enrichment_start = hrtime(TRUE);
       foreach ($response['results'] as $delta => $result) {
         $node = $result['node'];
         $enrichment = $this->enricher->enrich($node);
         $form['results'][$delta] = [
-          '#type' => 'container',
+          '#theme' => 'med_search_result',
           // For other modules (for example activation): the topic and its
           // already computed enrichment.
           '#med_topic' => $node,
@@ -164,7 +212,7 @@ class SearchForm extends FormBase {
     if ($error) {
       $form['error'] = [
         '#type' => 'container',
-        '#attributes' => ['role' => 'alert'],
+        '#attributes' => ['role' => 'alert', 'class' => ['med-state', 'med-state--error']],
         'text' => ['#plain_text' => $this->t('@mode search is temporarily unavailable. Please try again later.', ['@mode' => $label])],
       ];
     }
@@ -175,7 +223,7 @@ class SearchForm extends FormBase {
    * Render a conversational answer with numbered, verifiable citations.
    */
   private function buildAnswer(array $answer, array $results): array {
-    $build = ['#type' => 'container', '#attributes' => ['class' => ['med-answer']]];
+    $build = ['#type' => 'container', '#attributes' => ['class' => ['med-answer', 'med-answer--' . $answer['status']]]];
     $nodes = array_column($results, 'node', 'id');
     switch ($answer['status']) {
       case 'urgent':
@@ -204,8 +252,12 @@ class SearchForm extends FormBase {
         foreach ($numbers as $id => $number) {
           $node = $nodes[$id];
           $sources[] = [
-            'number' => ['#plain_text' => '[' . $number . '] '],
-            'topic' => ['#type' => 'link', '#title' => $node->label(), '#url' => $node->toUrl()],
+            'topic' => [
+              '#type' => 'link',
+              '#title' => $node->label(),
+              '#url' => $node->toUrl(),
+              '#prefix' => '[' . $number . '] ',
+            ],
             'origin' => self::track([
               '#prefix' => ' — ',
               '#type' => 'link',

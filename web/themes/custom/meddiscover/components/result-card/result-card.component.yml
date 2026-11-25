@@ -1,0 +1,26 @@
+$schema: https://git.drupalcode.org/project/drupal/-/raw/HEAD/core/assets/schemas/v1/metadata.schema.json
+name: Result card
+status: stable
+description: One search result with its source attribution, score explanation, next steps and enrichment.
+props:
+  type: object
+  properties:
+    attributes:
+      type: Drupal\Core\Template\Attribute
+slots:
+  title:
+    title: Title
+    description: Linked topic title.
+  description:
+    title: Description
+  meta:
+    title: Score explanation
+  source:
+    title: Source attribution
+    description: Link to the original MedlinePlus page.
+  next_steps:
+    title: Next steps
+    description: Calls to action from med_activation.
+  details:
+    title: Details
+    description: Collapsible enrichment sections.

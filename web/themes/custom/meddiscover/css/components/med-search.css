@@ -1,0 +1,272 @@
+/**
+ * @file
+ * Search page: form, mode switcher, states, answer and next steps.
+ * Result cards and notices are Single Directory Components.
+ */
+.med-search {
+  display: grid;
+  gap: var(--md-space-4);
+}
+
+.med-search .item-list.inline ul,
+.med-search .inline ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--md-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Mode switcher: current mode is a strong, the others links. */
+.med-search > .item-list:first-of-type li > *,
+.med-search > div > .item-list li > * {
+  display: inline-block;
+  padding: var(--md-space-1) var(--md-space-3);
+  border: 1px solid var(--md-color-border);
+  border-radius: 999px;
+  background: var(--md-color-surface);
+  text-decoration: none;
+}
+
+.med-search > .item-list:first-of-type li > strong {
+  border-color: var(--md-color-primary);
+  background: var(--md-color-primary);
+  color: #fff;
+}
+
+.med-search .form-item {
+  margin: 0;
+}
+
+.med-search input[type="text"] {
+  box-sizing: border-box;
+  width: 100%;
+  padding: var(--md-space-3) var(--md-space-4);
+  border: 2px solid var(--md-color-border);
+  border-radius: var(--md-radius);
+  background: var(--md-color-surface);
+  font: inherit;
+  font-size: 1.125rem;
+}
+
+.med-search input[type="text"]:focus-visible {
+  border-color: var(--md-color-focus);
+}
+
+.med-search .form-actions {
+  margin: 0;
+}
+
+.button,
+.med-search [type="submit"] {
+  display: inline-block;
+  padding: var(--md-space-2) var(--md-space-6);
+  border: 0;
+  border-radius: var(--md-radius);
+  background: var(--md-color-primary);
+  color: #fff;
+  font: inherit;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.button:hover,
+.med-search [type="submit"]:hover {
+  background: var(--md-color-primary-strong);
+  color: #fff;
+}
+
+.med-search [type="submit"][disabled] {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.button--small {
+  padding: var(--md-space-1) var(--md-space-3);
+  font-size: 0.9375rem;
+}
+
+/* Loading indicator, shown by HTMX during the request. */
+.med-loading {
+  display: none;
+  align-items: center;
+  gap: var(--md-space-2);
+  margin: 0;
+  color: var(--md-color-muted);
+}
+
+.med-loading.htmx-request {
+  display: flex;
+}
+
+.med-loading::before {
+  width: 1rem;
+  height: 1rem;
+  border: 3px solid var(--md-color-border);
+  border-top-color: var(--md-color-primary);
+  border-radius: 50%;
+  content: "";
+  animation: med-spin 0.8s linear infinite;
+}
+
+@keyframes med-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* States: notice, empty, error and the answer statuses. */
+.med-state,
+.med-answer--abstained,
+.med-answer--withheld,
+.med-answer--unavailable {
+  margin: 0;
+  padding: var(--md-space-3) var(--md-space-4);
+  border-left: 4px solid var(--md-color-primary);
+  border-radius: var(--md-radius-small);
+  background: var(--md-color-info-bg);
+}
+
+.med-state--error,
+.med-answer--urgent {
+  border-left-color: var(--md-color-danger-border);
+  background: var(--md-color-danger-bg);
+}
+
+.med-state--empty,
+.med-answer--withheld,
+.med-answer--unavailable {
+  border-left-color: var(--md-color-warning-border);
+  background: var(--md-color-warning-bg);
+}
+
+.med-answer--urgent {
+  padding: var(--md-space-4);
+  border-left-width: 6px;
+  border-radius: var(--md-radius-small);
+  font-size: 1.125rem;
+}
+
+.med-answer--answered {
+  padding: var(--md-space-6);
+  border: 1px solid var(--md-color-border);
+  border-top: 4px solid var(--md-color-primary);
+  border-radius: var(--md-radius);
+  background: var(--md-color-surface);
+  box-shadow: var(--md-shadow);
+}
+
+.med-answer--answered ul {
+  padding-left: 1.25rem;
+}
+
+.med-answer--answered li + li {
+  margin-top: var(--md-space-2);
+}
+
+.med-answer--answered > p:last-child {
+  margin-bottom: 0;
+  color: var(--md-color-muted);
+  font-size: 0.9375rem;
+}
+
+.med-results {
+  display: grid;
+  gap: var(--md-space-4);
+}
+
+.med-results__heading {
+  margin-top: var(--md-space-4);
+}
+
+.med-results__heading:focus {
+  outline: none;
+}
+
+/* Next steps (med_activation). */
+.med-next-steps {
+  margin-top: var(--md-space-4);
+  padding: var(--md-space-4);
+  border-radius: var(--md-radius-small);
+  background: var(--md-color-info-bg);
+}
+
+.med-next-steps h4 {
+  margin-bottom: var(--md-space-1);
+}
+
+.med-next-steps > p {
+  margin-top: 0;
+  color: var(--md-color-muted);
+  font-size: 0.875rem;
+}
+
+.med-next-steps ul {
+  display: grid;
+  gap: var(--md-space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.med-next-steps small {
+  color: var(--md-color-muted);
+}
+
+.med-external {
+  font-weight: 400;
+  font-size: 0.8125rem;
+}
+
+/* Enrichment sections. */
+.med-result details {
+  margin-top: var(--md-space-3);
+  padding: var(--md-space-2) var(--md-space-3);
+  border: 1px solid var(--md-color-border);
+  border-radius: var(--md-radius-small);
+}
+
+.med-result summary {
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Layout corrections inside the search form. */
+.med-search .item-list ul,
+.med-next-steps .item-list ul,
+.med-answer .item-list ul {
+  margin: 0;
+  padding: 0;
+}
+
+.med-search .item-list li {
+  margin: 0;
+}
+
+.med-answer--answered .item-list ul {
+  padding-left: 1.25rem;
+}
+
+.med-search .form-actions {
+  justify-self: start;
+  padding: 0;
+}
+
+.med-next-steps small,
+.med-external,
+.result-card__source a {
+  overflow-wrap: anywhere;
+}
+
+.med-search .form-actions,
+.med-search .form-actions [type="submit"] {
+  width: auto;
+  margin-inline: 0;
+}
+
+.med-search > .form-submit {
+  justify-self: start;
+  margin: 0;
+}
