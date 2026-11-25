@@ -9,7 +9,9 @@ dependencies:
     - workflows.workflow.editorial
   module:
     - content_moderation
+    - med_analytics
     - node
+    - system
     - toolbar
 id: content_editor
 label: 'Content editor'
@@ -18,9 +20,6 @@ is_admin: false
 permissions:
   - 'access content overview'
   - 'access toolbar'
-  - 'create med_health_topic content'
-  - 'create med_relationship content'
-  - 'create med_resource content'
   - 'edit any med_health_topic content'
   - 'edit any med_relationship content'
   - 'edit any med_resource content'
@@ -31,3 +30,5 @@ permissions:
   - 'use editorial transition publish'
   - 'view any unpublished content'
   - 'view latest version'
+  - 'view med analytics'
+  - 'view the administration theme'
