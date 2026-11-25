@@ -115,6 +115,7 @@ try {
     'title' => 'Synthetic Lexical Shared',
     'langcode' => 'en',
     'status' => 1,
+    'moderation_state' => 'published',
     'field_med_source_id' => 'test-lexical-shared',
     'field_med_source_url' => 'https://medlineplus.gov/test-lexical-shared.html',
     'field_med_description' => 'Ambiguous fixture fixture fixture text repeated to raise term frequency.',
@@ -126,6 +127,7 @@ try {
     'title' => 'Synthetic Unpublished Zyxwvut',
     'langcode' => 'en',
     'status' => 0,
+    'moderation_state' => 'draft',
     'field_med_source_id' => 'test-lexical-hidden',
     'field_med_source_url' => 'https://medlineplus.gov/test-lexical-hidden.html',
   ]);
@@ -137,6 +139,7 @@ try {
     'title' => 'Ambiguous Fixture Overview',
     'langcode' => 'en',
     'status' => 1,
+    'moderation_state' => 'published',
     'field_med_source_id' => 'test-lexical-partial',
     'field_med_source_url' => 'https://medlineplus.gov/test-lexical-partial.html',
   ]);
