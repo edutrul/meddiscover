@@ -48,7 +48,10 @@
       matching += Number(matches);
       card.hidden = view === 'answer' || !matches;
     });
-    results.querySelector('[data-med-results-heading]').textContent = Drupal.formatPlural(matching, '1 health topic', '@count health topics');
+    const heading = results.querySelector('[data-med-results-heading]');
+    heading.classList.toggle('visually-hidden', view === 'answer');
+    heading.textContent = view === 'answer' ? Drupal.t('Answer') :
+      Drupal.formatPlural(matching, '1 health topic', '@count health topics');
     results.querySelectorAll('[data-med-topic-heading]').forEach((heading) => {
       heading.hidden = view === 'answer';
     });
@@ -77,7 +80,7 @@
         url.searchParams.set('topic', selected.dataset.medTopicLabel);
       }
     }
-    if (view !== 'all') {
+    if (view !== (form.dataset.medDefaultView ?? 'all')) {
       url.searchParams.set('view', view);
     }
     history[replace ? 'replaceState' : 'pushState']({ medSearch: id }, '', url);
@@ -98,7 +101,7 @@
         const wantedTopic = incoming.searchParams.get('topic');
         const wantedView = incoming.searchParams.get('view');
         let restoring = Boolean(preset);
-        applyView(form, 'all');
+        applyView(form, form.dataset.medDefaultView ?? 'all');
         initial = copy(form);
         tracked.add(form);
         if (!preset) {
@@ -117,8 +120,8 @@
             tracked.add(current);
             const reopened = restoring && current.dataset.medPublicExample === wantedExample;
             const topic = reopened ? topicFromUrl(current, wantedTopic) : 'all';
-            const view = reopened && ['answer', 'topics'].includes(wantedView) &&
-              current.querySelector('.med-result-filter') ? wantedView : 'all';
+            const view = reopened && ['all', 'answer', 'topics'].includes(wantedView) &&
+              current.querySelector('.med-result-filter') ? wantedView : (current.dataset.medDefaultView ?? 'all');
             applyView(current, view, topic);
             remember(current, view, topic, reopened);
             restoring = false;
@@ -149,7 +152,7 @@
           const snapshot = snapshots.get(event.state?.medSearch);
           const restored = (snapshot?.form ?? initial).cloneNode(true);
           tracked.add(restored);
-          applyView(restored, snapshot?.view ?? 'all', snapshot?.topic ?? 'all');
+          applyView(restored, snapshot?.view ?? restored.dataset.medDefaultView ?? 'all', snapshot?.topic ?? 'all');
           Drupal.detachBehaviors(current);
           current.replaceWith(restored);
           window.htmx?.process(restored);
