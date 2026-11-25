@@ -487,3 +487,29 @@ a[data-med-external]::after {
   padding-block-start: 1rem;
   border-block-start: 1px solid var(--md-color-border);
 }
+
+.med-search-recovery {
+  margin-block-start: 1rem;
+  padding: 1.5rem;
+  border-block-start: 1px solid var(--md-color-border);
+  background: var(--md-color-info-bg);
+}
+
+.med-search-recovery h2 {
+  font-size: 1.35rem;
+}
+
+.med-search-recovery p {
+  max-inline-size: 47ch;
+}
+
+@media (min-width: 42rem) {
+  .med-search-recovery {
+    min-block-size: 11rem;
+    padding-inline-end: 37%;
+    background-image: url("../../images/search-recovery.jpg");
+    background-repeat: no-repeat;
+    background-position: right center;
+    background-size: 33% auto;
+  }
+}

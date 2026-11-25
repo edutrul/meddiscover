@@ -170,6 +170,27 @@ class SearchForm extends FormBase {
         ];
       }
     }
+    $form['recovery'] = [
+      '#type' => 'container',
+      '#weight' => 95,
+      '#attributes' => ['class' => ['med-search-recovery']],
+      'heading' => [
+        '#type' => 'html_tag',
+        '#tag' => 'h2',
+        '#value' => $this->t('Not finding what you’re looking for?'),
+      ],
+      'suggestion' => [
+        '#type' => 'html_tag',
+        '#tag' => 'p',
+        '#value' => $this->t('Try a shorter phrase or a related topic. For more coverage, browse the full MedlinePlus health topics catalog.'),
+      ],
+      'catalog' => [
+        '#type' => 'link',
+        '#title' => $this->t('Browse MedlinePlus health topics'),
+        '#url' => Url::fromUri('https://medlineplus.gov/healthtopics.html'),
+        '#attributes' => ['class' => ['med-link--external']],
+      ],
+    ];
     // Progressive enhancement with core HTMX: post in place and swap only
     // this form. Without JavaScript the regular POST and rebuild still work.
     $form['#attributes']['data-med-search'] = $this->search->id();
