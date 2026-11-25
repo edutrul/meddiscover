@@ -95,6 +95,7 @@ class SearchForm extends FormBase {
     $form['query'] = [
       '#type' => 'textfield',
       '#title' => $conversational ? $this->t('Your health question') : $this->t('Search health topics'),
+      '#title_display' => 'invisible',
       '#description' => $this->t('Use your own words. Do not include names or other personal details.'),
       '#maxlength' => 500,
       '#attributes' => [
@@ -159,8 +160,18 @@ class SearchForm extends FormBase {
       '#type' => 'container',
       '#attributes' => ['class' => ['med-search-panel']],
     ];
-    foreach (['intro', 'query', 'suggestions', 'submit', 'examples'] as $key) {
+    foreach (['intro', 'examples'] as $key) {
       $form['search_panel'][$key] = $form[$key];
+      unset($form[$key]);
+    }
+    $form['search_panel']['query_bar'] = [
+      '#type' => 'container',
+      '#weight' => -1,
+      '#attributes' => ['class' => ['med-query-bar']],
+    ];
+    $form['search_panel']['intro']['#weight'] = -2;
+    foreach (['query', 'submit', 'suggestions'] as $key) {
+      $form['search_panel']['query_bar'][$key] = $form[$key];
       unset($form[$key]);
     }
     $form['modes'] = [
@@ -192,12 +203,11 @@ class SearchForm extends FormBase {
         '#tag' => 'p',
         '#value' => $this->t('Try a shorter phrase or a related topic. For more coverage, browse the full MedlinePlus health topics catalog.'),
       ],
-      'catalog' => [
+      'catalog' => self::external([
         '#type' => 'link',
         '#title' => $this->t('Browse MedlinePlus health topics'),
         '#url' => Url::fromUri('https://medlineplus.gov/healthtopics.html'),
-        '#attributes' => ['class' => ['med-link--external']],
-      ],
+      ]),
     ];
     // Progressive enhancement with core HTMX: post in place and swap only
     // this form. Without JavaScript the regular POST and rebuild still work.
@@ -582,7 +592,8 @@ class SearchForm extends FormBase {
   public static function external(array $link): array {
     $link['#attributes']['class'][] = 'med-link--external';
     $link['#attributes']['rel'] = 'noopener noreferrer';
-    $link['#suffix'] = '<span class="visually-hidden"> ' . t('(external site)') . '</span>' . ($link['#suffix'] ?? '');
+    $link['#attributes']['target'] = '_blank';
+    $link['#suffix'] = '<span class="visually-hidden"> ' . t('(opens in a new tab)') . '</span>' . ($link['#suffix'] ?? '');
     return $link;
   }
 

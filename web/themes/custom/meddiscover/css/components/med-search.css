@@ -567,12 +567,45 @@ a[data-med-external]::after {
   outline-offset: -3px;
 }
 
-.med-search .med-search-panel > .form-submit {
-  justify-self: start;
-  background: #a9f4e1;
-  color: #092f36;
+.med-query-bar {
+  position: relative;
 }
 
-.med-search .med-search-panel > .form-submit:hover {
-  background: #d5fff4;
+.med-query-bar input[type="text"] {
+  min-block-size: 3.5rem;
+  padding-inline-end: 4rem;
+}
+
+.med-search .med-query-bar > .form-submit {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-end: 0;
+  inline-size: 3.5rem;
+  block-size: 3.5rem;
+  margin: 0;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: var(--md-radius);
+  background: #a9f4e1 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23092f36' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='10.5' cy='10.5' r='6.5'/%3E%3Cpath d='m15.5 15.5 5 5'/%3E%3C/svg%3E") center / 1.3rem no-repeat;
+  font-size: 0;
+}
+
+.med-search .med-query-bar > .form-submit:hover {
+  background-color: #d5fff4;
+}
+
+.med-search-panel .med-examples__button,
+.med-search-panel .med-examples__button:hover,
+.med-search-panel .med-examples__button.is-selected {
+  margin: 0;
+  padding-inline: 0.35rem;
+  border-color: transparent;
+  background: transparent;
+  color: #d5fff4;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+.med-search-panel .med-examples__button.is-selected {
+  font-weight: 700;
 }
