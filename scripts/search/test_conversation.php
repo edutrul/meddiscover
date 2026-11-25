@@ -198,6 +198,7 @@ try {
     'title' => 'Synthetic "Hostile" <Topic>',
     'langcode' => 'en',
     'status' => 1,
+    'moderation_state' => 'published',
     'field_med_source_id' => 'test-hostile',
     'field_med_source_url' => 'https://medlineplus.gov/test-hostile.html',
     'field_med_description' => 'Synthetic.',
