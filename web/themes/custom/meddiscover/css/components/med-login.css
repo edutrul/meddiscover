@@ -1,0 +1,53 @@
+/**
+ * @file
+ * Split layout for the core account login and password reset forms.
+ */
+.site-main:has(:is(.user-login-form, .user-pass)) {
+  position: relative;
+  align-self: center;
+  flex: 0 0 auto;
+  box-sizing: border-box;
+  width: min(100% - 2rem, 58rem);
+  margin-block: clamp(1rem, 4vw, 3rem);
+  padding: clamp(1.25rem, 4vw, 3rem);
+  border: 1px solid var(--md-color-border);
+  border-radius: var(--md-radius);
+  background: var(--md-color-surface);
+}
+
+:is(.user-login-form, .user-pass) .form-item {
+  margin-block: 1rem;
+}
+
+:is(.user-login-form, .user-pass) label {
+  display: block;
+  font-weight: 650;
+}
+
+:is(.user-login-form, .user-pass) input:is([type="text"], [type="password"], [type="email"]) {
+  box-sizing: border-box;
+  inline-size: 100%;
+  min-block-size: 3rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--md-color-primary);
+  border-radius: var(--md-radius-small);
+  font: inherit;
+}
+
+@media (min-width: 52rem) {
+  .site-main:has(:is(.user-login-form, .user-pass)) {
+    min-block-size: 30rem;
+    padding-inline-end: 39%;
+    padding-inline-end: min(39%, 23rem);
+  }
+
+  .site-main:has(:is(.user-login-form, .user-pass))::after {
+    position: absolute;
+    inset: 0 0 0 auto;
+    inline-size: 36%;
+    border-radius: 0 var(--md-radius) var(--md-radius) 0;
+    background: var(--md-color-primary-strong) url("../../images/search-recovery.jpg") 60% center / cover no-repeat;
+    content: "";
+    pointer-events: none;
+  }
+}
