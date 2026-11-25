@@ -303,6 +303,9 @@ class SearchForm extends FormBase {
         ];
       }
       if (isset($response['answer']) && $response['results']) {
+        if ($response['answer']['status'] === 'answered') {
+          $form['#attributes']['data-med-default-view'] = 'answer';
+        }
         $form['results']['toolbar']['view'] = [
           '#type' => 'html_tag',
           '#tag' => 'div',

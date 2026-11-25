@@ -733,6 +733,7 @@ a[data-med-external]::after {
 
 .med-result-filter:not([hidden]) {
   display: inline-flex;
+  margin-inline-start: auto;
   flex-wrap: wrap;
   gap: 0.25rem;
 }
