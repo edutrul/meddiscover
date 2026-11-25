@@ -5,8 +5,7 @@
  */
 /* Keep the search workspace distinct from content and administration pages. */
 .site-main:has(.med-search) {
-  --med-workspace-width: 58rem;
-  width: min(100% - 2rem, var(--med-workspace-width));
+  width: min(100% - 2rem, var(--md-max-width));
 }
 
 .site-main:has(.med-search) .page-title {
@@ -209,6 +208,10 @@
 .med-results {
   display: grid;
   gap: var(--md-space-4);
+}
+
+.med-results > .med-answer {
+  max-inline-size: 58rem;
 }
 
 .med-results__heading {
@@ -691,6 +694,7 @@ a[data-med-external]::after {
 
 .med-result-filter:not([hidden]) {
   display: inline-flex;
+  justify-self: start;
   flex-wrap: wrap;
   gap: 0.25rem;
   padding: 0.25rem;
@@ -771,6 +775,7 @@ a[data-med-external]::after {
 
 @media (min-width: 48rem) {
   .med-topic-results:not([hidden]):has(.med-topic-facet:not([hidden])) {
-    grid-template-columns: minmax(12rem, 1fr) minmax(0, 3fr);
+    grid-template-columns: clamp(13rem, 23%, 18rem) minmax(0, 1fr);
+    column-gap: clamp(1rem, 2.5vw, 2.5rem);
   }
 }
