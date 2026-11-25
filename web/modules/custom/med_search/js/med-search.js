@@ -47,8 +47,20 @@
           box.addEventListener('input', () => {
             const query = box.value.trim().toLowerCase();
             suggestions.replaceChildren();
-            const matches = query.length < 2 ? [] : titles
-              .filter((title) => title.toLowerCase().includes(query)).slice(0, 5);
+            const prefixMatches = [];
+            const otherMatches = [];
+            if (query.length >= 2) {
+              titles.forEach((title) => {
+                const normalized = title.toLowerCase();
+                if (normalized.startsWith(query)) {
+                  prefixMatches.push(title);
+                }
+                else if (normalized.includes(query)) {
+                  otherMatches.push(title);
+                }
+              });
+            }
+            const matches = [...prefixMatches, ...otherMatches].slice(0, 5);
             matches.forEach((title) => {
               const button = document.createElement('button');
               button.type = 'button';
@@ -72,9 +84,26 @@
               box.focus();
               close();
             }
-            if (event.key === 'ArrowDown' && event.target === box) {
+            const options = Array.from(suggestions.querySelectorAll('button'));
+            const index = options.indexOf(event.target);
+            if (event.target !== box && index === -1) {
+              return;
+            }
+            if (event.key === 'ArrowDown') {
               event.preventDefault();
-              suggestions.querySelector('button')?.focus();
+              options[Math.min(index + 1, options.length - 1)]?.focus();
+            }
+            if (event.key === 'ArrowUp') {
+              event.preventDefault();
+              if (index === -1) {
+                options.at(-1)?.focus();
+              }
+              else if (index === 0) {
+                box.focus();
+              }
+              else {
+                options[index - 1].focus();
+              }
             }
           });
           form.addEventListener('focusout', (event) => {
