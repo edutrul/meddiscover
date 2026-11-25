@@ -1,0 +1,12 @@
+services:
+  _defaults:
+    autowire: true
+  med_analytics.recorder:
+    class: Drupal\med_analytics\AnalyticsRecorder
+    arguments: ['@database', '@config.factory', '@datetime.time', '@entity_type.manager']
+  Drupal\med_analytics\AnalyticsRecorder: '@med_analytics.recorder'
+  med_analytics.search_subscriber:
+    class: Drupal\med_analytics\EventSubscriber\SearchMetricsSubscriber
+    arguments: ['@med_analytics.recorder']
+    tags:
+      - { name: event_subscriber }

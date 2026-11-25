@@ -1,0 +1,24 @@
+med_analytics.event:
+  path: '/med-analytics/event'
+  defaults:
+    _controller: '\Drupal\med_analytics\Controller\EventController::record'
+  methods: [POST]
+  requirements:
+    # Anonymous visitors report clicks; the allowlist limits what is stored.
+    _access: 'TRUE'
+  options:
+    no_cache: TRUE
+med_analytics.report:
+  path: '/admin/reports/med-analytics'
+  defaults:
+    _controller: '\Drupal\med_analytics\Controller\ReportController::report'
+    _title: 'medDiscover search and activation metrics'
+  requirements:
+    _permission: 'view med analytics'
+med_analytics.settings:
+  path: '/admin/config/search/med-analytics'
+  defaults:
+    _form: '\Drupal\med_analytics\Form\AnalyticsSettingsForm'
+    _title: 'medDiscover analytics settings'
+  requirements:
+    _permission: 'administer med analytics'

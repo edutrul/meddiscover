@@ -1,0 +1,8 @@
+name: medDiscover Analytics
+type: module
+description: Privacy-preserving, aggregate-only search and activation metrics. Never stores queries, topics, URLs or identifiers.
+package: medDiscover
+core_version_requirement: ^11
+configure: med_analytics.settings
+dependencies:
+  - med_search:med_search

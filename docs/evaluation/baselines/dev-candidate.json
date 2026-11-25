@@ -1,0 +1,1039 @@
+{
+    "queries": "docs/evaluation/phase-05-queries.json",
+    "k": 5,
+    "strategies": {
+        "lexical": {
+            "positive_queries": 38,
+            "p_at_1": 0.947,
+            "p_at_k": 0.253,
+            "recall_at_k": 0.882,
+            "mrr_at_k": 0.947,
+            "zero_result_rate": 0,
+            "unrelated_queries": 10,
+            "unrelated_empty_rate": 0.9,
+            "mrr_by_category": {
+                "exact": 1,
+                "synonym": 1,
+                "ambiguous": 1,
+                "paraphrase": 0.818
+            },
+            "per_query": {
+                "exact-01": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "1532",
+                        "284"
+                    ]
+                },
+                "exact-02": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "3157",
+                        "273"
+                    ]
+                },
+                "exact-03": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "5784",
+                        "6308",
+                        "6661",
+                        "5930",
+                        "4"
+                    ]
+                },
+                "exact-04": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "192"
+                    ]
+                },
+                "exact-05": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "417"
+                    ]
+                },
+                "exact-06": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "6308",
+                        "5784",
+                        "6121",
+                        "5930",
+                        "4"
+                    ]
+                },
+                "exact-07": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "486"
+                    ]
+                },
+                "exact-08": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "3924",
+                        "304"
+                    ]
+                },
+                "synonym-01": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "157"
+                    ]
+                },
+                "synonym-02": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "284"
+                    ]
+                },
+                "synonym-03": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "4746",
+                        "24"
+                    ]
+                },
+                "synonym-04": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "1250",
+                        "23",
+                        "304",
+                        "5673",
+                        "417"
+                    ]
+                },
+                "synonym-05": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "6257",
+                        "1256"
+                    ]
+                },
+                "synonym-06": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "6308"
+                    ]
+                },
+                "synonym-07": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "5673"
+                    ]
+                },
+                "synonym-08": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "486",
+                        "3924"
+                    ]
+                },
+                "synonym-09": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "5784",
+                        "5930",
+                        "6661"
+                    ]
+                },
+                "cal-02": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "6308"
+                    ]
+                },
+                "cal-03": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "157"
+                    ]
+                },
+                "cal-04": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "6121",
+                        "6308",
+                        "5784",
+                        "4",
+                        "5930"
+                    ]
+                },
+                "cal-06": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "4746"
+                    ]
+                },
+                "hold-01": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "3924"
+                    ]
+                },
+                "ambiguous-01": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "4",
+                        "5930",
+                        "6661",
+                        "6121",
+                        "5784"
+                    ]
+                },
+                "ambiguous-02": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "273",
+                        "3157"
+                    ]
+                },
+                "ambiguous-03": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "4746",
+                        "24"
+                    ]
+                },
+                "ambiguous-04": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "24",
+                        "1256"
+                    ]
+                },
+                "ambiguous-05": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "4",
+                        "5930",
+                        "6661",
+                        "5784",
+                        "6308"
+                    ]
+                },
+                "cal-01": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "5673",
+                        "3924",
+                        "304"
+                    ]
+                },
+                "cal-05": {
+                    "first_relevant_rank": null,
+                    "top": [
+                        "304"
+                    ]
+                },
+                "hold-02": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "284",
+                        "1532"
+                    ]
+                },
+                "hold-03": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "6661",
+                        "5930",
+                        "4",
+                        "6308",
+                        "5784"
+                    ]
+                },
+                "hold-04": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "6257",
+                        "1256",
+                        "24"
+                    ]
+                },
+                "paraphrase-01": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "1532",
+                        "3924",
+                        "1250"
+                    ]
+                },
+                "paraphrase-02": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "4746",
+                        "3157"
+                    ]
+                },
+                "paraphrase-03": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "1256",
+                        "6257"
+                    ]
+                },
+                "paraphrase-04": {
+                    "first_relevant_rank": null,
+                    "top": [
+                        "3924"
+                    ]
+                },
+                "paraphrase-05": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "3157"
+                    ]
+                },
+                "paraphrase-06": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "192"
+                    ]
+                },
+                "cal-07": {
+                    "first_relevant_rank": null,
+                    "top": []
+                },
+                "cal-08": {
+                    "first_relevant_rank": null,
+                    "top": []
+                },
+                "cal-09": {
+                    "first_relevant_rank": null,
+                    "top": []
+                },
+                "cal-10": {
+                    "first_relevant_rank": null,
+                    "top": []
+                },
+                "hold-05": {
+                    "first_relevant_rank": null,
+                    "top": []
+                },
+                "hold-06": {
+                    "first_relevant_rank": null,
+                    "top": []
+                },
+                "scope-01": {
+                    "first_relevant_rank": null,
+                    "top": []
+                },
+                "scope-02": {
+                    "first_relevant_rank": null,
+                    "top": []
+                },
+                "unrelated-01": {
+                    "first_relevant_rank": null,
+                    "top": []
+                },
+                "unrelated-02": {
+                    "first_relevant_rank": null,
+                    "top": [
+                        "6121"
+                    ]
+                }
+            }
+        },
+        "semantic": {
+            "positive_queries": 38,
+            "p_at_1": 0.947,
+            "p_at_k": 0.263,
+            "recall_at_k": 0.904,
+            "mrr_at_k": 0.947,
+            "zero_result_rate": 0.026,
+            "unrelated_queries": 10,
+            "unrelated_empty_rate": 1,
+            "mrr_by_category": {
+                "exact": 1,
+                "synonym": 0.929,
+                "ambiguous": 1,
+                "paraphrase": 0.909
+            },
+            "per_query": {
+                "exact-01": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "1532",
+                        "284"
+                    ]
+                },
+                "exact-02": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "3157",
+                        "273"
+                    ]
+                },
+                "exact-03": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "5784",
+                        "6308",
+                        "4",
+                        "6661",
+                        "5930"
+                    ]
+                },
+                "exact-04": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "192"
+                    ]
+                },
+                "exact-05": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "417",
+                        "284",
+                        "304"
+                    ]
+                },
+                "exact-06": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "6308"
+                    ]
+                },
+                "exact-07": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "486"
+                    ]
+                },
+                "exact-08": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "3924",
+                        "304"
+                    ]
+                },
+                "synonym-01": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "157"
+                    ]
+                },
+                "synonym-02": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "284"
+                    ]
+                },
+                "synonym-03": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "4746",
+                        "24",
+                        "1256",
+                        "6257"
+                    ]
+                },
+                "synonym-04": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "1250",
+                        "23",
+                        "304"
+                    ]
+                },
+                "synonym-05": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "6257",
+                        "24",
+                        "1256"
+                    ]
+                },
+                "synonym-06": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "6308",
+                        "6121"
+                    ]
+                },
+                "synonym-07": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "5673"
+                    ]
+                },
+                "synonym-08": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "486"
+                    ]
+                },
+                "synonym-09": {
+                    "first_relevant_rank": null,
+                    "top": [
+                        "6661",
+                        "4"
+                    ]
+                },
+                "cal-02": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "6308"
+                    ]
+                },
+                "cal-03": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "157"
+                    ]
+                },
+                "cal-04": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "6121",
+                        "4",
+                        "5784",
+                        "6661",
+                        "6308"
+                    ]
+                },
+                "cal-06": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "4746",
+                        "24",
+                        "1256"
+                    ]
+                },
+                "hold-01": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "3924",
+                        "304"
+                    ]
+                },
+                "ambiguous-01": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "4",
+                        "6121",
+                        "5784",
+                        "6661",
+                        "5930"
+                    ]
+                },
+                "ambiguous-02": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "273"
+                    ]
+                },
+                "ambiguous-03": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "4746",
+                        "24",
+                        "6257"
+                    ]
+                },
+                "ambiguous-04": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "24",
+                        "4746",
+                        "6257",
+                        "1256"
+                    ]
+                },
+                "ambiguous-05": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "4",
+                        "6661",
+                        "5784",
+                        "5930",
+                        "6121"
+                    ]
+                },
+                "cal-01": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "304",
+                        "5673",
+                        "3924"
+                    ]
+                },
+                "cal-05": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "23",
+                        "304",
+                        "1250",
+                        "417",
+                        "1532"
+                    ]
+                },
+                "hold-02": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "284",
+                        "1532",
+                        "304"
+                    ]
+                },
+                "hold-03": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "6661",
+                        "5930",
+                        "4",
+                        "5784",
+                        "6308"
+                    ]
+                },
+                "hold-04": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "6257",
+                        "24",
+                        "4746",
+                        "1256"
+                    ]
+                },
+                "paraphrase-01": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "157",
+                        "1532"
+                    ]
+                },
+                "paraphrase-02": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "4746"
+                    ]
+                },
+                "paraphrase-03": {
+                    "first_relevant_rank": null,
+                    "top": []
+                },
+                "paraphrase-04": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "1433"
+                    ]
+                },
+                "paraphrase-05": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "273",
+                        "3157"
+                    ]
+                },
+                "paraphrase-06": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "192"
+                    ]
+                },
+                "cal-07": {
+                    "first_relevant_rank": null,
+                    "top": []
+                },
+                "cal-08": {
+                    "first_relevant_rank": null,
+                    "top": []
+                },
+                "cal-09": {
+                    "first_relevant_rank": null,
+                    "top": []
+                },
+                "cal-10": {
+                    "first_relevant_rank": null,
+                    "top": []
+                },
+                "hold-05": {
+                    "first_relevant_rank": null,
+                    "top": []
+                },
+                "hold-06": {
+                    "first_relevant_rank": null,
+                    "top": []
+                },
+                "scope-01": {
+                    "first_relevant_rank": null,
+                    "top": []
+                },
+                "scope-02": {
+                    "first_relevant_rank": null,
+                    "top": []
+                },
+                "unrelated-01": {
+                    "first_relevant_rank": null,
+                    "top": []
+                },
+                "unrelated-02": {
+                    "first_relevant_rank": null,
+                    "top": []
+                }
+            }
+        },
+        "hybrid": {
+            "positive_queries": 38,
+            "p_at_1": 0.921,
+            "p_at_k": 0.284,
+            "recall_at_k": 0.969,
+            "mrr_at_k": 0.961,
+            "zero_result_rate": 0,
+            "unrelated_queries": 10,
+            "unrelated_empty_rate": 0.9,
+            "mrr_by_category": {
+                "exact": 1,
+                "synonym": 0.964,
+                "ambiguous": 1,
+                "paraphrase": 0.909
+            },
+            "per_query": {
+                "exact-01": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "1532",
+                        "284"
+                    ]
+                },
+                "exact-02": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "3157",
+                        "273"
+                    ]
+                },
+                "exact-03": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "5784",
+                        "6308",
+                        "6661",
+                        "4",
+                        "5930"
+                    ]
+                },
+                "exact-04": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "192"
+                    ]
+                },
+                "exact-05": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "417",
+                        "284",
+                        "304"
+                    ]
+                },
+                "exact-06": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "6308",
+                        "5784",
+                        "6121",
+                        "5930",
+                        "4"
+                    ]
+                },
+                "exact-07": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "486"
+                    ]
+                },
+                "exact-08": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "3924",
+                        "304"
+                    ]
+                },
+                "synonym-01": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "157"
+                    ]
+                },
+                "synonym-02": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "284"
+                    ]
+                },
+                "synonym-03": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "4746",
+                        "24",
+                        "1256",
+                        "6257"
+                    ]
+                },
+                "synonym-04": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "1250",
+                        "23",
+                        "304",
+                        "5673",
+                        "417"
+                    ]
+                },
+                "synonym-05": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "6257",
+                        "1256",
+                        "24"
+                    ]
+                },
+                "synonym-06": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "6308",
+                        "6121"
+                    ]
+                },
+                "synonym-07": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "5673"
+                    ]
+                },
+                "synonym-08": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "486",
+                        "3924"
+                    ]
+                },
+                "synonym-09": {
+                    "first_relevant_rank": 2,
+                    "top": [
+                        "6661",
+                        "5784",
+                        "5930",
+                        "4"
+                    ]
+                },
+                "cal-02": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "6308"
+                    ]
+                },
+                "cal-03": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "157"
+                    ]
+                },
+                "cal-04": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "6121",
+                        "4",
+                        "5784",
+                        "6308",
+                        "6661"
+                    ]
+                },
+                "cal-06": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "4746",
+                        "24",
+                        "1256"
+                    ]
+                },
+                "hold-01": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "3924",
+                        "304"
+                    ]
+                },
+                "ambiguous-01": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "4",
+                        "6121",
+                        "5930",
+                        "6661",
+                        "5784"
+                    ]
+                },
+                "ambiguous-02": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "273",
+                        "3157"
+                    ]
+                },
+                "ambiguous-03": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "4746",
+                        "24",
+                        "6257"
+                    ]
+                },
+                "ambiguous-04": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "24",
+                        "1256",
+                        "4746",
+                        "6257"
+                    ]
+                },
+                "ambiguous-05": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "4",
+                        "6661",
+                        "5930",
+                        "5784",
+                        "6308"
+                    ]
+                },
+                "cal-01": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "5673",
+                        "304",
+                        "3924"
+                    ]
+                },
+                "cal-05": {
+                    "first_relevant_rank": 2,
+                    "top": [
+                        "304",
+                        "23",
+                        "1250",
+                        "417",
+                        "1532"
+                    ]
+                },
+                "hold-02": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "284",
+                        "1532",
+                        "304"
+                    ]
+                },
+                "hold-03": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "6661",
+                        "5930",
+                        "4",
+                        "6308",
+                        "5784"
+                    ]
+                },
+                "hold-04": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "6257",
+                        "24",
+                        "1256",
+                        "4746"
+                    ]
+                },
+                "paraphrase-01": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "1532",
+                        "157",
+                        "3924",
+                        "1250"
+                    ]
+                },
+                "paraphrase-02": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "4746",
+                        "3157"
+                    ]
+                },
+                "paraphrase-03": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "1256",
+                        "6257"
+                    ]
+                },
+                "paraphrase-04": {
+                    "first_relevant_rank": 2,
+                    "top": [
+                        "3924",
+                        "1433"
+                    ]
+                },
+                "paraphrase-05": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "3157",
+                        "273"
+                    ]
+                },
+                "paraphrase-06": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "192"
+                    ]
+                },
+                "cal-07": {
+                    "first_relevant_rank": null,
+                    "top": []
+                },
+                "cal-08": {
+                    "first_relevant_rank": null,
+                    "top": []
+                },
+                "cal-09": {
+                    "first_relevant_rank": null,
+                    "top": []
+                },
+                "cal-10": {
+                    "first_relevant_rank": null,
+                    "top": []
+                },
+                "hold-05": {
+                    "first_relevant_rank": null,
+                    "top": []
+                },
+                "hold-06": {
+                    "first_relevant_rank": null,
+                    "top": []
+                },
+                "scope-01": {
+                    "first_relevant_rank": null,
+                    "top": []
+                },
+                "scope-02": {
+                    "first_relevant_rank": null,
+                    "top": []
+                },
+                "unrelated-01": {
+                    "first_relevant_rank": null,
+                    "top": []
+                },
+                "unrelated-02": {
+                    "first_relevant_rank": null,
+                    "top": [
+                        "6121"
+                    ]
+                }
+            }
+        }
+    }
+}

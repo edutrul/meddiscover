@@ -1,0 +1,5 @@
+view med analytics:
+  title: 'View medDiscover aggregate metrics'
+administer med analytics:
+  title: 'Administer medDiscover analytics'
+  restrict access: true

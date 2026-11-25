@@ -99,6 +99,9 @@ ddev drush php:script scripts/search/evaluate_conversation.php # real corpus and
 ddev drush php:script scripts/search/llm_bakeoff.php           # compare installed local chat models
 ddev drush php:script scripts/activation/test_activation.php   # synthetic fixture; activation rules and CTAs
 ddev drush php:script scripts/activation/report.php            # real corpus; CTA coverage and URL fidelity
+ddev drush php:script scripts/analytics/test_analytics.php     # synthetic fixture; aggregate analytics contract
+ddev drush php:script scripts/optimization/quality.php queries=docs/evaluation/phase-08-holdout-queries.json baseline=docs/evaluation/baselines/holdout-before.json
+ddev drush php:script scripts/optimization/benchmark.php       # real stack; stage latency
 ddev drush php:script scripts/search/check_privacy.php  # after submitting "What is backache?" in the forms
 ddev exec -s solr grep -rlc "backache" /var/solr/logs || echo "no query text in Solr logs"
 ```

@@ -41,7 +41,12 @@ class ActivationBuilder {
     $list = [];
     foreach ($items as $item) {
       $host = $this->externalHost($item['url']);
-      $attributes = ['class' => ['button', 'button--small']];
+      // Inert data attributes for aggregate click counting (med_analytics).
+      $attributes = [
+        'class' => ['button', 'button--small'],
+        'data-med-event' => $item['type'] === 'resource' ? 'cta_clicked' : 'recommendation_clicked',
+        'data-med-dimension' => $item['type'] === 'resource' ? $item['rule'] : 'related_topic',
+      ];
       $suffix = '';
       if ($item['node'] === NULL && $host !== NULL) {
         $attributes['rel'] = 'noopener noreferrer';

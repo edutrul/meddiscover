@@ -1,0 +1,21 @@
+med_analytics.settings:
+  type: config_object
+  label: 'medDiscover analytics settings'
+  mapping:
+    enabled:
+      type: boolean
+      label: 'Record aggregate metrics'
+    retention_days:
+      type: integer
+      label: 'Days to keep daily aggregates'
+      constraints:
+        Range:
+          min: 1
+          max: 365
+    report_days:
+      type: integer
+      label: 'Days shown in the report'
+      constraints:
+        Range:
+          min: 1
+          max: 365

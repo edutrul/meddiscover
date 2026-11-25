@@ -1,0 +1,751 @@
+{
+    "queries": "docs/evaluation/phase-08-holdout-queries.json",
+    "k": 5,
+    "strategies": {
+        "lexical": {
+            "positive_queries": 25,
+            "p_at_1": 0.8,
+            "p_at_k": 0.232,
+            "recall_at_k": 0.8,
+            "mrr_at_k": 0.82,
+            "zero_result_rate": 0.16,
+            "unrelated_queries": 10,
+            "unrelated_empty_rate": 0.8,
+            "mrr_by_category": {
+                "exact": 1,
+                "synonym": 0.857,
+                "ambiguous": 1,
+                "paraphrase": 0.563
+            },
+            "per_query": {
+                "holdout-exact-01": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "1250",
+                        "304",
+                        "23",
+                        "3924"
+                    ]
+                },
+                "holdout-exact-02": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "273",
+                        "3157",
+                        "6121"
+                    ]
+                },
+                "holdout-exact-03": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "1256",
+                        "24"
+                    ]
+                },
+                "holdout-exact-04": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "6121",
+                        "6308",
+                        "4",
+                        "5784",
+                        "5930"
+                    ]
+                },
+                "holdout-exact-05": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "5673",
+                        "304",
+                        "3924"
+                    ]
+                },
+                "holdout-exact-06": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "284"
+                    ]
+                },
+                "holdout-synonym-01": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "284",
+                        "1532"
+                    ]
+                },
+                "holdout-synonym-02": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "6308"
+                    ]
+                },
+                "holdout-synonym-03": {
+                    "first_relevant_rank": null,
+                    "top": []
+                },
+                "holdout-synonym-04": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "4746"
+                    ]
+                },
+                "holdout-synonym-05": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "4",
+                        "5930",
+                        "6661",
+                        "5784",
+                        "6308"
+                    ]
+                },
+                "holdout-synonym-06": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "3924",
+                        "1250",
+                        "23"
+                    ]
+                },
+                "holdout-synonym-07": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "486",
+                        "273",
+                        "23",
+                        "4",
+                        "6121"
+                    ]
+                },
+                "holdout-ambiguous-01": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "4",
+                        "5930",
+                        "6661",
+                        "6121",
+                        "5784"
+                    ]
+                },
+                "holdout-ambiguous-02": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "4746",
+                        "24"
+                    ]
+                },
+                "holdout-ambiguous-03": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "273",
+                        "3157"
+                    ]
+                },
+                "holdout-ambiguous-04": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "1250",
+                        "23",
+                        "3924",
+                        "304"
+                    ]
+                },
+                "holdout-paraphrase-01": {
+                    "first_relevant_rank": null,
+                    "top": []
+                },
+                "holdout-paraphrase-02": {
+                    "first_relevant_rank": null,
+                    "top": []
+                },
+                "holdout-paraphrase-03": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "417"
+                    ]
+                },
+                "holdout-paraphrase-04": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "3157"
+                    ]
+                },
+                "holdout-paraphrase-05": {
+                    "first_relevant_rank": null,
+                    "top": []
+                },
+                "holdout-paraphrase-06": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "192"
+                    ]
+                },
+                "holdout-paraphrase-07": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "6121",
+                        "5784",
+                        "4",
+                        "6308",
+                        "5930"
+                    ]
+                },
+                "holdout-paraphrase-08": {
+                    "first_relevant_rank": 2,
+                    "top": [
+                        "304",
+                        "23",
+                        "1250"
+                    ]
+                },
+                "holdout-unrelated-01": {
+                    "first_relevant_rank": null,
+                    "top": [
+                        "6121"
+                    ]
+                },
+                "holdout-unrelated-02": {
+                    "first_relevant_rank": null,
+                    "top": [
+                        "1250",
+                        "6121"
+                    ]
+                },
+                "holdout-unrelated-03": {
+                    "first_relevant_rank": null,
+                    "top": []
+                },
+                "holdout-unrelated-04": {
+                    "first_relevant_rank": null,
+                    "top": []
+                },
+                "holdout-unrelated-05": {
+                    "first_relevant_rank": null,
+                    "top": []
+                },
+                "holdout-unrelated-06": {
+                    "first_relevant_rank": null,
+                    "top": []
+                },
+                "holdout-unrelated-07": {
+                    "first_relevant_rank": null,
+                    "top": []
+                },
+                "holdout-unrelated-08": {
+                    "first_relevant_rank": null,
+                    "top": []
+                },
+                "holdout-unrelated-09": {
+                    "first_relevant_rank": null,
+                    "top": []
+                },
+                "holdout-unrelated-10": {
+                    "first_relevant_rank": null,
+                    "top": []
+                }
+            }
+        },
+        "semantic": {
+            "positive_queries": 25,
+            "p_at_1": 0.88,
+            "p_at_k": 0.248,
+            "recall_at_k": 0.9,
+            "mrr_at_k": 0.9,
+            "zero_result_rate": 0.04,
+            "unrelated_queries": 10,
+            "unrelated_empty_rate": 1,
+            "mrr_by_category": {
+                "exact": 1,
+                "synonym": 1,
+                "ambiguous": 1,
+                "paraphrase": 0.688
+            },
+            "per_query": {
+                "holdout-exact-01": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "1250",
+                        "23",
+                        "304",
+                        "284",
+                        "417"
+                    ]
+                },
+                "holdout-exact-02": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "273",
+                        "3157"
+                    ]
+                },
+                "holdout-exact-03": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "1256",
+                        "24",
+                        "4746",
+                        "6257"
+                    ]
+                },
+                "holdout-exact-04": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "6121",
+                        "4",
+                        "6308",
+                        "5784",
+                        "6661"
+                    ]
+                },
+                "holdout-exact-05": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "5673",
+                        "304"
+                    ]
+                },
+                "holdout-exact-06": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "284"
+                    ]
+                },
+                "holdout-synonym-01": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "284"
+                    ]
+                },
+                "holdout-synonym-02": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "6308"
+                    ]
+                },
+                "holdout-synonym-03": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "157"
+                    ]
+                },
+                "holdout-synonym-04": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "4746",
+                        "24",
+                        "1256",
+                        "6257"
+                    ]
+                },
+                "holdout-synonym-05": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "4",
+                        "5784",
+                        "6661",
+                        "5930",
+                        "6121"
+                    ]
+                },
+                "holdout-synonym-06": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "3924",
+                        "304",
+                        "1250"
+                    ]
+                },
+                "holdout-synonym-07": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "486",
+                        "1433"
+                    ]
+                },
+                "holdout-ambiguous-01": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "4",
+                        "6121",
+                        "5784",
+                        "5930",
+                        "6661"
+                    ]
+                },
+                "holdout-ambiguous-02": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "24",
+                        "4746",
+                        "6257",
+                        "1256"
+                    ]
+                },
+                "holdout-ambiguous-03": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "273",
+                        "3157"
+                    ]
+                },
+                "holdout-ambiguous-04": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "1250",
+                        "23"
+                    ]
+                },
+                "holdout-paraphrase-01": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "157"
+                    ]
+                },
+                "holdout-paraphrase-02": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "4746"
+                    ]
+                },
+                "holdout-paraphrase-03": {
+                    "first_relevant_rank": null,
+                    "top": []
+                },
+                "holdout-paraphrase-04": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "3157"
+                    ]
+                },
+                "holdout-paraphrase-05": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "1433"
+                    ]
+                },
+                "holdout-paraphrase-06": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "192"
+                    ]
+                },
+                "holdout-paraphrase-07": {
+                    "first_relevant_rank": 2,
+                    "top": [
+                        "5784",
+                        "6121",
+                        "4",
+                        "5930",
+                        "6661"
+                    ]
+                },
+                "holdout-paraphrase-08": {
+                    "first_relevant_rank": null,
+                    "top": [
+                        "304"
+                    ]
+                },
+                "holdout-unrelated-01": {
+                    "first_relevant_rank": null,
+                    "top": []
+                },
+                "holdout-unrelated-02": {
+                    "first_relevant_rank": null,
+                    "top": []
+                },
+                "holdout-unrelated-03": {
+                    "first_relevant_rank": null,
+                    "top": []
+                },
+                "holdout-unrelated-04": {
+                    "first_relevant_rank": null,
+                    "top": []
+                },
+                "holdout-unrelated-05": {
+                    "first_relevant_rank": null,
+                    "top": []
+                },
+                "holdout-unrelated-06": {
+                    "first_relevant_rank": null,
+                    "top": []
+                },
+                "holdout-unrelated-07": {
+                    "first_relevant_rank": null,
+                    "top": []
+                },
+                "holdout-unrelated-08": {
+                    "first_relevant_rank": null,
+                    "top": []
+                },
+                "holdout-unrelated-09": {
+                    "first_relevant_rank": null,
+                    "top": []
+                },
+                "holdout-unrelated-10": {
+                    "first_relevant_rank": null,
+                    "top": []
+                }
+            }
+        },
+        "hybrid": {
+            "positive_queries": 25,
+            "p_at_1": 0.96,
+            "p_at_k": 0.272,
+            "recall_at_k": 0.98,
+            "mrr_at_k": 0.98,
+            "zero_result_rate": 0,
+            "unrelated_queries": 10,
+            "unrelated_empty_rate": 0.8,
+            "mrr_by_category": {
+                "exact": 1,
+                "synonym": 1,
+                "ambiguous": 1,
+                "paraphrase": 0.938
+            },
+            "per_query": {
+                "holdout-exact-01": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "1250",
+                        "304",
+                        "23",
+                        "3924",
+                        "284"
+                    ]
+                },
+                "holdout-exact-02": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "273",
+                        "3157",
+                        "6121"
+                    ]
+                },
+                "holdout-exact-03": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "1256",
+                        "24",
+                        "4746",
+                        "6257"
+                    ]
+                },
+                "holdout-exact-04": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "6121",
+                        "6308",
+                        "4",
+                        "5784",
+                        "5930"
+                    ]
+                },
+                "holdout-exact-05": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "5673",
+                        "304",
+                        "3924"
+                    ]
+                },
+                "holdout-exact-06": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "284"
+                    ]
+                },
+                "holdout-synonym-01": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "284",
+                        "1532"
+                    ]
+                },
+                "holdout-synonym-02": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "6308"
+                    ]
+                },
+                "holdout-synonym-03": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "157"
+                    ]
+                },
+                "holdout-synonym-04": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "4746",
+                        "24",
+                        "1256",
+                        "6257"
+                    ]
+                },
+                "holdout-synonym-05": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "4",
+                        "5930",
+                        "5784",
+                        "6661",
+                        "6308"
+                    ]
+                },
+                "holdout-synonym-06": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "3924",
+                        "1250",
+                        "304",
+                        "23"
+                    ]
+                },
+                "holdout-synonym-07": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "486",
+                        "273",
+                        "1433",
+                        "23",
+                        "4"
+                    ]
+                },
+                "holdout-ambiguous-01": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "4",
+                        "5930",
+                        "6121",
+                        "6661",
+                        "5784"
+                    ]
+                },
+                "holdout-ambiguous-02": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "4746",
+                        "24",
+                        "6257",
+                        "1256"
+                    ]
+                },
+                "holdout-ambiguous-03": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "273",
+                        "3157"
+                    ]
+                },
+                "holdout-ambiguous-04": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "1250",
+                        "23",
+                        "3924",
+                        "304"
+                    ]
+                },
+                "holdout-paraphrase-01": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "157"
+                    ]
+                },
+                "holdout-paraphrase-02": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "4746"
+                    ]
+                },
+                "holdout-paraphrase-03": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "417"
+                    ]
+                },
+                "holdout-paraphrase-04": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "3157"
+                    ]
+                },
+                "holdout-paraphrase-05": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "1433"
+                    ]
+                },
+                "holdout-paraphrase-06": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "192"
+                    ]
+                },
+                "holdout-paraphrase-07": {
+                    "first_relevant_rank": 1,
+                    "top": [
+                        "6121",
+                        "5784",
+                        "4",
+                        "5930",
+                        "6308"
+                    ]
+                },
+                "holdout-paraphrase-08": {
+                    "first_relevant_rank": 2,
+                    "top": [
+                        "304",
+                        "23",
+                        "1250"
+                    ]
+                },
+                "holdout-unrelated-01": {
+                    "first_relevant_rank": null,
+                    "top": [
+                        "6121"
+                    ]
+                },
+                "holdout-unrelated-02": {
+                    "first_relevant_rank": null,
+                    "top": [
+                        "1250",
+                        "6121"
+                    ]
+                },
+                "holdout-unrelated-03": {
+                    "first_relevant_rank": null,
+                    "top": []
+                },
+                "holdout-unrelated-04": {
+                    "first_relevant_rank": null,
+                    "top": []
+                },
+                "holdout-unrelated-05": {
+                    "first_relevant_rank": null,
+                    "top": []
+                },
+                "holdout-unrelated-06": {
+                    "first_relevant_rank": null,
+                    "top": []
+                },
+                "holdout-unrelated-07": {
+                    "first_relevant_rank": null,
+                    "top": []
+                },
+                "holdout-unrelated-08": {
+                    "first_relevant_rank": null,
+                    "top": []
+                },
+                "holdout-unrelated-09": {
+                    "first_relevant_rank": null,
+                    "top": []
+                },
+                "holdout-unrelated-10": {
+                    "first_relevant_rank": null,
+                    "top": []
+                }
+            }
+        }
+    }
+}

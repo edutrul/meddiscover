@@ -1,0 +1,276 @@
+{
+  "review": "Held-out synthetic queries written on 2026-11-24 before any Phase 08 change was measured, and not edited after results were seen. Editorial relevance labels against topic titles, alternative terms, see references, MeSH labels and descriptions; not clinical judgments and not exhaustive. Many queries are full questions, the phrasing that exposed issue #12. Never used to choose settings, only to accept or reject a change under the decision rule in docs/evaluation/optimization.md.",
+  "k": 5,
+  "cases": [
+    {
+      "id": "holdout-exact-01",
+      "category": "exact",
+      "query": "Osteoarthritis",
+      "relevant_ids": [
+        "1250"
+      ]
+    },
+    {
+      "id": "holdout-exact-02",
+      "category": "exact",
+      "query": "Headache",
+      "relevant_ids": [
+        "273"
+      ]
+    },
+    {
+      "id": "holdout-exact-03",
+      "category": "exact",
+      "query": "Food allergy",
+      "relevant_ids": [
+        "1256"
+      ]
+    },
+    {
+      "id": "holdout-exact-04",
+      "category": "exact",
+      "query": "Blood glucose",
+      "relevant_ids": [
+        "6121"
+      ]
+    },
+    {
+      "id": "holdout-exact-05",
+      "category": "exact",
+      "query": "Walking problems",
+      "relevant_ids": [
+        "5673"
+      ]
+    },
+    {
+      "id": "holdout-exact-06",
+      "category": "exact",
+      "query": "Herniated disk",
+      "relevant_ids": [
+        "284"
+      ]
+    },
+    {
+      "id": "holdout-synonym-01",
+      "category": "synonym",
+      "query": "What is a ruptured disk?",
+      "relevant_ids": [
+        "284"
+      ]
+    },
+    {
+      "id": "holdout-synonym-02",
+      "category": "synonym",
+      "query": "Tell me about hemoglobin A1c",
+      "relevant_ids": [
+        "6308"
+      ]
+    },
+    {
+      "id": "holdout-synonym-03",
+      "category": "synonym",
+      "query": "What does lumbago mean?",
+      "relevant_ids": [
+        "157"
+      ]
+    },
+    {
+      "id": "holdout-synonym-04",
+      "category": "synonym",
+      "query": "How do I know if I have seasonal allergies?",
+      "relevant_ids": [
+        "4746",
+        "24"
+      ]
+    },
+    {
+      "id": "holdout-synonym-05",
+      "category": "synonym",
+      "query": "What is diabetes mellitus?",
+      "relevant_ids": [
+        "4",
+        "5930"
+      ]
+    },
+    {
+      "id": "holdout-synonym-06",
+      "category": "synonym",
+      "query": "Where can I learn about knee arthroplasty?",
+      "relevant_ids": [
+        "3924"
+      ]
+    },
+    {
+      "id": "holdout-synonym-07",
+      "category": "synonym",
+      "query": "Why do hospitals and health care facilities differ?",
+      "relevant_ids": [
+        "486"
+      ]
+    },
+    {
+      "id": "holdout-ambiguous-01",
+      "category": "ambiguous",
+      "query": "What is sugar diabetes?",
+      "relevant_ids": [
+        "4",
+        "5930"
+      ]
+    },
+    {
+      "id": "holdout-ambiguous-02",
+      "category": "ambiguous",
+      "query": "Can you explain allergic rhinitis?",
+      "relevant_ids": [
+        "24",
+        "4746"
+      ]
+    },
+    {
+      "id": "holdout-ambiguous-03",
+      "category": "ambiguous",
+      "query": "What is a vascular headache?",
+      "relevant_ids": [
+        "273",
+        "3157"
+      ]
+    },
+    {
+      "id": "holdout-ambiguous-04",
+      "category": "ambiguous",
+      "query": "Is arthritis the same as osteoarthritis?",
+      "relevant_ids": [
+        "23",
+        "1250"
+      ]
+    },
+    {
+      "id": "holdout-paraphrase-01",
+      "category": "paraphrase",
+      "query": "Why does my lower back hurt after lifting boxes?",
+      "relevant_ids": [
+        "157"
+      ]
+    },
+    {
+      "id": "holdout-paraphrase-02",
+      "category": "paraphrase",
+      "query": "How can I stop sneezing when the pollen count is high?",
+      "relevant_ids": [
+        "4746"
+      ]
+    },
+    {
+      "id": "holdout-paraphrase-03",
+      "category": "paraphrase",
+      "query": "What should I do if my ankle twisted while running?",
+      "relevant_ids": [
+        "417"
+      ]
+    },
+    {
+      "id": "holdout-paraphrase-04",
+      "category": "paraphrase",
+      "query": "Why do I get bad headaches with flashing lights?",
+      "relevant_ids": [
+        "3157",
+        "273"
+      ]
+    },
+    {
+      "id": "holdout-paraphrase-05",
+      "category": "paraphrase",
+      "query": "How do I choose a good doctor for my family?",
+      "relevant_ids": [
+        "1433"
+      ]
+    },
+    {
+      "id": "holdout-paraphrase-06",
+      "category": "paraphrase",
+      "query": "Can I volunteer to test new medicines?",
+      "relevant_ids": [
+        "192"
+      ]
+    },
+    {
+      "id": "holdout-paraphrase-07",
+      "category": "paraphrase",
+      "query": "What happens when blood sugar is too high?",
+      "relevant_ids": [
+        "6121",
+        "4",
+        "5930"
+      ]
+    },
+    {
+      "id": "holdout-paraphrase-08",
+      "category": "paraphrase",
+      "query": "Why are my knees stiff in the morning?",
+      "relevant_ids": [
+        "1250",
+        "23"
+      ]
+    },
+    {
+      "id": "holdout-unrelated-01",
+      "category": "unrelated",
+      "query": "How do I change a car tire?",
+      "relevant_ids": []
+    },
+    {
+      "id": "holdout-unrelated-02",
+      "category": "unrelated",
+      "query": "What is the best way to learn guitar?",
+      "relevant_ids": []
+    },
+    {
+      "id": "holdout-unrelated-03",
+      "category": "unrelated",
+      "query": "How can I fix a leaking faucet?",
+      "relevant_ids": []
+    },
+    {
+      "id": "holdout-unrelated-04",
+      "category": "unrelated",
+      "query": "Why is the sky blue?",
+      "relevant_ids": []
+    },
+    {
+      "id": "holdout-unrelated-05",
+      "category": "unrelated",
+      "query": "Where can I buy cheap flights?",
+      "relevant_ids": []
+    },
+    {
+      "id": "holdout-unrelated-06",
+      "category": "unrelated",
+      "query": "What should I cook for dinner tonight?",
+      "relevant_ids": []
+    },
+    {
+      "id": "holdout-unrelated-07",
+      "category": "unrelated",
+      "query": "How do I reset my router password?",
+      "relevant_ids": []
+    },
+    {
+      "id": "holdout-unrelated-08",
+      "category": "unrelated",
+      "query": "What is the tallest mountain in the world?",
+      "relevant_ids": []
+    },
+    {
+      "id": "holdout-unrelated-09",
+      "category": "unrelated",
+      "query": "Information about cataract surgery for my father",
+      "relevant_ids": []
+    },
+    {
+      "id": "holdout-unrelated-10",
+      "category": "unrelated",
+      "query": "How do I treat an ear infection in my toddler?",
+      "relevant_ids": []
+    }
+  ]
+}

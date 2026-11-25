@@ -4,6 +4,7 @@
   <file>web/modules/custom/med_content/src</file>
   <file>web/modules/custom/med_search</file>
   <file>web/modules/custom/med_activation</file>
+  <file>web/modules/custom/med_analytics</file>
   <arg name="extensions" value="php,module,install,inc"/>
   <rule ref="Drupal"/>
 </ruleset>
