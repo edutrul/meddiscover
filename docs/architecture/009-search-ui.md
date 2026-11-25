@@ -84,3 +84,7 @@ No automated axe or Lighthouse run is included. Neither is available in the DDEV
 - **Starterkit defaults elsewhere.** Content pages (topic nodes) use Starterkit defaults with the global tokens; only search pages are fully designed.
 - **No answer streaming.** The conversational wait is announced, not shortened.
 - **No live progress.** The HTMX indicator shows activity, not progress.
+
+## Addendum: shareable URLs (owner question)
+
+Search text stays out of the URL by default. A health question in a URL ends up in browser history, web server access logs and the `Referer` header sent to external resource sites, which breaks the privacy rule in place since Phase 03 (POST only, no query text in logs). If shareable links are wanted, the proposed design is an explicit, opt-in “Share this search” action that warns the link contains the question, plus `Referrer-Policy: no-referrer` on search pages. That is an owner decision.

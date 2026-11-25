@@ -1,0 +1,20 @@
+uuid: 4c48df3f-0f67-41a1-b700-f5a083f00a1b
+langcode: en
+status: true
+dependencies:
+  module:
+    - med_search
+  theme:
+    - meddiscover
+id: meddiscover_developer_mode
+theme: meddiscover
+region: secondary_menu
+weight: -10
+provider: null
+plugin: med_search_developer_mode
+settings:
+  id: med_search_developer_mode
+  label: 'Developer mode'
+  label_display: '0'
+  provider: med_search
+visibility: {  }

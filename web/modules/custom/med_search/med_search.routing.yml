@@ -2,7 +2,7 @@ med_search.semantic:
   path: '/search/semantic'
   defaults:
     _form: '\Drupal\med_search\Form\SearchForm'
-    _title: 'medDiscover — Semantic Search'
+    _title: 'Semantic search'
     strategy: semantic
   requirements:
     _permission: 'access content'
@@ -10,7 +10,7 @@ med_search.lexical:
   path: '/search/lexical'
   defaults:
     _form: '\Drupal\med_search\Form\SearchForm'
-    _title: 'medDiscover — Lexical Search'
+    _title: 'Keyword search'
     strategy: lexical
   requirements:
     _permission: 'access content'
@@ -18,7 +18,7 @@ med_search.hybrid:
   path: '/search/hybrid'
   defaults:
     _form: '\Drupal\med_search\Form\SearchForm'
-    _title: 'medDiscover — Hybrid Search'
+    _title: 'Hybrid search'
     strategy: hybrid
   requirements:
     _permission: 'access content'
@@ -26,7 +26,7 @@ med_search.conversational:
   path: '/search/conversational'
   defaults:
     _form: '\Drupal\med_search\Form\SearchForm'
-    _title: 'medDiscover — Conversational Search'
+    _title: 'Ask medDiscover'
     strategy: conversational
   requirements:
     _permission: 'access content'

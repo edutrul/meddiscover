@@ -1,0 +1,3 @@
+view med search ranking details:
+  title: 'View search ranking details'
+  description: 'See cosine similarity, Solr scores and RRF ranks on search results, for debugging and demos. Public visitors do not see scores.'
