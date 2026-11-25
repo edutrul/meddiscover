@@ -71,6 +71,7 @@
         return;
       }
       once('med-search-history', selector, context).forEach((form) => {
+        applyView(form, 'all');
         initial = copy(form);
         const url = new URL(location.href);
         if (url.searchParams.has('results')) {

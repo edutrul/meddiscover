@@ -110,9 +110,11 @@ class SearchForm extends FormBase {
       ->condition('type', 'med_health_topic')->condition('status', 1)
       ->condition('langcode', 'en')->sort('title')->range(0, 100)->execute();
     $titles = [];
+    $browse_topics = [];
     foreach ($storage->loadMultiple($ids) as $topic) {
       if ($topic->access('view')) {
         $titles[] = $topic->label();
+        $browse_topics[] = ['node' => $topic];
       }
     }
     $form['suggestions'] = [
@@ -230,10 +232,13 @@ class SearchForm extends FormBase {
       ->applyTo($form);
     $form['#attached']['library'][] = 'med_search/search';
     $response = $form_state->getTemporaryValue('med_response');
-    if ($response === NULL && !$form_state->getTemporaryValue('med_error')) {
+    $browsing = $response === NULL && !$form_state->getTemporaryValue('med_error');
+    if ($browsing) {
+      $response = ['results' => $browse_topics, 'notices' => []];
       $form['howto'] = [
         '#type' => 'container',
         '#attributes' => ['class' => ['med-howto']],
+        '#weight' => 10,
         'heading' => ['#type' => 'html_tag', '#tag' => 'h2', '#value' => $this->t('How it works')],
         'steps' => [
           '#theme' => 'item_list',
@@ -257,7 +262,7 @@ class SearchForm extends FormBase {
         '#type' => 'html_tag',
         '#tag' => 'h2',
         '#attributes' => ['tabindex' => '-1', 'data-med-results-heading' => '', 'class' => ['med-results__heading']],
-        '#value' => $this->t('Search results'),
+        '#value' => $browsing ? $this->t('Browse health topics') : $this->t('Search results'),
       ];
       $form['results']['compare'] = [
         '#type' => 'link',
@@ -319,15 +324,15 @@ class SearchForm extends FormBase {
           $facets[$id] ??= ['label' => $group->label(), 'count' => 0];
           $facets[$id]['count']++;
         }
-        $enrichment = $this->enricher->enrich($node);
+        $enrichment = $browsing ? [] : $this->enricher->enrich($node);
         $form['results'][$delta] = [
           '#theme' => 'med_search_result',
           // For other modules (for example activation): the topic and its
           // already computed enrichment.
-          '#med_topic' => $node,
+          '#med_topic' => $browsing ? NULL : $node,
           '#med_topic_groups' => array_keys($groups),
           '#med_enrichment' => $enrichment,
-          'title' => self::track(
+          'title' => $browsing ? $node->toLink()->toRenderable() : self::track(
             ['#type' => 'link', '#title' => $node->label(), '#url' => $node->toUrl()],
             'search_result_clicked',
             $this->search->id() . ':' . self::rankBucket($delta + 1),
@@ -339,7 +344,7 @@ class SearchForm extends FormBase {
           ],
           // Scores mean nothing to patients and can read like medical
           // confidence; only users who debug or demo ranking see them.
-          'score' => $this->currentUser()->hasPermission('view med search ranking details') ? [
+          'score' => !$browsing && $this->currentUser()->hasPermission('view med search ranking details') ? [
             '#type' => 'details',
             '#title' => $this->t('Ranking details'),
             '#attributes' => ['class' => ['med-ranking-details', 'med-debug']],
@@ -349,12 +354,12 @@ class SearchForm extends FormBase {
               '#value' => $this->t('@score', ['@score' => $this->search->describeScore($result)]),
             ],
           ] : [],
-          'source' => self::track(self::external([
+          'source' => $node->field_med_source_url->isEmpty() ? [] : self::track(self::external([
             '#type' => 'link',
             '#title' => $this->t('Source: MedlinePlus, National Library of Medicine.'),
             '#url' => Url::fromUri($node->field_med_source_url->uri),
           ]), 'external_resource_clicked', 'source'),
-        ] + $this->buildEnrichment($enrichment);
+        ] + ($browsing ? [] : $this->buildEnrichment($enrichment));
       }
       if ($facets) {
         $form['results']['topics'] = $this->topicFacet($facets, count($response['results']));
@@ -369,9 +374,11 @@ class SearchForm extends FormBase {
         }
       }
       $enrichment_ms = (hrtime(TRUE) - $enrichment_start) / 1e6;
-      $this->reportOnce($form_state, $response, $enrichment_ms);
-      if ($this->currentUser()->hasPermission('view med search ranking details')) {
-        $form['results']['debug'] = $this->debugPanel($response, (float) $form_state->getTemporaryValue('med_search_ms'), $enrichment_ms);
+      if (!$browsing) {
+        $this->reportOnce($form_state, $response, $enrichment_ms);
+        if ($this->currentUser()->hasPermission('view med search ranking details')) {
+          $form['results']['debug'] = $this->debugPanel($response, (float) $form_state->getTemporaryValue('med_search_ms'), $enrichment_ms);
+        }
       }
     }
     $error = $form_state->getTemporaryValue('med_error');
