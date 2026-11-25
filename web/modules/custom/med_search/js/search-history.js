@@ -19,12 +19,14 @@
   }
 
   function applyView(form, view) {
-    const filter = form.querySelector('[data-med-result-view]');
+    const filter = form.querySelector('.med-result-filter');
     if (!filter) {
       return;
     }
-    filter.value = view;
-    filter.closest('.med-result-filter').hidden = false;
+    filter.hidden = false;
+    filter.querySelectorAll('[data-med-result-view]').forEach((button) => {
+      button.setAttribute('aria-pressed', String(button.dataset.medResultView === view));
+    });
     const results = filter.closest('.med-results');
     // Urgent notices and search errors are always visible.
     results.querySelectorAll('.med-answer:not(.med-answer--urgent)').forEach((answer) => {
@@ -72,12 +74,15 @@
             remember(current);
           }
         });
-        document.addEventListener('change', (event) => {
-          if (event.target.matches('[data-med-result-view]')) {
-            const current = event.target.closest(selector);
-            applyView(current, event.target.value);
-            remember(current, event.target.value);
+        document.addEventListener('click', (event) => {
+          const button = event.target.closest('[data-med-result-view]');
+          if (!button || button.getAttribute('aria-pressed') === 'true') {
+            return;
           }
+          const current = button.closest(selector);
+          const view = button.dataset.medResultView;
+          applyView(current, view);
+          remember(current, view);
         });
         window.addEventListener('popstate', (event) => {
           const current = document.querySelector(selector);
