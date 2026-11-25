@@ -134,6 +134,10 @@
   display: flex;
 }
 
+.med-search:has(.med-loading.htmx-request) .med-results {
+  visibility: hidden;
+}
+
 .med-loading::before {
   width: 1rem;
   height: 1rem;

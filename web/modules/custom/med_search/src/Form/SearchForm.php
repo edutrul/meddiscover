@@ -9,6 +9,7 @@ use Drupal\Core\Htmx\Htmx;
 use Drupal\Core\Url;
 use Drupal\med_search\ResultEnricher;
 use Drupal\med_search\SearchStrategyInterface;
+use Drupal\med_search\SearchStrategyRegistry;
 use Drupal\med_search\UrgencyDetector;
 use Drupal\med_search\Event\SearchCompletedEvent;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -49,6 +50,8 @@ class SearchForm extends FormBase {
     private ResultEnricher $enricher,
     private EventDispatcherInterface $eventDispatcher,
     private EntityTypeManagerInterface $entityTypeManager,
+    private ?SearchStrategyRegistry $automaticStrategies = NULL,
+    private ?UrgencyDetector $urgency = NULL,
   ) {}
 
   /**
@@ -56,7 +59,8 @@ class SearchForm extends FormBase {
    */
   public static function create(ContainerInterface $container): static {
     // The route's "strategy" default selects one registered strategy.
-    $strategy = $container->get('current_route_match')->getRouteObject()?->getDefault('strategy') ?? 'semantic';
+    $route = $container->get('current_route_match')->getRouteObject();
+    $strategy = $route?->getDefault('strategy') ?? 'semantic';
     if (!isset(self::STRATEGIES[$strategy])) {
       throw new \InvalidArgumentException('Unknown search strategy.');
     }
@@ -65,6 +69,8 @@ class SearchForm extends FormBase {
       $container->get('med_search.enricher'),
       $container->get('event_dispatcher'),
       $container->get('entity_type.manager'),
+      $route?->getDefault('automatic_strategy') ? $container->get('med_search.strategies') : NULL,
+      $container->get('med_search.urgency'),
     );
   }
 
@@ -82,19 +88,24 @@ class SearchForm extends FormBase {
     $form_state->disableCache();
     $form['#cache']['max-age'] = 0;
     $conversational = $this->search->id() === 'conversational';
+    $strategy = $form_state->getTemporaryValue('med_strategy') ?? $this->search;
+    $automatic = $this->automaticStrategies !== NULL;
     // Keep the visitor-facing introduction brief.
     $form['intro'] = [
       '#type' => 'html_tag',
       '#tag' => 'p',
       '#attributes' => ['class' => ['med-search__lead']],
-      '#value' => $this->t('Find trusted health information from MedlinePlus.'),
+      '#value' => $automatic ? $this->t('Search a topic or ask a question about MedlinePlus health information.') : $this->t('Find trusted health information from MedlinePlus.'),
     ];
     $examples = $conversational
       ? ['What is HbA1c?', 'How can I prevent type 2 diabetes?', 'What can trigger a migraine?']
       : ['Knee pain when walking', 'Seasonal allergies', 'Lower back pain'];
+    if ($automatic) {
+      $examples[] = 'Knee pain when walking';
+    }
     $form['query'] = [
       '#type' => 'textfield',
-      '#title' => $conversational ? $this->t('Your health question') : $this->t('Search health topics'),
+      '#title' => $conversational && !$automatic ? $this->t('Your health question') : $this->t('Search health topics'),
       '#title_display' => 'invisible',
       '#description' => $this->t('Use your own words. Do not include names or other personal details.'),
       '#maxlength' => 500,
@@ -204,7 +215,7 @@ class SearchForm extends FormBase {
       '#type' => 'html_tag',
       '#tag' => 'p',
       '#attributes' => ['id' => 'med-search-loading', 'class' => ['med-loading', 'htmx-indicator'], 'role' => 'status'],
-      '#value' => $this->search->id() === 'conversational'
+      '#value' => $conversational && !$automatic
         ? $this->t('Writing an answer from the MedlinePlus sources. This usually takes 10 to 20 seconds.')
         : $this->t('Searching…'),
     ];
@@ -246,7 +257,9 @@ class SearchForm extends FormBase {
           '#items' => [
             $this->t('medDiscover searches 24 MedlinePlus health topics from the National Library of Medicine.'),
             $conversational
-              ? $this->t('The answer uses only those topics, cites each statement, and says so when the topics do not answer your question.')
+              ? ($automatic
+                ? $this->t('Topic searches show matching pages. Questions can produce an answer with citations to those pages.')
+                : $this->t('The answer uses only those topics, cites each statement, and says so when the topics do not answer your question.'))
               : $this->t('Each result says why it matched and links to the original MedlinePlus page.'),
             $this->t('Next steps point to trusted resources listed by MedlinePlus. Urgent symptoms get emergency guidance first.'),
           ],
@@ -335,7 +348,7 @@ class SearchForm extends FormBase {
           'title' => $browsing ? $node->toLink()->toRenderable() : self::track(
             ['#type' => 'link', '#title' => $node->label(), '#url' => $node->toUrl()],
             'search_result_clicked',
-            $this->search->id() . ':' . self::rankBucket($delta + 1),
+            $strategy->id() . ':' . self::rankBucket($delta + 1),
           ),
           'description' => [
             '#type' => 'html_tag',
@@ -351,7 +364,7 @@ class SearchForm extends FormBase {
             'text' => [
               '#type' => 'html_tag',
               '#tag' => 'p',
-              '#value' => $this->t('@score', ['@score' => $this->search->describeScore($result)]),
+              '#value' => $this->t('@score', ['@score' => $strategy->describeScore($result)]),
             ],
           ] : [],
           'source' => $node->field_med_source_url->isEmpty() ? [] : self::track(self::external([
@@ -377,15 +390,15 @@ class SearchForm extends FormBase {
       }
       $enrichment_ms = (hrtime(TRUE) - $enrichment_start) / 1e6;
       if (!$browsing) {
-        $this->reportOnce($form_state, $response, $enrichment_ms);
+        $this->reportOnce($form_state, $response, $enrichment_ms, $strategy);
         if ($this->currentUser()->hasPermission('view med search ranking details')) {
-          $form['results']['debug'] = $this->debugPanel($response, (float) $form_state->getTemporaryValue('med_search_ms'), $enrichment_ms);
+          $form['results']['debug'] = $this->debugPanel($response, (float) $form_state->getTemporaryValue('med_search_ms'), $enrichment_ms, $strategy);
         }
       }
     }
     $error = $form_state->getTemporaryValue('med_error');
     if ($error) {
-      [$label] = self::STRATEGIES[$this->search->id()];
+      [$label] = self::STRATEGIES[$strategy->id()];
       $form['error'] = [
         '#type' => 'container',
         '#attributes' => ['role' => 'alert', 'class' => ['med-state', 'med-state--error']],
@@ -579,7 +592,7 @@ class SearchForm extends FormBase {
   /**
    * Dispatch the completed-search event once per request.
    */
-  private function reportOnce(FormStateInterface $form_state, array $response, float $enrichment_ms): void {
+  private function reportOnce(FormStateInterface $form_state, array $response, float $enrichment_ms, SearchStrategyInterface $strategy): void {
     if ($form_state->getTemporaryValue('med_reported')) {
       return;
     }
@@ -595,7 +608,7 @@ class SearchForm extends FormBase {
       'generation' => $t['generation_ms'] ?? NULL,
     ], fn($v) => $v !== NULL);
     $this->eventDispatcher->dispatch(new SearchCompletedEvent(
-      $this->search->id(),
+      $strategy->id(),
       count($response['results']),
       FALSE,
       $response['answer']['status'] ?? NULL,
@@ -606,9 +619,9 @@ class SearchForm extends FormBase {
   /**
    * Developer-mode panel: strategy, stage timings and answer status.
    */
-  private function debugPanel(array $response, float $search_ms, float $enrichment_ms): array {
+  private function debugPanel(array $response, float $search_ms, float $enrichment_ms, SearchStrategyInterface $strategy): array {
     $t = $response['timings'];
-    $rows = [[$this->t('Strategy'), $this->search->id()]];
+    $rows = [[$this->t('Strategy'), $strategy->id()]];
     foreach ([
       'embedding_ms' => $this->t('Query embedding'),
       'lexical_ms' => $this->t('Solr retrieval'),
@@ -718,14 +731,23 @@ class SearchForm extends FormBase {
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state): void {
+    $query = trim((string) $form_state->getValue('query'));
+    $strategy = $this->search;
+    // Always preserve the fixed urgent response, including terse queries.
+    if ($this->automaticStrategies && !$this->urgency?->detect($query)
+      && !str_ends_with($query, '?')
+      && !preg_match('/^(?:what|why|when|where|who|which|how)\s+\S|^(?:can|could|should|do|does|did|is|are|will)\s+(?:i|we|you|it|there|my|the)\b/iu', $query)) {
+      $strategy = $this->automaticStrategies->get('hybrid');
+    }
+    $form_state->setTemporaryValue('med_strategy', $strategy);
     $start = hrtime(TRUE);
     try {
-      $form_state->setTemporaryValue('med_response', $this->search->search((string) $form_state->getValue('query')));
+      $form_state->setTemporaryValue('med_response', $strategy->search($query));
       $form_state->setTemporaryValue('med_search_ms', (hrtime(TRUE) - $start) / 1e6);
     }
     catch (\Throwable) {
       $form_state->setTemporaryValue('med_error', TRUE);
-      $this->eventDispatcher->dispatch(new SearchCompletedEvent($this->search->id(), 0, TRUE, NULL, ['total' => (hrtime(TRUE) - $start) / 1e6]), SearchCompletedEvent::NAME);
+      $this->eventDispatcher->dispatch(new SearchCompletedEvent($strategy->id(), 0, TRUE, NULL, ['total' => (hrtime(TRUE) - $start) / 1e6]), SearchCompletedEvent::NAME);
     }
     // Only temporary state holds results; raw query text is never logged.
     $form_state->disableCache();

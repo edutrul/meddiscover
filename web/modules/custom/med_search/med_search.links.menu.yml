@@ -1,6 +1,6 @@
 med_search.conversational:
   title: 'Search'
-  route_name: med_search.conversational
+  route_name: med_search.home
   menu_name: main
   weight: 0
 med_search.build:
