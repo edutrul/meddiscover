@@ -24,7 +24,30 @@ Do not delete migration map tables or manually alter `field_med_key`. A normal r
 
 Core Drush also provides `migrate:messages` for errors. A rollback removes imported entities and can remove manual edits; use only deliberately with a backup, in reverse dependency order (relationships/resources, topics, taxonomies). Never use it as a routine retry.
 
+## Why 24 health topics?
+
+The proof of concept uses 24 English topics to exercise distinct search and navigation cases with a small corpus that can be inspected by hand. Examples include ambiguous aliases, shared MeSH descriptors and qualifiers, curated related topics, and links to patient resources. Spanish counterparts remain source links in the implemented import. See the [selection rationale](discovery/08-minimal-dataset.md).
+
+The [pinned XML snapshot](discovery/01-dataset-profile.md) contains 1,017 English topics and 2,033 topics across both languages. The 24 imported topics represent **2.36% of English topics** (24 ÷ 1,017) and **1.18% of all topics** (24 ÷ 2,033). These percentages count Health Topics only.
+
+## Add topics from the same snapshot
+
+1. Find the English `<health-topic>` in the pinned XML and copy its `id`. Keep the file path and checksum as they are for this snapshot.
+2. Append the ID to `source.selection` in all six YAML definitions under `web/modules/custom/med_content/migrations/`. Update `docs/discovery/implementation-selection.json` and review baseline assertions and migration dependency checks that assume 24 topics before running verification.
+3. Rebuild the cache, then import with the existing migration maps.
+
+   ```sh
+   ddev drush cache:rebuild
+   ddev drush migrate:import --tag=med --execute-dependencies
+   ddev drush migrate:status --tag=med
+   ```
+
+4. Check the new topic and its taxonomy, resource, and relationship references. If an existing relationship pointed to the new topic externally, check that it now references the imported node. Run the verification script with the revised baseline.
+5. Index the expanded corpus in Solr and refresh its semantic embeddings. Verify that the new topic appears in both search modes. See [search setup](search.md) and the [semantic indexer](architecture/003-semantic-search.md).
+
 ## Administration
+
+The default Health Topic edit form exposes two import fields as text inputs. **Migration identifier** stores the row key, and **MedlinePlus ID** stores the upstream topic ID. Both are `304` for Knee Injuries and Disorders because a topic uses its upstream ID as its row key. The Drupal node ID and the migration map are stored separately. Treat these form fields as import metadata and leave their values intact during editorial changes.
 
 - `/admin/content`: filter by Health Topic, Resource Assignment or Topic Relationship; edit individual nodes.
 - `/admin/structure/types`: inspect content types and fields.

@@ -10,6 +10,13 @@ use GuzzleHttp\ClientInterface;
  */
 class OllamaEmbedder {
 
+  /**
+   * Vectors computed during this request, keyed by input text.
+   *
+   * @var array<string, float[]>
+   */
+  private array $vectors = [];
+
   public function __construct(
     private ClientInterface $client,
     private ConfigFactoryInterface $configFactory,
@@ -39,9 +46,32 @@ class OllamaEmbedder {
   }
 
   /**
+   * Generates a query vector with the configured search model.
+   */
+  public function embedQuery(string $query): array {
+    $this->verifyModel();
+    return $this->embed(self::queryInput($query));
+  }
+
+  /**
+   * Formats the input sent to the embedding model for a query.
+   */
+  public static function queryInput(string $query): string {
+    return 'search_query: ' . $query;
+  }
+
+  /**
    * Embeds without truncation and never logs input or response bodies.
+   *
+   * @todo Revisit Drupal AI provider adoption once strict input handling is
+   *   available: https://www.drupal.org/i/3612033.
    */
   public function embed(string $text): array {
+    // Semantic, Hybrid and Conversational may embed the same query in one
+    // request; reuse the vector instead of asking Ollama again.
+    if (isset($this->vectors[$text])) {
+      return $this->vectors[$text];
+    }
     $config = $this->configFactory->get('med_search.settings');
     try {
       $response = $this->client->request('POST', $config->get('endpoint') . '/api/embed', [
@@ -65,7 +95,7 @@ class OllamaEmbedder {
     }
     $vector = $data['embeddings'][0];
     self::validateVector($vector, (int) $config->get('dimensions'));
-    return $vector;
+    return $this->vectors[$text] = $vector;
   }
 
   /**

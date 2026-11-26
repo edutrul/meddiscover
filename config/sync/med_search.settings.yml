@@ -1,22 +1,42 @@
 _core:
   default_config_hash: wuc1loXyLRxY5ldHuUOyblma4wpjmEaNWmltlKgQy5s
+# Ollama address as seen from Drupal inside Docker.
 endpoint: 'http://host.docker.internal:11434'
+# Embedding model for both topic documents and search queries.
 model: 'nomic-embed-text:v1.5'
+# Expected model fingerprint. Prevents mixing incompatible embeddings.
 model_digest: 0a109f422b47e3a30ba2b10eca18548e944e8a23073ee3f3e947efcf3c45e59f
+# Number of values in each embedding vector.
 dimensions: 768
+# Embedding context in tokens. Oversized inputs are rejected.
 context_length: 2048
+# Include alternative names and MeSH vocabulary in topic embeddings.
 include_metadata: true
+# Default maximum number of topics returned.
 result_limit: 5
+# Minimum cosine similarity (1 minus cosine distance) for semantic matches.
 threshold: 0.62
+# Drupal Search API index used by Solr.
 lexical_index: med_topics
+# Match all optional clauses up to two, otherwise 75% rounded down.
 lexical_min_match: 2<75%
+# Maximum candidates drawn from each ranking before fusion.
 hybrid_depth: 20
+# Rank smoothing constant in the RRF contribution 1 / (k + rank).
 hybrid_rrf_k: 60
+# Model that writes the cited answer from retrieved sources.
 generation_model: 'gemma3:12b'
+# Expected fingerprint of the answer model.
 generation_model_digest: b92b218582c521ba287f38f1d6057dcd3c6cbff036f13cac97b5d861f5e58ec3
+# Requested context in tokens for instructions, sources, question and output.
 generation_context_length: 8192
+# Maximum output tokens after the model receives the sources.
 generation_max_tokens: 800
+# Maximum wait for the generation request, in seconds.
 generation_timeout: 90
+# Retrieval method used to find sources for answers.
 rag_strategy: semantic
+# Maximum number of retrieved topics supplied to the answer model.
 rag_sources: 3
+# Maximum characters supplied per source.
 rag_source_chars: 2500

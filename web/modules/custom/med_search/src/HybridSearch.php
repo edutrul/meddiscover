@@ -42,7 +42,7 @@ class HybridSearch implements SearchStrategyInterface {
   /**
    * {@inheritdoc}
    */
-  public function search(string $query, ?int $limit = NULL): array {
+  public function search(string $query, ?int $limit = NULL, bool $includeRanking = FALSE): array {
     $config = $this->configFactory->get('med_search.settings');
     $limit ??= (int) $config->get('result_limit');
     QueryText::validate($query, $limit);
@@ -83,7 +83,22 @@ class HybridSearch implements SearchStrategyInterface {
       $results[] = ['node' => $nodes[$row['id']]] + $row;
     }
     $timings['fusion_ms'] = (hrtime(TRUE) - $start) / 1e6;
-    return ['results' => $results, 'timings' => $timings, 'notices' => array_values(array_unique($notices))];
+    $response = ['results' => $results, 'timings' => $timings, 'notices' => array_values(array_unique($notices))];
+    if ($includeRanking) {
+      $response['hybrid_debug'] = [
+        'method' => 'Reciprocal Rank Fusion',
+        'k' => $k,
+        'candidate_limit_per_list' => $depth,
+        'input_rankings' => array_map(static fn(array $ids): array => array_map(static fn($id): string => $nodes[$id]->label(), $ids), $rankings),
+        'results' => array_map(static fn(array $row): array => [
+          'title' => $row['node']->label(),
+          'ranks' => $row['ranks'],
+          'points_by_list' => array_map(static fn(int $rank): float => 1 / ($k + $rank), $row['ranks']),
+          'rrf_score' => $row['score'],
+        ], $results),
+      ];
+    }
+    return $response;
   }
 
   /**

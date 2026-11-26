@@ -78,9 +78,12 @@ class LexicalSearch implements SearchStrategyInterface {
     $search->setOption('solr_param_mm', $keys !== $query ? '4<75%' : (string) $config->get('lexical_min_match'));
     $search->setOption('solr_param_pf', implode(' ', $phrase_fields));
 
+    $capture = $this->currentUser->hasPermission('view med search ranking details');
+    $search->setOption('med_solr_debug', $capture);
     $start = hrtime(TRUE);
     try {
-      $items = $search->execute()->getResultItems();
+      $result_set = $search->execute();
+      $items = $result_set->getResultItems();
     }
     catch (\Throwable) {
       // Do not rethrow: backend messages can contain the request.
@@ -118,11 +121,23 @@ class LexicalSearch implements SearchStrategyInterface {
     if (count($exact) > 1) {
       $notices[] = sprintf('“%s” is a name used by several topics: %s. Choose the one that fits.', $query, implode(', ', $exact));
     }
-    return [
+    $response = [
       'results' => $results,
       'timings' => ['lexical_ms' => (hrtime(TRUE) - $start) / 1e6],
       'notices' => $notices,
     ];
+    if ($capture && $parameters = $search->getOption('med_solr_debug_params')) {
+      $raw = $result_set->getExtraData('search_api_solr_response');
+      $response['solr_debug'] = [
+        'parameters' => $parameters,
+        'solr_matches' => $raw['response']['numFound'] ?? $result_set->getResultCount(),
+        'website_results' => array_map(static fn(array $item): array => [
+          'title' => $item['node']->label(),
+          'score' => $item['score'],
+        ], $results),
+      ];
+    }
+    return $response;
   }
 
   /**

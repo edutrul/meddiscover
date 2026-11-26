@@ -105,7 +105,7 @@ class SemanticSearch {
   /**
    * Rank by actual cosine distance, rejecting stale or inaccessible topics.
    */
-  public function search(string $query, ?float $threshold = NULL, ?int $limit = NULL): array {
+  public function search(string $query, ?float $threshold = NULL, ?int $limit = NULL, bool $includeEmbedding = FALSE): array {
     $query = trim($query);
     if ($query === '' || mb_strlen($query) > 500) {
       throw new \InvalidArgumentException('Enter a query between 1 and 500 characters.');
@@ -117,8 +117,7 @@ class SemanticSearch {
       throw new \InvalidArgumentException('Invalid search threshold or result limit.');
     }
     $start = hrtime(TRUE);
-    $this->embedder->verifyModel();
-    $vector = $this->embedder->embed('search_query: ' . $query);
+    $vector = $this->embedder->embedQuery($query);
     $embedding_ms = (hrtime(TRUE) - $start) / 1e6;
     $start = hrtime(TRUE);
     $args = [
@@ -149,7 +148,19 @@ class SemanticSearch {
         break;
       }
     }
-    return ['results' => $results, 'embedding_ms' => $embedding_ms, 'retrieval_ms' => (hrtime(TRUE) - $start) / 1e6];
+    $response = [
+      'results' => $results,
+      'embedding_ms' => $embedding_ms,
+      'retrieval_ms' => (hrtime(TRUE) - $start) / 1e6,
+    ];
+    if ($includeEmbedding) {
+      $response['embedding_debug'] = [
+        'model' => $config->get('model'),
+        'input' => OllamaEmbedder::queryInput($query),
+        'response' => ['dimensions' => count($vector), 'embedding' => $vector],
+      ];
+    }
+    return $response;
   }
 
 }

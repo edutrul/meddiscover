@@ -1,4 +1,7 @@
 services:
+  med_search.solr_debug:
+    class: Drupal\med_search\SolrDebugSubscriber
+    tags: [{ name: event_subscriber }]
   med_search.embedder:
     class: Drupal\med_search\OllamaEmbedder
     arguments: ['@http_client', '@config.factory']

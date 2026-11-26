@@ -24,6 +24,16 @@ Each page links to the other modes, so the same question can be compared across 
 
 The endpoint, model, digest, dimensions, threshold and result limit live in `config/sync/med_search.settings.yml`. If the local model digest differs, search and indexing stop with a provider error instead of mixing vectors from different models.
 
+## Generate one query embedding
+
+```bash
+ddev drush med-search:embed-query "knee pain when walking" > query-vector.json
+```
+
+The command prints a JSON array using the same configured model, digest check,
+and query prefix as semantic search. It generates a vector without running a
+search or updating the index.
+
 ## Solr (lexical and hybrid)
 
 `ddev start` also starts Solr 9.11 (the `ddev/ddev-solr` add-on, pinned in `.ddev/docker-compose.solr-meddiscover.yaml`). Create the collection once per environment from the exported Search API configuration, then index the topics:

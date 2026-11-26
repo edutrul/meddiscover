@@ -19,11 +19,11 @@ class SemanticStrategy implements SearchStrategyInterface {
   /**
    * {@inheritdoc}
    */
-  public function search(string $query, ?int $limit = NULL): array {
+  public function search(string $query, ?int $limit = NULL, bool $includeEmbedding = FALSE): array {
     if ($limit !== NULL) {
       QueryText::validate($query, $limit);
     }
-    $response = $this->search->search($query, NULL, $limit);
+    $response = $this->search->search($query, NULL, $limit, $includeEmbedding);
     $results = [];
     foreach ($response['results'] as $position => $row) {
       $results[] = [
@@ -37,7 +37,7 @@ class SemanticStrategy implements SearchStrategyInterface {
       'results' => $results,
       'timings' => ['embedding_ms' => $response['embedding_ms'], 'semantic_ms' => $response['retrieval_ms']],
       'notices' => [],
-    ];
+    ] + array_intersect_key($response, ['embedding_debug' => TRUE]);
   }
 
   /**

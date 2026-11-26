@@ -33,6 +33,28 @@ final class BuildOverview extends ControllerBase {
       ],
     ];
     $page = ['#type' => 'container', '#attributes' => ['class' => ['med-build-overview']]];
+    $page['case_study'] = [
+      '#type' => 'container',
+      'title' => ['#type' => 'html_tag', '#tag' => 'h2', '#value' => $this->t('Eduardo’s medDiscover case study')],
+      'video' => [
+        '#type' => 'html_tag',
+        '#tag' => 'iframe',
+        '#value' => '',
+        '#attributes' => [
+          'src' => 'https://www.youtube-nocookie.com/embed/N77ifAgZPTU?start=18',
+          'title' => $this->t('Eduardo’s medDiscover case study on YouTube'),
+          'style' => 'display:block;width:100%;max-width:960px;aspect-ratio:16/9;border:0;',
+          'loading' => 'lazy',
+          'referrerpolicy' => 'strict-origin-when-cross-origin',
+          'allowfullscreen' => TRUE,
+        ],
+      ],
+      'link' => [
+        '#type' => 'link',
+        '#title' => $this->t('Watch on YouTube'),
+        '#url' => Url::fromUri('https://www.youtube.com/watch?v=N77ifAgZPTU&t=18s'),
+      ],
+    ];
     foreach ($layers as $index => [$title, $description]) {
       $page['layer_' . $index] = [
         '#type' => 'html_tag',

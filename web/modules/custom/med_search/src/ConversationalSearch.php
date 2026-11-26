@@ -80,7 +80,7 @@ TXT;
   /**
    * {@inheritdoc}
    */
-  public function search(string $query, ?int $limit = NULL): array {
+  public function search(string $query, ?int $limit = NULL, bool $includePrompt = FALSE): array {
     $config = $this->configFactory->get('med_search.settings');
     $limit ??= (int) $config->get('result_limit');
     $query = QueryText::validate($query, $limit);
@@ -136,7 +136,15 @@ TXT;
     $cited = array_unique(array_merge(...array_column($answer['statements'] ?? [], 'citations') ?: [[]]));
     // Cited topics first, then the other retrieved topics in rank order.
     usort($results, fn($a, $b) => [!in_array($a['id'], $cited, TRUE)] <=> [!in_array($b['id'], $cited, TRUE)]);
-    return $this->response($answer, $results, $timings, $notices);
+    $response = $this->response($answer, $results, $timings, $notices);
+    if ($includePrompt) {
+      $response['generation_debug'] = [
+        'model' => $config->get('generation_model'),
+        'system' => self::SYSTEM_PROMPT,
+        'user' => $prompt,
+      ];
+    }
+    return $response;
   }
 
   /**

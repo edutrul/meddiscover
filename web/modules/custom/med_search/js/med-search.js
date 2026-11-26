@@ -127,8 +127,9 @@
           if (loading && box) {
             const answer = questionPattern.test(box.value.trim());
             loading.dataset.medLoadingMode = answer ? 'answer' : 'search';
-            loading.textContent = answer ? Drupal.t('Writing a cited answer from MedlinePlus…') :
-              Drupal.t('Searching MedlinePlus topics…');
+            loading.textContent = answer
+              ? loading.dataset.medLoadingAnswer || Drupal.t('Writing a cited answer from MedlinePlus…')
+              : loading.dataset.medLoadingSearch || Drupal.t('Searching MedlinePlus topics…');
           }
           if (error) {
             error.hidden = true;
