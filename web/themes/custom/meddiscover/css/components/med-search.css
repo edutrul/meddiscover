@@ -1150,3 +1150,48 @@ a[data-med-external]::after {
 [data-med-results-heading]:focus:not(:focus-visible) {
   outline: none;
 }
+
+/* Compare: the homepage verdict comes first; the cards are the evidence. */
+.med-verdict {
+  margin-block: 0.5rem 1rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--md-color-border);
+  border-inline-start: 6px solid var(--md-color-primary);
+  border-radius: var(--md-radius-small);
+  background: var(--md-color-surface);
+  box-shadow: var(--md-shadow);
+}
+
+.med-verdict > p {
+  margin-block: 0.35rem 0;
+}
+
+.med-verdict .med-verdict__kicker {
+  margin-block-start: 0;
+  color: var(--md-color-muted);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.med-verdict .med-verdict__label {
+  margin-block-start: 0.1rem;
+  color: var(--md-color-primary-strong);
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.med-verdict ol {
+  margin-block: 0.25rem 0;
+  padding-inline-start: 1.5rem;
+}
+
+.med-verdict .med-verdict__rule {
+  margin-block-start: 0.6rem;
+  padding-block-start: 0.5rem;
+  border-block-start: 1px solid var(--md-color-border);
+  color: var(--md-color-muted);
+  font-size: 0.875rem;
+}

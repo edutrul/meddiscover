@@ -803,6 +803,33 @@ class SearchForm extends FormBase {
   /**
    * Determines whether the homepage returns a hybrid list for this input.
    */
+
+  /**
+   * Explains which part of QUESTION_PATTERN the query matched, if any.
+   *
+   * Kept next to the pattern so the explanation cannot drift from the rule.
+   *
+   * @return string|null
+   *   A phrase such as "starts with the question word “what”", or NULL when
+   *   the query is not a question.
+   */
+  public static function questionReason(string $query): ?string {
+    $query = trim($query);
+    if (preg_match('/\?$/u', $query)) {
+      return (string) t('ends with a question mark');
+    }
+    if (preg_match('/^(what|why|when|where|who|which|how)\s+\S/iu', $query, $match)) {
+      return (string) t('starts with the question word “@word”', ['@word' => mb_strtolower($match[1])]);
+    }
+    if (preg_match('/^(can|could|should|do|does|did|is|are|will)\s+(i|we|you|it|there|my|the)\b/iu', $query, $match)) {
+      return (string) t('starts with “@words”, a question opener', ['@words' => mb_strtolower($match[1] . ' ' . $match[2])]);
+    }
+    return NULL;
+  }
+
+  /**
+   * Whether the homepage sends this query to Hybrid (topic search).
+   */
   public static function usesHomepageHybrid(string $query, ?string $urgency): bool {
     return $urgency === NULL && !preg_match('/' . self::QUESTION_PATTERN . '/iu', $query);
   }

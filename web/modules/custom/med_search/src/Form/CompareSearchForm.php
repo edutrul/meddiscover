@@ -127,17 +127,11 @@ final class CompareSearchForm extends FormBase {
     // so no card earns the ribbon.
     $nothing_found = $uses_hybrid && empty($response['hybrid']['results']);
     $ribbon_hybrid = $uses_hybrid && !$nothing_found;
-    // The card the homepage would use carries a corner ribbon; only the
-    // urgent case, which has no card, needs a sentence.
-    if ($urgent !== NULL || $nothing_found) {
-      $form['homepage_strategy'] = [
-        '#type' => 'html_tag',
-        '#tag' => 'p',
-        '#attributes' => ['class' => ['med-state', 'med-state--empty']],
-        '#value' => $urgent !== NULL
-          ? $this->t('The homepage would show its urgent-safety message for this query.')
-          : $this->t('None of the three methods found a matching topic, so the homepage would not use any of them: it would say “No topics matched closely enough.” Check the spelling or try other words.'),
-      ];
+    // The main point of this page: what the homepage would answer, and why.
+    $hybrid_results = $response['hybrid']['results'] ?? [];
+    $form['verdict'] = $this->verdict($query, $urgent, $uses_conversation, $nothing_found, $hybrid_results, $retrieval);
+    if (!$uses_conversation) {
+      $form['evidence_heading'] = $this->evidenceHeading();
     }
     $form['ranking'] = [
       '#type' => 'container',
@@ -289,12 +283,7 @@ final class CompareSearchForm extends FormBase {
       // question follow: Semantic's list is what the answer was written from.
       $grid = $form['ranking'];
       unset($form['ranking']);
-      $form['ranking_heading'] = [
-        '#type' => 'html_tag',
-        '#tag' => 'h2',
-        '#attributes' => ['class' => ['med-compare-subheading']],
-        '#value' => $this->t('What each search method returns for this question'),
-      ];
+      $form['ranking_heading'] = $this->evidenceHeading();
       $form['ranking_note'] = [
         '#type' => 'html_tag',
         '#tag' => 'p',
@@ -304,6 +293,94 @@ final class CompareSearchForm extends FormBase {
       $form['ranking'] = $grid;
     }
     return $form;
+  }
+
+  /**
+   * Heading that presents the method cards as the evidence for the verdict.
+   */
+  private function evidenceHeading(): array {
+    return [
+      '#type' => 'html_tag',
+      '#tag' => 'h2',
+      '#attributes' => ['class' => ['med-compare-subheading']],
+      '#value' => $this->t('The evidence: how each method handles this search'),
+    ];
+  }
+
+  /**
+   * What the homepage would answer for this input, and the rule behind it.
+   */
+  private function verdict(string $query, ?string $urgent, bool $uses_conversation, bool $nothing_found, array $hybrid_results, $retrieval): array {
+    $quoted = '“' . $query . '”';
+    $topic_rule = $this->t('@query has no “?” and does not start with a question word, so it counts as a topic search.', ['@query' => $quoted]);
+    [$label, $get, $why] = match (TRUE) {
+      $urgent !== NULL => [
+        $this->t('Urgent-safety message'),
+        $this->t('Emergency guidance only: call 911 or your local emergency number. No topic list and no AI answer.'),
+        $this->t('@query contains urgent wording, which is checked before anything else.', ['@query' => $quoted]),
+      ],
+      $uses_conversation => [
+        $this->t('Ask (RAG)'),
+        $this->t('A short answer with citations, written from the top topics of @strategy search. It is shown below.', ['@strategy' => $retrieval]),
+        $this->t('@query @reason, so it counts as a question.', [
+          '@query' => $quoted,
+          '@reason' => SearchForm::questionReason($query),
+        ]),
+      ],
+      $nothing_found => [
+        $this->t('No result'),
+        $this->t('“No topics matched closely enough.” None of the three methods found a topic. Check the spelling or try other words.'),
+        $this->t('@rule The homepage would run Hybrid, but Hybrid found nothing.', ['@rule' => $topic_rule]),
+      ],
+      default => [
+        $this->t('Hybrid (Keyword + Semantic)'),
+        $this->t('A ranked list of health topics:'),
+        $topic_rule,
+      ],
+    };
+    $build = [
+      '#type' => 'container',
+      '#attributes' => [
+        'class' => ['med-verdict', $uses_conversation ? 'med-verdict--ask' : 'med-verdict--hybrid'],
+      ],
+      'kicker' => [
+        '#type' => 'html_tag',
+        '#tag' => 'p',
+        '#attributes' => ['class' => ['med-verdict__kicker']],
+        '#value' => $this->t('The homepage would answer with'),
+      ],
+      'label' => [
+        '#type' => 'html_tag',
+        '#tag' => 'p',
+        '#attributes' => ['class' => ['med-verdict__label']],
+        '#value' => $label,
+      ],
+      'get' => [
+        '#type' => 'html_tag',
+        '#tag' => 'p',
+        'title' => ['#type' => 'html_tag', '#tag' => 'strong', '#value' => $this->t("You'd get:")],
+        'text' => ['#plain_text' => ' ' . $get],
+      ],
+    ];
+    if ($urgent === NULL && !$uses_conversation && $hybrid_results) {
+      $build['topics'] = ['#theme' => 'item_list', '#list_type' => 'ol', '#items' => []];
+      foreach ($hybrid_results as $item) {
+        $build['topics']['#items'][] = $item['node']->toLink()->toRenderable();
+      }
+    }
+    $build['why'] = [
+      '#type' => 'html_tag',
+      '#tag' => 'p',
+      'title' => ['#type' => 'html_tag', '#tag' => 'strong', '#value' => $this->t('Why:')],
+      'text' => ['#plain_text' => ' ' . $why],
+    ];
+    $build['rule'] = [
+      '#type' => 'html_tag',
+      '#tag' => 'p',
+      '#attributes' => ['class' => ['med-verdict__rule']],
+      '#value' => $this->t('The rule: a question → Ask (RAG) · anything else → Hybrid (Keyword + Semantic) · urgent wording → safety message first.'),
+    ];
+    return $build;
   }
 
   /**
