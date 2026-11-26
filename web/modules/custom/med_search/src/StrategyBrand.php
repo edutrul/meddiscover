@@ -8,13 +8,20 @@ namespace Drupal\med_search;
 final class StrategyBrand {
 
   /**
+   * Public URL path of the module's images directory, with a trailing slash.
+   */
+  public static function imagePath(): string {
+    return base_path() . \Drupal::service('extension.list.module')->getPath('med_search') . '/images/';
+  }
+
+  /**
    * Builds the marks for a retrieval strategy.
    */
   public static function build(string $strategy): array {
     if (!in_array($strategy, ['lexical', 'semantic', 'hybrid'], TRUE)) {
       return [];
     }
-    $path = base_path() . \Drupal::service('extension.list.module')->getPath('med_search') . '/images/';
+    $path = self::imagePath();
     $build = [
       '#type' => 'container',
       '#attributes' => ['class' => ['med-strategy-brand']],

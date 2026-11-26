@@ -2,6 +2,7 @@
 
 namespace Drupal\med_search\Form;
 
+use Drupal\Component\Utility\Html;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Htmx\Htmx;
@@ -104,6 +105,47 @@ TWIG;
    * Opening of every technical breakdown.
    */
   private const TECH_HEAD = '<ol class="med-tech-steps">';
+
+  /**
+   * Flow diagram of the homepage decision; the taken path is highlighted.
+   */
+  private const FLOW = <<<'TWIG'
+<p class="med-flow__intro">Every homepage search goes through two checks, in this order. Your search, <strong>“{{ query }}”</strong>, took the <span class="med-flow__you">highlighted</span> path.</p>
+<ol class="med-flow" role="list">
+  <li class="med-flow__node med-flow__node--input is-taken">Your words</li>
+  <li class="med-flow__step{{ path == 'urgent' ? ' is-taken' }}">
+    <div class="med-flow__check is-taken"><span class="med-flow__q">1. Urgent wording? (an emergency or a crisis)</span><span class="med-flow__how">fixed phrases such as “chest pain”, “can’t breathe”, “throat swelling”, “passed out”, stroke signs, “overdose” or self-harm words</span></div>
+    <div class="med-flow__branch{{ path == 'urgent' ? ' is-taken' }}"><span class="med-flow__yes">yes</span>
+      <div class="med-flow__node med-flow__node--urgent"><strong class="med-flow__title"><img src="{{ images }}urgent.svg" alt="" width="20" height="20"> Safety message</strong><span>“Call 911 now” (or 988 for a crisis). Shown first, instead of search results or an AI answer.</span></div>
+    </div>
+  </li>
+  <li class="med-flow__no{{ path != 'urgent' ? ' is-taken' }}">no</li>
+  <li class="med-flow__step{{ path == 'ask' ? ' is-taken' }}">
+    <div class="med-flow__check{{ path != 'urgent' ? ' is-taken' }}"><span class="med-flow__q">2. A question?</span><span class="med-flow__how">ends with “?”, or starts with what / why / how…, or “is the”, “can I”, “do you”…</span></div>
+    <div class="med-flow__branch{{ path == 'ask' ? ' is-taken' }}"><span class="med-flow__yes">yes</span>
+      <div class="med-flow__node med-flow__node--ask"><strong class="med-flow__title"><img src="{{ images }}rag.svg" alt="" width="20" height="20"> Ask (RAG)</strong>
+        <ol class="med-flow__pipe">
+          <li><img src="{{ images }}postgresql.svg" alt="" width="18" height="18"> Semantic search (pgvector) picks the 3 closest topics</li>
+          <li><span class="med-flow__ai" aria-hidden="true">✦</span> Ollama writes an answer from those topics only</li>
+          <li><span class="med-flow__ai" aria-hidden="true">✓</span> Every sentence must cite a source, or it is dropped</li>
+        </ol>
+        <span class="med-flow__out">→ a short answer with citations</span>
+      </div>
+    </div>
+  </li>
+  <li class="med-flow__no{{ path == 'hybrid' ? ' is-taken' }}">no</li>
+  <li class="med-flow__node med-flow__node--hybrid{{ path == 'hybrid' ? ' is-taken' }}"><strong class="med-flow__title"><img src="{{ images }}solr.png" alt="" width="20" height="20"><img src="{{ images }}postgresql.svg" alt="" width="20" height="20"> Hybrid (Keyword + Semantic)</strong>
+    <div class="med-flow__lists">
+      <span><img src="{{ images }}solr.png" alt="" width="18" height="18"> Keyword list (Apache Solr)</span>
+      <span class="med-flow__plus" aria-hidden="true">+</span>
+      <span><img src="{{ images }}postgresql.svg" alt="" width="18" height="18"> Semantic list (pgvector)</span>
+    </div>
+    <span class="med-flow__merge">↓ merged by RRF (k = 60): topics high in both lists rise to the top</span>
+    <span class="med-flow__out">→ a ranked list of health topics</span>
+  </li>
+</ol>
+<p class="med-flow__note"><strong>Good to know:</strong> check 2 is a simple word pattern, not AI, so it is instant and predictable. It misses some questions: “what’s HbA1c”, “explain HbA1c” and “should a diabetic eat rice” currently go to Hybrid. RRF never decides the path; it only orders Hybrid’s topics.</p>
+TWIG;
 
   public function __construct(
     private SearchStrategyRegistry $strategies,
@@ -557,7 +599,45 @@ TWIG;
       '#type' => 'html_tag',
       '#tag' => 'p',
       '#attributes' => ['class' => ['med-verdict__rule']],
-      '#value' => $this->t('The rule: a question → Ask (RAG) · anything else → Hybrid (Keyword + Semantic) · urgent wording → safety message first.'),
+      'text' => ['#plain_text' => $this->t('The rule: a question → Ask (RAG) · anything else → Hybrid (Keyword + Semantic) · urgent wording → safety message first.') . ' '],
+      'open' => [
+        '#type' => 'html_tag',
+        '#tag' => 'button',
+        '#attributes' => [
+          'type' => 'button',
+          'class' => ['med-flow-open'],
+          'data-med-flow-open' => TRUE,
+          'aria-haspopup' => 'dialog',
+        ],
+        '#value' => $this->t('See the flow diagram'),
+      ],
+    ];
+    $title_id = Html::getUniqueId('med-flow-title');
+    $build['flow'] = [
+      '#type' => 'html_tag',
+      '#tag' => 'dialog',
+      '#attributes' => ['class' => ['med-strategy-dialog', 'med-flow-dialog'], 'aria-labelledby' => $title_id],
+      'title' => [
+        '#type' => 'html_tag',
+        '#tag' => 'h2',
+        '#attributes' => ['id' => $title_id],
+        '#value' => $this->t('How the homepage decides'),
+      ],
+      'body' => [
+        '#type' => 'inline_template',
+        '#template' => self::FLOW,
+        '#context' => [
+          'query' => $query,
+          'path' => $urgent !== NULL ? 'urgent' : ($uses_conversation ? 'ask' : 'hybrid'),
+          'images' => StrategyBrand::imagePath(),
+        ],
+      ],
+      'close' => [
+        '#type' => 'html_tag',
+        '#tag' => 'button',
+        '#attributes' => ['type' => 'button', 'data-med-flow-close' => TRUE],
+        '#value' => $this->t('Close'),
+      ],
     ];
     return $build;
   }

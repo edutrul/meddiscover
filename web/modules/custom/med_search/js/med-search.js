@@ -7,6 +7,25 @@
 ((Drupal, once) => {
   Drupal.behaviors.medSearch = {
     attach(context) {
+      // Flow-diagram dialog on the Compare page: open, close, backdrop click.
+      once('med-flow-dialog', 'body', document).forEach((body) => {
+        body.addEventListener('click', (event) => {
+          const open = event.target.closest('[data-med-flow-open]');
+          if (open) {
+            open.closest('.med-verdict').querySelector('.med-flow-dialog').showModal();
+            return;
+          }
+          const dialog = event.target.closest('.med-flow-dialog');
+          if (!dialog) {
+            return;
+          }
+          const box = dialog.getBoundingClientRect();
+          const outside = event.target === dialog && (event.clientX < box.left || event.clientX > box.right || event.clientY < box.top || event.clientY > box.bottom);
+          if (outside || event.target.closest('[data-med-flow-close]')) {
+            dialog.close();
+          }
+        });
+      });
       once('med-search', 'form[data-med-search]', context).forEach((form) => {
         const error = form.querySelector('[data-med-search-error]');
         // Show the chosen example in the box immediately, before the
