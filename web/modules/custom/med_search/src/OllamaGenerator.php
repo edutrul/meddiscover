@@ -8,7 +8,7 @@ use GuzzleHttp\ClientInterface;
 /**
  * Local Ollama chat model with a pinned digest and JSON-schema output.
  */
-class OllamaGenerator implements GeneratorInterface {
+final class OllamaGenerator implements GeneratorInterface {
 
   public function __construct(
     private ClientInterface $client,

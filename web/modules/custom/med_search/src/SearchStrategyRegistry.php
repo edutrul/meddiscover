@@ -5,7 +5,7 @@ namespace Drupal\med_search;
 /**
  * Collects every service tagged "med_search.strategy", keyed by its ID.
  */
-class SearchStrategyRegistry {
+final class SearchStrategyRegistry {
 
   /**
    * Strategies keyed by ID.

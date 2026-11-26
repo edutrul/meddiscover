@@ -7,19 +7,19 @@ namespace Drupal\med_search;
  */
 final class QueryText {
 
-  public const MAX_LENGTH = 500;
+  public const MED_MAX_LENGTH = 500;
 
-  public const MAX_LIMIT = 20;
+  public const MED_MAX_LIMIT = 20;
 
   /**
    * Trim and validate user query text and the requested result limit.
    */
   public static function validate(string $query, int $limit): string {
     $query = trim($query);
-    if ($query === '' || mb_strlen($query) > self::MAX_LENGTH) {
+    if ($query === '' || mb_strlen($query) > self::MED_MAX_LENGTH) {
       throw new \InvalidArgumentException('Enter a query between 1 and 500 characters.');
     }
-    if ($limit < 1 || $limit > self::MAX_LIMIT) {
+    if ($limit < 1 || $limit > self::MED_MAX_LIMIT) {
       throw new \InvalidArgumentException('Invalid result limit.');
     }
     return $query;

@@ -2,10 +2,15 @@
 
 namespace Drupal\med_search;
 
+use Drupal\Core\StringTranslation\StringTranslationTrait;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
+
 /**
  * Adapts the Phase 03 pgvector search to the shared strategy contract.
  */
-class SemanticStrategy implements SearchStrategyInterface {
+final class SemanticStrategy implements SearchStrategyInterface {
+
+  use StringTranslationTrait;
 
   public function __construct(private SemanticSearch $search) {}
 
@@ -43,8 +48,8 @@ class SemanticStrategy implements SearchStrategyInterface {
   /**
    * {@inheritdoc}
    */
-  public function describeScore(array $result): string {
-    return 'Cosine similarity: ' . number_format($result['score'], 4);
+  public function describeScore(array $result): TranslatableMarkup {
+    return $this->t('Cosine similarity: @score', ['@score' => number_format($result['score'], 4)]);
   }
 
 }

@@ -23,7 +23,11 @@ trait BuildsSearchAnswer {
           '#type' => 'html_tag',
           '#tag' => 'p',
           '#attributes' => ['role' => 'alert'],
-          '#value' => '<strong>' . $this->t('@message', ['@message' => UrgencyDetector::message($answer['type'])]) . '</strong>',
+          'text' => [
+            '#type' => 'html_tag',
+            '#tag' => 'strong',
+            'text' => ['#plain_text' => UrgencyDetector::message($answer['type'])],
+          ],
         ];
         return $build;
 

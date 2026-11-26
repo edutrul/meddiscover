@@ -17,7 +17,7 @@ class SearchMetricsSubscriber implements EventSubscriberInterface {
    * {@inheritdoc}
    */
   public static function getSubscribedEvents(): array {
-    return [SearchCompletedEvent::NAME => 'onSearchCompleted'];
+    return [SearchCompletedEvent::MED_NAME => 'onSearchCompleted'];
   }
 
   /**

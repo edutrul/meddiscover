@@ -13,9 +13,9 @@ use Drupal\node\NodeInterface;
 /**
  * Indexes topic inputs and performs exact PostgreSQL cosine search.
  */
-class SemanticSearch {
+final class SemanticSearch {
 
-  public const INPUT_VERSION = 'topic-v1';
+  public const MED_INPUT_VERSION = 'topic-v1';
 
   public function __construct(
     private Connection $db,
@@ -71,7 +71,11 @@ class SemanticSearch {
       foreach ($storage->loadMultiple($ids) as $node) {
         $text = $this->input($node);
         $hash = hash('sha256', $text);
-        $args = [':topic' => $node->id(), ':digest' => $config->get('model_digest'), ':version' => self::INPUT_VERSION];
+        $args = [
+          ':topic' => $node->id(),
+          ':digest' => $config->get('model_digest'),
+          ':version' => self::MED_INPUT_VERSION,
+        ];
         $existing = $this->db->query("SELECT content_hash, dimensions FROM {med_topic_embeddings} WHERE topic_id = :topic AND model_digest = :digest AND input_version = :version AND slot = 'topic'", $args)->fetchAssoc();
         if ($existing && $existing['content_hash'] === $hash && (int) $existing['dimensions'] === (int) $config->get('dimensions')) {
           $counts['skipped']++;
@@ -124,7 +128,7 @@ class SemanticSearch {
       ':vector' => json_encode($vector, JSON_THROW_ON_ERROR),
       ':digest' => $config->get('model_digest'),
       ':dimensions' => $config->get('dimensions'),
-      ':version' => self::INPUT_VERSION,
+      ':version' => self::MED_INPUT_VERSION,
     ];
     // Filter freshness/access before limiting the exact ranking, so stale rows
     // cannot hide valid lower-ranked topics.

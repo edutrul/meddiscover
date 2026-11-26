@@ -2,6 +2,8 @@
 
 namespace Drupal\med_search;
 
+use Drupal\Core\StringTranslation\StringTranslationTrait;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Session\AccountInterface;
@@ -16,12 +18,14 @@ use Drupal\search_api_solr\SolrBackendInterface;
  * query-time behavior: EDisMax with a minimum-should-match rule, phrase boosts
  * for exact names, exact-name promotion and ambiguity notices.
  */
-class LexicalSearch implements SearchStrategyInterface {
+final class LexicalSearch implements SearchStrategyInterface {
+
+  use StringTranslationTrait;
 
   /**
    * Fields searched for exact (phrase) names, with phrase boosts.
    */
-  public const PHRASE_FIELDS = [
+  public const MED_PHRASE_FIELDS = [
     'title_unstemmed' => 21,
     'also_called_unstemmed' => 13,
     'see_reference' => 5,
@@ -60,7 +64,7 @@ class LexicalSearch implements SearchStrategyInterface {
     }
     $names = $backend->getSolrFieldNamesKeyedByLanguage(['en'], $index);
     $phrase_fields = [];
-    foreach (self::PHRASE_FIELDS as $field => $boost) {
+    foreach (self::MED_PHRASE_FIELDS as $field => $boost) {
       $phrase_fields[] = $names[$field]['en'] . '^' . $boost;
     }
 
@@ -119,7 +123,10 @@ class LexicalSearch implements SearchStrategyInterface {
 
     $notices = [];
     if (count($exact) > 1) {
-      $notices[] = sprintf('“%s” is a name used by several topics: %s. Choose the one that fits.', $query, implode(', ', $exact));
+      $notices[] = $this->t('“@query” is a name used by several topics: @topics. Choose the one that fits.', [
+        '@query' => $query,
+        '@topics' => implode(', ', $exact),
+      ]);
     }
     $response = [
       'results' => $results,
@@ -143,8 +150,8 @@ class LexicalSearch implements SearchStrategyInterface {
   /**
    * {@inheritdoc}
    */
-  public function describeScore(array $result): string {
-    return 'Solr relevance score: ' . number_format($result['score'], 2) . ' (comparable only within this search)';
+  public function describeScore(array $result): TranslatableMarkup {
+    return $this->t('Solr relevance score: @score (comparable only within this search)', ['@score' => number_format($result['score'], 2)]);
   }
 
   /**

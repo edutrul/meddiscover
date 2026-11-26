@@ -88,10 +88,10 @@ try {
   // 5. Search event subscriber.
   $db->truncate('med_analytics_daily')->execute();
   $dispatcher = \Drupal::service('event_dispatcher');
-  $dispatcher->dispatch(new SearchCompletedEvent('lexical', 0, FALSE, NULL, ['total' => 8.0, 'retrieval' => 3.0]), SearchCompletedEvent::NAME);
-  $dispatcher->dispatch(new SearchCompletedEvent('conversational', 0, FALSE, 'urgent', ['total' => 40.0]), SearchCompletedEvent::NAME);
-  $dispatcher->dispatch(new SearchCompletedEvent('conversational', 3, FALSE, 'answered', ['total' => 12000.0, 'generation' => 11000.0]), SearchCompletedEvent::NAME);
-  $dispatcher->dispatch(new SearchCompletedEvent('hybrid', 0, TRUE, NULL, ['total' => 5.0]), SearchCompletedEvent::NAME);
+  $dispatcher->dispatch(new SearchCompletedEvent('lexical', 0, FALSE, NULL, ['total' => 8.0, 'retrieval' => 3.0]), SearchCompletedEvent::MED_NAME);
+  $dispatcher->dispatch(new SearchCompletedEvent('conversational', 0, FALSE, 'urgent', ['total' => 40.0]), SearchCompletedEvent::MED_NAME);
+  $dispatcher->dispatch(new SearchCompletedEvent('conversational', 3, FALSE, 'answered', ['total' => 12000.0, 'generation' => 11000.0]), SearchCompletedEvent::MED_NAME);
+  $dispatcher->dispatch(new SearchCompletedEvent('hybrid', 0, TRUE, NULL, ['total' => 5.0]), SearchCompletedEvent::MED_NAME);
   ana_expect($count('search_performed', 'lexical') === 1 && $count('search_no_results', 'lexical') === 1 && abs($ms('latency', 'lexical:retrieval') - 3.0) < 0.001, 'Searches, zero results and stage latency must be recorded.');
   ana_expect($count('search_performed', 'conversational') === 2 && $count('search_no_results', 'conversational') === 0 && $count('answer_outcome', 'urgent') === 1 && $count('answer_outcome', 'answered') === 1, 'Urgent responses are outcomes, not zero results.');
   ana_expect($count('latency_bucket', 'conversational:lt15s') === 1 && $count('latency', 'conversational:generation') === 1, 'Generation latency must be bucketed and summed.');

@@ -12,7 +12,7 @@ use Symfony\Contracts\EventDispatcher\Event;
  */
 final class SearchCompletedEvent extends Event {
 
-  public const NAME = 'med_search.search_completed';
+  public const MED_NAME = 'med_search.search_completed';
 
   /**
    * Constructs the event.

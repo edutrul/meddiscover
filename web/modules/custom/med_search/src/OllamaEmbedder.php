@@ -8,7 +8,7 @@ use GuzzleHttp\ClientInterface;
 /**
  * Local embedding adapter with pinned model identity and strict vector checks.
  */
-class OllamaEmbedder {
+final class OllamaEmbedder {
 
   /**
    * Vectors computed during this request, keyed by input text.

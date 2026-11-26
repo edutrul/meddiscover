@@ -39,8 +39,8 @@ interface SearchStrategyInterface {
   public function search(string $query, ?int $limit = NULL): array;
 
   /**
-   * Plain-text explanation of a result's score for the interface.
+   * Translatable plain-text explanation of a result's score.
    */
-  public function describeScore(array $result): string;
+  public function describeScore(array $result): string|\Stringable;
 
 }

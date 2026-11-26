@@ -2,6 +2,7 @@
 
 namespace Drupal\med_search;
 
+use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\node\NodeInterface;
@@ -12,12 +13,14 @@ use Drupal\node\NodeInterface;
  * Uses entity references and structured queries only: no vector search and
  * no language-model calls.
  */
-class ResultEnricher {
+final class ResultEnricher {
+
+  use StringTranslationTrait;
 
   /**
    * Related-content sources in priority order (lower runs first).
    */
-  public const PRIORITY = [
+  public const MED_PRIORITY = [
     'curated' => 1,
     'summary_link' => 2,
     'shared_mesh' => 3,
@@ -27,14 +30,14 @@ class ResultEnricher {
   /**
    * Maximum inferred associations appended after explicit relationships.
    */
-  public const INFERRED_LIMIT = 5;
+  public const MED_INFERRED_LIMIT = 5;
 
   /**
    * Resource category display order, following MedlinePlus topic pages.
    *
    * Categories not listed here follow alphabetically.
    */
-  public const CATEGORY_ORDER = [
+  public const MED_CATEGORY_ORDER = [
     'Start Here', 'Diagnosis and Tests', 'Prevention and Risk Factors',
     'Treatments and Therapies', 'Living With', 'Related Issues', 'Specifics',
     'Symptoms', 'Genetics', 'Videos and Tutorials', 'Test Your Knowledge',
@@ -82,8 +85,8 @@ class ResultEnricher {
       ->condition('field_med_relation_type', ['curated', 'summary_link'], 'IN')
       ->execute();
     $edges = $nodes->loadMultiple($ids);
-    uasort($edges, fn($a, $b) => [self::PRIORITY[$a->field_med_relation_type->value], self::ordinal($a)]
-      <=> [self::PRIORITY[$b->field_med_relation_type->value], self::ordinal($b)]);
+    uasort($edges, fn($a, $b) => [self::MED_PRIORITY[$a->field_med_relation_type->value], self::ordinal($a)]
+      <=> [self::MED_PRIORITY[$b->field_med_relation_type->value], self::ordinal($b)]);
     foreach ($edges as $edge) {
       $type = $edge->field_med_relation_type->value;
       $source_id = (string) $edge->field_med_target_source_id->value;
@@ -106,7 +109,7 @@ class ResultEnricher {
         'node' => $target,
         'url' => $url,
         'source' => $type,
-        'provenance' => $type === 'curated' ? 'Related topic listed by MedlinePlus' : 'Linked in the topic summary',
+        'provenance' => (string) ($type === 'curated' ? $this->t('Related topic listed by MedlinePlus') : $this->t('Linked in the topic summary')),
       ]);
     }
 
@@ -129,10 +132,10 @@ class ResultEnricher {
       foreach ($nodes->loadMultiple($candidates) as $candidate) {
         $shared = array_filter($candidate->get($field)->referencedEntities(), fn($term) => in_array($term->id(), $term_ids));
         $label = $source === 'shared_mesh'
-          ? 'Shares MeSH descriptor: ' . implode(', ', array_unique(array_map(fn($t) => $t->field_med_descriptor_label->value, $shared)))
-          : 'Same MedlinePlus group: ' . implode(', ', array_map(fn($t) => $t->label(), $shared));
+          ? (string) $this->t('Shares MeSH descriptor: @labels', ['@labels' => implode(', ', array_unique(array_map(fn($t) => $t->field_med_descriptor_label->value, $shared)))])
+          : (string) $this->t('Same MedlinePlus group: @labels', ['@labels' => implode(', ', array_map(fn($t) => $t->label(), $shared))]);
         $key = (string) $candidate->field_med_source_id->value;
-        if (!isset($related[$key]) && $inferred >= self::INFERRED_LIMIT) {
+        if (!isset($related[$key]) && $inferred >= self::MED_INFERRED_LIMIT) {
           continue;
         }
         $inferred += isset($related[$key]) ? 0 : 1;
@@ -181,7 +184,7 @@ class ResultEnricher {
         $grouped[$category->label()][self::normalizeUrl($item['url'])] ??= $item;
       }
     }
-    $rank = array_flip(self::CATEGORY_ORDER);
+    $rank = array_flip(self::MED_CATEGORY_ORDER);
     uksort($grouped, fn($a, $b) => [$rank[$a] ?? PHP_INT_MAX, $a] <=> [$rank[$b] ?? PHP_INT_MAX, $b]);
     return array_map('array_values', $grouped);
   }

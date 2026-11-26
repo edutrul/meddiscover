@@ -2,6 +2,8 @@
 
 namespace Drupal\med_search;
 
+use Drupal\Core\StringTranslation\StringTranslationTrait;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\Core\Config\ConfigFactoryInterface;
 
 /**
@@ -10,7 +12,9 @@ use Drupal\Core\Config\ConfigFactoryInterface;
  * Only ranks are fused. Solr scores and cosine similarities have different,
  * query-dependent scales, so they are never added or normalized together.
  */
-class HybridSearch implements SearchStrategyInterface {
+final class HybridSearch implements SearchStrategyInterface {
+
+  use StringTranslationTrait;
 
   /**
    * Constructs the hybrid strategy.
@@ -74,7 +78,10 @@ class HybridSearch implements SearchStrategyInterface {
       throw new \RuntimeException('No retrieval strategy is available.');
     }
     foreach ($failed as $id) {
-      $notices[] = sprintf('%s retrieval is unavailable, so these results use %s ranking only.', ucfirst($id), implode(' and ', array_keys($rankings)));
+      $notices[] = $this->t('@failed retrieval is unavailable, so these results use @used ranking only.', [
+        '@failed' => ucfirst($id),
+        '@used' => implode(' + ', array_keys($rankings)),
+      ]);
     }
 
     $start = hrtime(TRUE);
@@ -148,12 +155,12 @@ class HybridSearch implements SearchStrategyInterface {
   /**
    * {@inheritdoc}
    */
-  public function describeScore(array $result): string {
-    $ranks = [];
-    foreach (['lexical' => 'Lexical', 'semantic' => 'Semantic'] as $id => $label) {
-      $ranks[] = $label . ' rank ' . ($result['ranks'][$id] ?? '–');
-    }
-    return 'RRF score: ' . number_format($result['score'], 4) . ' (' . implode(', ', $ranks) . ')';
+  public function describeScore(array $result): TranslatableMarkup {
+    return $this->t('RRF score: @score (Lexical rank @lexical, Semantic rank @semantic)', [
+      '@score' => number_format($result['score'], 4),
+      '@lexical' => $result['ranks']['lexical'] ?? '–',
+      '@semantic' => $result['ranks']['semantic'] ?? '–',
+    ]);
   }
 
 }

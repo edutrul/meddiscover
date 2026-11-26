@@ -108,7 +108,7 @@ try {
   $titles = array_column($data['related'], 'title');
   enrich_expect(array_slice($titles, 0, 2) === ['Synthetic Topic Two', 'Outside Topic'], 'Explicit relationships must rank before inferred associations.');
   $inferred = array_values(array_filter($data['related'], fn($r) => !$r['explicit']));
-  enrich_expect(count($inferred) === ResultEnricher::INFERRED_LIMIT, 'Inferred associations must respect the limit.');
+  enrich_expect(count($inferred) === ResultEnricher::MED_INFERRED_LIMIT, 'Inferred associations must respect the limit.');
   enrich_expect($inferred[0]['title'] === 'Synthetic Inferred 0 MeSH' && $inferred[0]['source'] === 'shared_mesh', 'Shared MeSH must rank before shared groups.');
   enrich_expect($inferred[0]['provenance'] === ['Shares MeSH descriptor: Synthetic Descriptor', 'Same MedlinePlus group: Synthetic Group'], 'Inferred provenance must be explicit and deduplicated.');
   enrich_expect(!in_array('Synthetic Inferred Unpublished', $titles, TRUE), 'Unpublished topics must not be recommended.');

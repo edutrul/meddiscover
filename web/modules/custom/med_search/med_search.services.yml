@@ -11,6 +11,7 @@ services:
   med_search.enricher:
     class: Drupal\med_search\ResultEnricher
     arguments: ['@entity_type.manager', '@current_user']
+    calls: [[setStringTranslation, ['@string_translation']]]
   med_search.generator:
     class: Drupal\med_search\OllamaGenerator
     arguments: ['@http_client', '@config.factory']
@@ -27,18 +28,22 @@ services:
   med_search.strategy.semantic:
     class: Drupal\med_search\SemanticStrategy
     arguments: ['@med_search.search']
+    calls: [[setStringTranslation, ['@string_translation']]]
     tags: [{ name: med_search.strategy }]
   med_search.strategy.lexical:
     class: Drupal\med_search\LexicalSearch
     arguments: ['@entity_type.manager', '@config.factory', '@plugin.manager.search_api.parse_mode', '@current_user']
+    calls: [[setStringTranslation, ['@string_translation']]]
     tags: [{ name: med_search.strategy }]
   med_search.strategy.hybrid:
     class: Drupal\med_search\HybridSearch
     factory: ['Drupal\med_search\HybridSearch', 'create']
     arguments: ['@med_search.strategy.lexical', '@med_search.strategy.semantic', '@config.factory']
+    calls: [[setStringTranslation, ['@string_translation']]]
     tags: [{ name: med_search.strategy }]
   med_search.strategy.conversational:
     class: Drupal\med_search\ConversationalSearch
     factory: ['Drupal\med_search\ConversationalSearch', 'create']
     arguments: ['@med_search.strategy.semantic', '@med_search.strategy.lexical', '@med_search.strategy.hybrid', '@med_search.generator', '@med_search.urgency', '@config.factory']
+    calls: [[setStringTranslation, ['@string_translation']]]
     tags: [{ name: med_search.strategy }]

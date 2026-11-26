@@ -7,6 +7,7 @@ use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Htmx\Htmx;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\Core\Url;
 use Drupal\med_search\ResultEnricher;
 use Drupal\med_search\SearchStrategyInterface;
@@ -23,36 +24,49 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
  * The route's "strategy" default selects the service; rendering, enrichment
  * and privacy handling are identical for semantic, lexical and hybrid search.
  */
-class SearchForm extends FormBase {
+final class SearchForm extends FormBase {
 
   use BuildsSearchAnswer;
 
   /**
-   * Strategy labels and one-line explanations for the interface.
+   * Strategy IDs a route may select (machine names, never shown).
    */
-  public const STRATEGIES = [
-    'semantic' => [
-      'Semantic',
-      'Matches meaning using local embeddings, so questions in everyday words can find topics.',
-    ],
-    'lexical' => [
-      'Lexical',
-      'Matches your words against topic names, alternative terms, MeSH labels and text, using Apache Solr.',
-    ],
-    'hybrid' => [
-      'Hybrid',
-      'Combines the lexical and semantic rankings with Reciprocal Rank Fusion.',
-    ],
-    'conversational' => [
-      'Conversational',
-      'Writes a short educational answer using only the retrieved MedlinePlus topics, citing each statement, and declines when the topics do not answer the question.',
-    ],
-  ];
+  public const MED_STRATEGY_IDS = ['semantic', 'lexical', 'hybrid', 'conversational'];
+
+  /**
+   * Strategy labels and one-line explanations for the interface.
+   *
+   * A method, not a constant: constant expressions cannot call t(), and
+   * TranslatableMarkup is only translated when it is rendered.
+   *
+   * @return array<string, array{0: \Drupal\Core\StringTranslation\TranslatableMarkup, 1: \Drupal\Core\StringTranslation\TranslatableMarkup}>
+   *   Label and description, keyed by strategy ID.
+   */
+  public static function strategies(): array {
+    return [
+      'semantic' => [
+        new TranslatableMarkup('Semantic'),
+        new TranslatableMarkup('Matches meaning using local embeddings, so questions in everyday words can find topics.'),
+      ],
+      'lexical' => [
+        new TranslatableMarkup('Keyword (Lexical)'),
+        new TranslatableMarkup('Matches your words against topic names, alternative terms, MeSH labels and text, using Apache Solr.'),
+      ],
+      'hybrid' => [
+        new TranslatableMarkup('Hybrid (Keyword + Semantic)'),
+        new TranslatableMarkup('Combines the lexical and semantic rankings with Reciprocal Rank Fusion.'),
+      ],
+      'conversational' => [
+        new TranslatableMarkup('Ask (Conversational)'),
+        new TranslatableMarkup('Writes a short educational answer using only the retrieved MedlinePlus topics, citing each statement, and declines when the topics do not answer the question.'),
+      ],
+    ];
+  }
 
   /**
    * Question syntax shared with the homepage loading indicator.
    */
-  public const QUESTION_PATTERN = '\?$|^(?:what|why|when|where|who|which|how)\s+\S|^(?:can|could|should|do|does|did|is|are|will)\s+(?:i|we|you|it|there|my|the)\b';
+  public const MED_QUESTION_PATTERN = '\?$|^(?:what|why|when|where|who|which|how)\s+\S|^(?:can|could|should|do|does|did|is|are|will)\s+(?:i|we|you|it|there|my|the)\b';
 
   public function __construct(
     private SearchStrategyInterface $search,
@@ -70,7 +84,7 @@ class SearchForm extends FormBase {
     // The route's "strategy" default selects one registered strategy.
     $route = $container->get('current_route_match')->getRouteObject();
     $strategy = $route?->getDefault('strategy') ?? 'semantic';
-    if (!isset(self::STRATEGIES[$strategy])) {
+    if (!in_array($strategy, self::MED_STRATEGY_IDS, TRUE)) {
       throw new \InvalidArgumentException('Unknown search strategy.');
     }
     return new static(
@@ -107,8 +121,18 @@ class SearchForm extends FormBase {
       '#value' => $automatic ? $this->t('Search a topic or ask a question about MedlinePlus health information.') : $this->t('Find trusted health information from MedlinePlus.'),
     ];
     $examples = $conversational
-      ? ['What is HbA1c?', 'How can I prevent type 2 diabetes?', 'What can trigger a migraine?']
-      : ['Knee pain when walking', 'Seasonal allergies', 'Lower back pain'];
+      ? [
+        $this->t('What is HbA1c?'),
+        $this->t('How can I prevent type 2 diabetes?'),
+        $this->t('What can trigger a migraine?'),
+      ]
+      : [
+        $this->t('Knee pain when walking'),
+        $this->t('Seasonal allergies'),
+        $this->t('Lower back pain'),
+      ];
+    // A chosen example becomes the query text, so keep plain strings.
+    $examples = array_map('strval', $examples);
     $form['query'] = [
       '#type' => 'textfield',
       '#title' => $conversational && !$automatic ? $this->t('Your health question') : $this->t('Search health topics'),
@@ -237,7 +261,7 @@ class SearchForm extends FormBase {
         'class' => ['med-loading', 'htmx-indicator'],
         'role' => 'status',
         'data-med-loading-mode' => $conversational && !$automatic ? 'answer' : 'search',
-      ] + ($automatic ? ['data-med-question-pattern' => self::QUESTION_PATTERN] : []),
+      ] + ($automatic ? ['data-med-question-pattern' => self::MED_QUESTION_PATTERN] : []),
       '#value' => $conversational && !$automatic
         ? $this->t('Writing an answer from the MedlinePlus sources. This usually takes 10 to 20 seconds.')
         : $this->t('Searching…'),
@@ -313,7 +337,7 @@ class SearchForm extends FormBase {
           '#type' => 'html_tag',
           '#tag' => 'p',
           '#attributes' => ['role' => 'status', 'class' => ['med-state', 'med-state--notice']],
-          '#value' => $this->t('@notice', ['@notice' => $notice]),
+          'text' => ['#plain_text' => $notice],
         ];
       }
       if (isset($response['answer'])) {
@@ -379,7 +403,7 @@ class SearchForm extends FormBase {
           'description' => [
             '#type' => 'html_tag',
             '#tag' => 'p',
-            '#value' => $this->t('@description', ['@description' => $node->field_med_description->value]),
+            'text' => ['#plain_text' => (string) $node->field_med_description->value],
           ],
           // Scores mean nothing to patients and can read like medical
           // confidence; only users who debug or demo ranking see them.
@@ -390,7 +414,7 @@ class SearchForm extends FormBase {
             'text' => [
               '#type' => 'html_tag',
               '#tag' => 'p',
-              '#value' => $this->t('@score', ['@score' => $strategy->describeScore($result)]),
+              'text' => ['#plain_text' => $strategy->describeScore($result)],
             ],
           ] : [],
           'source' => $node->field_med_source_url->isEmpty() ? [] : self::track(self::external([
@@ -424,7 +448,7 @@ class SearchForm extends FormBase {
     }
     $error = $form_state->getTemporaryValue('med_error');
     if ($error) {
-      [$label] = self::STRATEGIES[$strategy->id()];
+      [$label] = self::strategies()[$strategy->id()];
       $form['error'] = [
         '#type' => 'container',
         '#attributes' => ['role' => 'alert', 'class' => ['med-state', 'med-state--error']],
@@ -567,7 +591,7 @@ class SearchForm extends FormBase {
       FALSE,
       $response['answer']['status'] ?? NULL,
       $timings,
-    ), SearchCompletedEvent::NAME);
+    ), SearchCompletedEvent::MED_NAME);
   }
 
   /**
@@ -831,7 +855,7 @@ class SearchForm extends FormBase {
    * Whether the homepage sends this query to Hybrid (topic search).
    */
   public static function usesHomepageHybrid(string $query, ?string $urgency): bool {
-    return $urgency === NULL && !preg_match('/' . self::QUESTION_PATTERN . '/iu', $query);
+    return $urgency === NULL && !preg_match('/' . self::MED_QUESTION_PATTERN . '/iu', $query);
   }
 
   /**
@@ -852,7 +876,7 @@ class SearchForm extends FormBase {
     }
     catch (\Throwable) {
       $form_state->setTemporaryValue('med_error', TRUE);
-      $this->eventDispatcher->dispatch(new SearchCompletedEvent($strategy->id(), 0, TRUE, NULL, ['total' => (hrtime(TRUE) - $start) / 1e6]), SearchCompletedEvent::NAME);
+      $this->eventDispatcher->dispatch(new SearchCompletedEvent($strategy->id(), 0, TRUE, NULL, ['total' => (hrtime(TRUE) - $start) / 1e6]), SearchCompletedEvent::MED_NAME);
     }
     // Only temporary state holds results; raw query text is never logged.
     $form_state->disableCache();
