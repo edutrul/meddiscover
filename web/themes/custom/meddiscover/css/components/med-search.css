@@ -1153,6 +1153,7 @@ a[data-med-external]::after {
 
 /* Compare: the homepage verdict comes first; the cards are the evidence. */
 .med-verdict {
+  min-inline-size: 0;
   margin-block: 0.5rem 1rem;
   padding: 1rem 1.25rem;
   border: 1px solid var(--md-color-border);
@@ -1194,4 +1195,75 @@ a[data-med-external]::after {
   border-block-start: 1px solid var(--md-color-border);
   color: var(--md-color-muted);
   font-size: 0.875rem;
+}
+
+/* Developer mode: technical breakdown inside the verdict. */
+.med-verdict-tech {
+  margin-block-start: 0.75rem;
+  padding: 0.75rem 1rem;
+  border: 1px dashed var(--md-color-muted);
+  border-radius: var(--md-radius-small);
+  background: var(--md-color-bg);
+  font-size: 0.9rem;
+}
+
+.med-verdict-tech > summary {
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.med-tech-steps {
+  margin: 0.75rem 0 0;
+  padding-inline-start: 1.4rem;
+}
+
+.med-tech-steps > li + li {
+  margin-block-start: 1rem;
+}
+
+.med-tech-steps h4 {
+  margin: 0 0 0.35rem;
+  font-size: 1rem;
+}
+
+.med-tech-steps p {
+  margin-block: 0.35rem;
+}
+
+.med-tech-steps pre {
+  max-inline-size: 100%;
+  margin: 0.35rem 0;
+  padding: 0.5rem;
+  overflow-x: auto;
+  border-radius: var(--md-radius-small);
+  background: var(--md-color-surface);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 0.8125rem;
+}
+
+.med-tech-steps code {
+  overflow-wrap: anywhere;
+}
+
+.med-tech-steps table {
+  display: block;
+  inline-size: 100%;
+  margin-block: 0.5rem;
+  overflow-x: auto;
+  border-collapse: collapse;
+  font-size: 0.8438rem;
+}
+
+.med-tech-steps th,
+.med-tech-steps td {
+  padding: 0.3rem 0.6rem;
+  border: 1px solid var(--md-color-border);
+  background: var(--md-color-surface);
+  text-align: start;
+  white-space: nowrap;
+}
+
+.med-tech-steps th {
+  background: var(--md-color-info-bg);
 }

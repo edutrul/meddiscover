@@ -23,6 +23,88 @@ final class CompareSearchForm extends FormBase {
   private const BASELINE_QUESTION = 'What is HbA1c?';
   private const BASELINE_INSTRUCTIONS = 'Answer the fixed educational question briefly in plain language, using only your general knowledge. Give a definition. Do not give personal advice, treatment, or citations. If unsure, return an empty answer.';
 
+  /**
+   * Shared routing step for the technical breakdown.
+   */
+  private const TECH_ROUTING = <<<'TWIG'
+<li><h4>Routing: question or topic?</h4>
+<p>Before any search, the homepage checks urgent wording, then tests the input against one regular expression (<code>SearchForm::QUESTION_PATTERN</code>, case-insensitive):</p>
+<pre><code>{{ pattern }}</code></pre>
+<p>It matches a trailing <code>?</code>, a leading question word (what, why, when, where, who, which, how) followed by another word, or a leading auxiliary followed by a pronoun or article (“is the”, “can I”, “do you”…).
+{% if reason %}<strong>“{{ query }}” {{ reason }} → Ask (RAG).</strong>{% else %}<strong>“{{ query }}” matches none of the three alternatives → Hybrid (Keyword + Semantic).</strong>{% endif %}
+ No model is involved in this decision, so it is instant and predictable; the trade-off is that a question written without a question word (“HbA1c normal range”) is treated as a topic search.</p></li>
+TWIG;
+
+  /**
+   * Shared Semantic step for the technical breakdown.
+   */
+  private const TECH_SEMANTIC = <<<'TWIG'
+<p><strong>1. Embed the query.</strong> Drupal sends <code>{{ embedding_input }}</code> to Ollama’s <code>/api/embed</code> with model <code>{{ embedding_model }}</code>. The <code>search_query:</code> prefix is required by this model (topics were embedded with <code>search_document:</code>). The response is a vector of <strong>{{ dimensions }}</strong> numbers{% if vector_head %} (first values: <code>[{{ vector_head }}, …]</code>){% endif %}. Time: {{ embedding_ms }}. The model digest is pinned, so query vectors and the stored topic vectors always come from the same model.</p>
+<p><strong>2. Compare with pgvector.</strong> Each of the 24 topics has one stored vector (title, description, summary, alternative names and MeSH terms). PostgreSQL computes <code>similarity = 1 − (embedding &lt;=&gt; query)</code>, where <code>&lt;=&gt;</code> is pgvector’s cosine distance, for every topic: an exact scan, no approximate index, which is fine at this size. Topics below <strong>{{ threshold }}</strong> are dropped. Time: {{ semantic_ms }}.</p>
+{% if semantic %}<table><thead><tr><th>Rank</th><th>Topic</th><th>Cosine similarity</th><th>Cosine distance</th></tr></thead><tbody>
+{% for row in semantic %}<tr><td>{{ row.rank }}</td><td>{{ row.title }}</td><td>{{ row.cosine }}</td><td>{{ row.distance }}</td></tr>{% endfor %}
+</tbody></table>{% else %}<p><em>No topic reached the {{ threshold }} cutoff.</em></p>{% endif %}
+TWIG;
+
+  /**
+   * Hybrid path: routing, Solr, pgvector, RRF.
+   */
+  private const TECH_HYBRID = self::TECH_HEAD . self::TECH_ROUTING . <<<'TWIG'
+<li><h4>Keyword (Lexical): Apache Solr</h4>
+<p>Drupal’s Search API Solr sends an <strong>EDisMax</strong> query. The keywords are escaped and sent as <code>q = {{ solr_q }}</code>; Solr’s English analyzer lowercases, removes stopwords and stems them (“problems” → “problem”).</p>
+<p><strong>Must-match rule <code>mm = {{ solr_mm }}</code>:</strong> {% if solr_mm_all %}with up to {{ solr_mm_all }} terms every term is required; with more, 75% of them (rounded down).{% else %}Solr’s minimum-should-match setting for this query.{% endif %} This blocks topics that share only one stray word.</p>
+<p><strong>Scoring:</strong> BM25 (term frequency × rarity, normalized by field length), multiplied by field boosts: title 13 (exact/unstemmed title 21), also-called names 8 (unstemmed 13), MeSH 5, description 3, see-also references 3, summary 1, groups 1. A phrase boost (<code>pf</code>) rewards the whole query appearing as a phrase in the exact title (×21), an alternative name (×13) or a see-also reference (×5). Scores are only comparable within one search. Time: {{ lexical_ms }}.</p>
+{% if lexical %}<table><thead><tr><th>Rank</th><th>Topic</th><th>Solr score</th></tr></thead><tbody>
+{% for row in lexical %}<tr><td>{{ row.rank }}</td><td>{{ row.title }}</td><td>{{ row.score }}</td></tr>{% endfor %}
+</tbody></table>{% else %}<p><em>No topic satisfied the must-match rule.</em></p>{% endif %}</li>
+<li><h4>Semantic: Ollama embeddings + pgvector</h4>
+TWIG . self::TECH_SEMANTIC . <<<'TWIG'
+</li>
+<li><h4>Reciprocal Rank Fusion (RRF), k = {{ k }}</h4>
+<p>Solr scores (unbounded BM25) and cosine similarities (between −1 and 1) are on different scales, so adding them would be meaningless. RRF uses only <strong>positions</strong>: from each list (up to {{ depth }} candidates each), a topic at rank <em>r</em> earns <code>1 / ({{ k }} + r)</code> points; a topic missing from a list earns 0 from it. The points are summed and sorted. Ties go to the topic found by more lists, then the better single rank, then Keyword first.</p>
+<p><strong>Why k = {{ k }}:</strong> a large constant makes neighbouring ranks worth almost the same (1/61 vs 1/62), so <em>appearing in both lists</em> matters more than being first in one. It is the standard value from the original RRF paper (Cormack, Clarke and Büttcher, 2009); on our 48 test searches any k from 0 to 1000 produced the same top 5. Fusion time: {{ fusion_ms }}.</p>
+{% if rrf %}<table><thead><tr><th>Final rank</th><th>Topic</th><th>Keyword rank</th><th>Semantic rank</th><th>Keyword points</th><th>Semantic points</th><th>RRF total</th></tr></thead><tbody>
+{% for row in rrf %}<tr><td>{{ row.rank }}</td><td>{{ row.title }}</td><td>{{ row.lexical_rank }}</td><td>{{ row.semantic_rank }}</td><td>{{ row.lexical_points }}</td><td>{{ row.semantic_points }}</td><td><strong>{{ row.total }}</strong></td></tr>{% endfor %}
+</tbody></table>
+<p>The top 5 by RRF total are exactly the list the homepage shows.</p>{% else %}<p><em>Neither list had a topic, so there is nothing to fuse: the homepage says “No topics matched closely enough.”</em></p>{% endif %}</li>
+</ol>
+TWIG;
+
+  /**
+   * Ask path: routing, retrieval, generation, verification.
+   */
+  private const TECH_RAG = self::TECH_HEAD . self::TECH_ROUTING . <<<'TWIG'
+<li><h4>Retrieve sources (the “R” in RAG): Semantic search</h4>
+TWIG . self::TECH_SEMANTIC . <<<'TWIG'
+<p><strong>Why Semantic, not Hybrid:</strong> everything retrieved here is handed to the language model, so precision matters more than completeness. Keyword search counts question words such as “how”, “do” and “I” toward its must-match rule, which can pull in unrelated topics; in our tests Semantic rejected all 10 unrelated questions.</p>
+<p><strong>Evidence check:</strong> if no topic reaches {{ threshold }}, the pipeline stops here and says the collection has no matching topic. The writing model is never called.</p></li>
+<li><h4>Augment the prompt and generate (the “AG”)</h4>
+<p>The top {{ rag_sources }} topics become labeled sources of up to {{ rag_chars }} characters each (title, description, plain summary). Angle brackets in source text are neutralized, so a source cannot open or close a source block, and the system prompt says sources are data, never instructions.</p>
+{% if answer_sources %}<table><thead><tr><th>Label</th><th>Source topic</th></tr></thead><tbody>
+{% for row in answer_sources %}<tr><td>{{ row.label }}</td><td>{{ row.title }}</td></tr>{% endfor %}
+</tbody></table>{% endif %}
+<p>Ollama <code>/api/chat</code> with model <code>{{ generation_model }}</code>, temperature 0, fixed seed, context {{ generation_ctx }} tokens, at most {{ generation_max }} output tokens. The output must follow a <strong>JSON schema</strong>: <code>{answerable, statements: [{text, sources}]}</code>, where <code>sources</code> is an enum of the labels above, so the model cannot even write a citation to a source it was not given. Time: {{ generation_ms }}.</p></li>
+<li><h4>Verify before showing</h4>
+<p>Drupal checks the structure and every citation label; rejects text that diagnoses (“you likely have…”), gives doses (“500 mg”), names contacts or links; and drops any sentence whose content words overlap less than 60% with its cited source. If the model says the sources do not answer the question, or nothing survives, the page abstains.</p>
+{% if answer_status %}<p><strong>This answer:</strong> status <code>{{ answer_status }}{% if answer_reason %} ({{ answer_reason }}){% endif %}</code>, {{ answer_statements }} statement(s) shown, {{ answer_dropped }} dropped as unsupported.</p>{% endif %}
+<p>Times for this answer: embedding {{ answer_embedding_ms }}, retrieval {{ answer_retrieval_ms }}, generation {{ generation_ms }}. Generation dominates: retrieval takes milliseconds, writing takes seconds on the demo server’s CPU.</p></li>
+</ol>
+TWIG;
+
+  /**
+   * Urgent path.
+   */
+  private const TECH_URGENT = self::TECH_HEAD . <<<'TWIG'
+<li><h4>Urgent wording comes first</h4>
+<p><code>UrgencyDetector</code> runs before routing and before any search. It matches fixed patterns for emergency (“chest pain”, “can’t breathe”, “throat swelling”, unresponsiveness, poisoning, stroke signs…) and crisis wording (self-harm, overdose). This input matched the <strong>{{ urgent }}</strong> group, so the homepage shows a fixed safety message (911 / 988) and never calls the language model. Patterns favour recall: a false alarm only adds a safety message. Misspellings (“chess pain”) are not caught.</p></li>
+</ol>
+TWIG;
+
+  /**
+   * Opening of every technical breakdown.
+   */
+  private const TECH_HEAD = '<ol class="med-tech-steps">';
+
   public function __construct(
     private SearchStrategyRegistry $strategies,
     private UrgencyDetector $urgency,
@@ -130,6 +212,15 @@ final class CompareSearchForm extends FormBase {
     // The main point of this page: what the homepage would answer, and why.
     $hybrid_results = $response['hybrid']['results'] ?? [];
     $form['verdict'] = $this->verdict($query, $urgent, $uses_conversation, $nothing_found, $hybrid_results, $retrieval);
+    if ($this->currentUser()->hasPermission('view med search ranking details')) {
+      $form['verdict']['technical'] = $this->technicalBreakdown(
+        $query,
+        $urgent,
+        $uses_conversation,
+        $response,
+        $form_state->getTemporaryValue('comparison_answer'),
+      );
+    }
     if (!$uses_conversation) {
       $form['evidence_heading'] = $this->evidenceHeading();
     }
@@ -293,6 +384,94 @@ final class CompareSearchForm extends FormBase {
       $form['ranking'] = $grid;
     }
     return $form;
+  }
+
+  /**
+   * Developer mode: how the homepage computes the verdict, with live values.
+   *
+   * Explains every stage of the chosen path (routing, Solr, pgvector, RRF,
+   * or retrieval, prompt and verification for RAG) using this search's own
+   * scores, ranks, settings and timings.
+   */
+  private function technicalBreakdown(string $query, ?string $urgent, bool $uses_conversation, array $response, ?array $answer): array {
+    $config = $this->config('med_search.settings');
+    $ms = static fn($value): string => $value === NULL ? '–' : number_format((float) $value, 1) . ' ms';
+    $lexical = $response['lexical'] ?? NULL;
+    $semantic = $response['semantic'] ?? NULL;
+    $hybrid = $response['hybrid'] ?? NULL;
+    $solr = $lexical['solr_debug']['parameters'] ?? [];
+    $embedding = $semantic['embedding_debug'] ?? [];
+    $context = [
+      'query' => $query,
+      'pattern' => SearchForm::QUESTION_PATTERN,
+      'reason' => SearchForm::questionReason($query),
+      'urgent' => $urgent,
+      'solr_q' => $solr['q'] ?? '',
+      'solr_mm' => $mm = $solr['mm'] ?? (string) $config->get('lexical_min_match'),
+      // "N<75%": up to N terms all are required; above N, 75% of them.
+      'solr_mm_all' => preg_match('/^(\d+)<75%$/', $mm, $m) ? (int) $m[1] : NULL,
+      'solr_pf' => $solr['pf'] ?? '',
+      'lexical' => array_map(static fn(array $row, int $i): array => [
+        'rank' => $i + 1,
+        'title' => $row['node']->label(),
+        'score' => number_format((float) $row['score'], 2),
+      ], $lexical['results'] ?? [], array_keys($lexical['results'] ?? [])),
+      'lexical_ms' => $ms($lexical['timings']['lexical_ms'] ?? NULL),
+      'embedding_model' => $embedding['model'] ?? (string) $config->get('model'),
+      'embedding_input' => $embedding['input'] ?? 'search_query: ' . $query,
+      'dimensions' => $embedding['response']['dimensions'] ?? (int) $config->get('dimensions'),
+      'vector_head' => isset($embedding['response']['embedding']) ? implode(', ', array_map(static fn($v): string => number_format((float) $v, 4), array_slice($embedding['response']['embedding'], 0, 4))) : NULL,
+      'threshold' => (string) $config->get('threshold'),
+      'semantic' => array_map(static fn(array $row, int $i): array => [
+        'rank' => $i + 1,
+        'title' => $row['node']->label(),
+        'cosine' => number_format((float) $row['score'], 4),
+        'distance' => number_format(1 - (float) $row['score'], 4),
+      ], $semantic['results'] ?? [], array_keys($semantic['results'] ?? [])),
+      'embedding_ms' => $ms($semantic['timings']['embedding_ms'] ?? NULL),
+      'semantic_ms' => $ms($semantic['timings']['semantic_ms'] ?? NULL),
+      'k' => (int) $config->get('hybrid_rrf_k'),
+      'depth' => (int) $config->get('hybrid_depth'),
+      'rrf' => array_map(static fn(array $row, int $i): array => [
+        'rank' => $i + 1,
+        'title' => $row['title'],
+        'lexical_rank' => $row['ranks']['lexical'] ?? '–',
+        'semantic_rank' => $row['ranks']['semantic'] ?? '–',
+        'lexical_points' => isset($row['points_by_list']['lexical']) ? number_format($row['points_by_list']['lexical'], 5) : '0',
+        'semantic_points' => isset($row['points_by_list']['semantic']) ? number_format($row['points_by_list']['semantic'], 5) : '0',
+        'total' => number_format($row['rrf_score'], 5),
+      ], $hybrid['hybrid_debug']['results'] ?? [], array_keys($hybrid['hybrid_debug']['results'] ?? [])),
+      'fusion_ms' => $ms($hybrid['timings']['fusion_ms'] ?? NULL),
+      'rag_sources' => (int) $config->get('rag_sources'),
+      'rag_chars' => (int) $config->get('rag_source_chars'),
+      'generation_model' => (string) $config->get('generation_model'),
+      'generation_ctx' => (int) $config->get('generation_context_length'),
+      'generation_max' => (int) $config->get('generation_max_tokens'),
+      'answer_status' => $answer['answer']['status'] ?? NULL,
+      'answer_reason' => $answer['answer']['reason'] ?? NULL,
+      'answer_statements' => count($answer['answer']['statements'] ?? []),
+      'answer_dropped' => $answer['answer']['dropped'] ?? 0,
+      // Source labels follow retrieval order (the answer lists cited topics
+      // first, which is not the order the model saw).
+      'answer_sources' => $answer === NULL ? [] : array_map(static fn(array $row, int $i): array => [
+        'label' => 'S' . ($i + 1),
+        'title' => $row['node']->label(),
+      ], $sources = array_slice($semantic['results'] ?? [], 0, (int) $config->get('rag_sources')), array_keys($sources)),
+      'answer_embedding_ms' => $ms($answer['timings']['embedding_ms'] ?? NULL),
+      'answer_retrieval_ms' => $ms($answer['timings']['semantic_ms'] ?? NULL),
+      'generation_ms' => $ms($answer['timings']['generation_ms'] ?? NULL),
+    ];
+    return [
+      '#type' => 'details',
+      '#title' => $this->t('How the homepage computes this (technical)'),
+      '#open' => TRUE,
+      '#attributes' => ['class' => ['med-debug', 'med-verdict-tech']],
+      'body' => [
+        '#type' => 'inline_template',
+        '#template' => $urgent !== NULL ? self::TECH_URGENT : ($uses_conversation ? self::TECH_RAG : self::TECH_HYBRID),
+        '#context' => $context,
+      ],
+    ];
   }
 
   /**
