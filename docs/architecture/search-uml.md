@@ -7,11 +7,12 @@ GitHub renders these Mermaid diagrams in the Markdown **Preview** tab. The diagr
 1. [End-to-end example](#end-to-end-example)
 2. [Homepage routing](#how-the-homepage-chooses-a-search-path)
 3. [How Hybrid combines rankings](#how-hybrid-combines-rankings)
-4. [How a question becomes a cited answer](#how-a-question-becomes-a-cited-answer)
-5. [Drupal content model](#drupal-content-model)
-6. [Search classes](#search-classes)
-7. [Submit a semantic search](#submit-a-semantic-search)
-8. [Retrieve topics with pgvector](#retrieve-topics-with-pgvector)
+4. [Illustrated conversational walkthrough](conversational-walkthrough.md)
+5. [How a question becomes a cited answer](#how-a-question-becomes-a-cited-answer)
+6. [Drupal content model](#drupal-content-model)
+7. [Search classes](#search-classes)
+8. [Submit a semantic search](#submit-a-semantic-search)
+9. [Retrieve topics with pgvector](#retrieve-topics-with-pgvector)
 
 ## End-to-end example
 

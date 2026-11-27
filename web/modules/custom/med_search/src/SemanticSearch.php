@@ -110,7 +110,7 @@ final class SemanticSearch {
    * Ranks accessible topics using pgvector cosine similarity.
    *
    * The embedQuery() method converts the question to a vector in the same
-   * space as the precomputed topic vectors. For example, "What is HbA1c?" can match A1C.
+   * space as the precomputed topic vectors. "What is HbA1c?" can match A1C.
    * The caller receives accepted topics and scores for display or use as
    * conversational evidence. Embedding debug output can include the vector.
    *
