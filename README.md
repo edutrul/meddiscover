@@ -4,6 +4,16 @@ An educational healthcare search and discovery proof of concept built on **Drupa
 
 **Live demo:** https://meddiscover.eduardotelaya.com · Source: MedlinePlus, National Library of Medicine.
 
+## Use this as a Drupal RAG example
+
+Start with the [conversational walkthrough](docs/architecture/conversational-walkthrough.md) and the [local setup](docs/search.md). The walkthrough follows “What is HbA1c?” from query embedding and pgvector retrieval to a structured answer with citations.
+
+For your own project, start with a small set of documents you can distribute. Adapt the Drupal content model and indexing input, then keep the retrieval and generation steps separate. Verify the retrieved results before adding generation. Include questions with no usable evidence when you evaluate the citation and abstention paths.
+
+## License
+
+The original project code is available under **GPL-2.0-or-later**, as declared in [composer.json](composer.json). See the [GNU GPL version 2 text](LICENSE). Third-party dependencies, assets, and source content retain their own terms. MedlinePlus source content and linked resources are attributed to their respective sources and are outside this project’s code license.
+
 ## What you can try
 
 | Page | What it shows |
