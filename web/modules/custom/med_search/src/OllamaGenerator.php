@@ -2,13 +2,17 @@
 
 namespace Drupal\med_search;
 
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerAwareTrait;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use GuzzleHttp\ClientInterface;
 
 /**
  * Local Ollama chat model with a pinned digest and JSON-schema output.
  */
-final class OllamaGenerator implements GeneratorInterface {
+final class OllamaGenerator implements GeneratorInterface, LoggerAwareInterface {
+
+  use LoggerAwareTrait;
 
   public function __construct(
     private ClientInterface $client,
@@ -60,7 +64,9 @@ final class OllamaGenerator implements GeneratorInterface {
       }
       $output = json_decode($data['message']['content'] ?? '', TRUE, 64, JSON_THROW_ON_ERROR);
     }
-    catch (\Throwable) {
+    catch (\Throwable $e) {
+      // Class only: messages can contain the query or the prompt.
+      $this->logger?->warning('Ollama generation request failed: @class.', ['@class' => $e::class]);
       // Never keep exceptions that may contain the prompt.
       throw new \RuntimeException('Answer generation is unavailable.');
     }

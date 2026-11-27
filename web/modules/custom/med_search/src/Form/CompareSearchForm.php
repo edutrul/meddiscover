@@ -29,13 +29,14 @@ final class CompareSearchForm extends FormBase {
     private SearchStrategyRegistry $strategies,
     private HomepageRouter $router,
     private GeneratorInterface $generator,
+    private StrategyBrand $brand,
   ) {}
 
   /**
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container): static {
-    return new static($container->get('med_search.strategies'), $container->get('med_search.homepage_router'), $container->get('med_search.generator'));
+    return new static($container->get('med_search.strategies'), $container->get('med_search.homepage_router'), $container->get('med_search.generator'), $container->get('med_search.strategy_brand'));
   }
 
   /**
@@ -171,7 +172,7 @@ final class CompareSearchForm extends FormBase {
         'ribbon' => $uses_conversation && $id === $retrieval_id
           ? $this->homepageRibbon($this->t('Finds sources for the answer'))
           : [],
-        'brand' => StrategyBrand::build($id),
+        'brand' => $this->brand->build($id),
         'about' => ['#plain_text' => $this->strategies->get($id)->description()],
       ];
       if ($id === 'semantic') {
@@ -513,7 +514,7 @@ final class CompareSearchForm extends FormBase {
         '#theme' => 'med_compare_flow',
         '#query' => $query,
         '#path' => $urgent !== NULL ? 'urgent' : ($uses_conversation ? 'ask' : 'hybrid'),
-        '#images' => StrategyBrand::imagePath(),
+        '#images' => $this->brand->imagePath(),
       ],
       'close' => [
         '#type' => 'html_tag',

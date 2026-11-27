@@ -2,6 +2,8 @@
 
 namespace Drupal\med_search;
 
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerAwareTrait;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\Core\Config\ConfigFactoryInterface;
@@ -18,7 +20,9 @@ use Drupal\search_api_solr\SolrBackendInterface;
  * query-time behavior: EDisMax with a minimum-should-match rule, phrase boosts
  * for exact names, exact-name promotion and ambiguity notices.
  */
-final class LexicalSearch implements SearchStrategyInterface {
+final class LexicalSearch implements SearchStrategyInterface, LoggerAwareInterface {
+
+  use LoggerAwareTrait;
 
   use StringTranslationTrait;
 
@@ -103,7 +107,9 @@ final class LexicalSearch implements SearchStrategyInterface {
       $result_set = $search->execute();
       $items = $result_set->getResultItems();
     }
-    catch (\Throwable) {
+    catch (\Throwable $e) {
+      // Class only: messages can contain the query or the prompt.
+      $this->logger?->warning('Solr lexical search failed: @class.', ['@class' => $e::class]);
       // Do not rethrow: backend messages can contain the request.
       throw new \RuntimeException('Lexical search is unavailable.');
     }

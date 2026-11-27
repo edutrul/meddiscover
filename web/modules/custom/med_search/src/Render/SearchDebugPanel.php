@@ -22,6 +22,7 @@ final class SearchDebugPanel {
   public function __construct(
     private SearchStrategyRegistry $strategies,
     private ConfigFactoryInterface $configFactory,
+    private StrategyBrand $brand,
   ) {}
 
   /**
@@ -120,7 +121,7 @@ final class SearchDebugPanel {
         '#type' => 'html_tag',
         '#tag' => 'section',
         'heading' => ['#type' => 'html_tag', '#tag' => 'h3', '#value' => $strategy->label()],
-        'brand' => StrategyBrand::build($id),
+        'brand' => $this->brand->build($id),
         'body' => ['#type' => 'html_tag', '#tag' => 'p', '#value' => $guidance[$id] ?? $strategy->description()],
       ];
     }

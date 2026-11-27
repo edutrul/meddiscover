@@ -5,6 +5,7 @@ services:
   med_search.embedder:
     class: Drupal\med_search\OllamaEmbedder
     arguments: ['@http_client', '@config.factory']
+    calls: [[setLogger, ['@logger.channel.med_search']]]
   med_search.search:
     class: Drupal\med_search\SemanticSearch
     arguments: ['@database', '@entity_type.manager', '@med_search.embedder', '@config.factory', '@lock', '@datetime.time', '@current_user']
@@ -15,9 +16,16 @@ services:
   med_search.generator:
     class: Drupal\med_search\OllamaGenerator
     arguments: ['@http_client', '@config.factory']
+    calls: [[setLogger, ['@logger.channel.med_search']]]
   Drupal\med_search\GeneratorInterface: '@med_search.generator'
   med_search.urgency:
     class: Drupal\med_search\UrgencyDetector
+  med_search.strategy_brand:
+    class: Drupal\med_search\StrategyBrand
+    arguments: ['@extension.list.module']
+  logger.channel.med_search:
+    parent: logger.channel_base
+    arguments: ['med_search']
   med_search.homepage_router:
     class: Drupal\med_search\HomepageRouter
     arguments: ['@med_search.urgency']
@@ -28,7 +36,7 @@ services:
     calls: [[setStringTranslation, ['@string_translation']]]
   med_search.debug_panel:
     class: Drupal\med_search\Render\SearchDebugPanel
-    arguments: ['@med_search.strategies', '@config.factory']
+    arguments: ['@med_search.strategies', '@config.factory', '@med_search.strategy_brand']
     calls: [[setStringTranslation, ['@string_translation']]]
 
   # Search strategies: every service tagged med_search.strategy is collected
@@ -45,13 +53,17 @@ services:
   med_search.strategy.lexical:
     class: Drupal\med_search\LexicalSearch
     arguments: ['@entity_type.manager', '@config.factory', '@plugin.manager.search_api.parse_mode', '@current_user']
-    calls: [[setStringTranslation, ['@string_translation']]]
+    calls:
+      - [setStringTranslation, ['@string_translation']]
+      - [setLogger, ['@logger.channel.med_search']]
     tags: [{ name: med_search.strategy }]
   med_search.strategy.hybrid:
     class: Drupal\med_search\HybridSearch
     factory: ['Drupal\med_search\HybridSearch', 'create']
     arguments: ['@med_search.strategy.lexical', '@med_search.strategy.semantic', '@config.factory']
-    calls: [[setStringTranslation, ['@string_translation']]]
+    calls:
+      - [setStringTranslation, ['@string_translation']]
+      - [setLogger, ['@logger.channel.med_search']]
     tags: [{ name: med_search.strategy }]
   med_search.strategy.conversational:
     class: Drupal\med_search\ConversationalSearch

@@ -2,13 +2,17 @@
 
 namespace Drupal\med_search;
 
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerAwareTrait;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use GuzzleHttp\ClientInterface;
 
 /**
  * Local embedding adapter with pinned model identity and strict vector checks.
  */
-final class OllamaEmbedder {
+final class OllamaEmbedder implements LoggerAwareInterface {
+
+  use LoggerAwareTrait;
 
   /**
    * Vectors computed during this request, keyed by input text.
@@ -39,7 +43,9 @@ final class OllamaEmbedder {
         }
       }
     }
-    catch (\Throwable) {
+    catch (\Throwable $e) {
+      // Class only: messages can contain the query or the prompt.
+      $this->logger?->warning('Ollama embedding request failed: @class.', ['@class' => $e::class]);
       throw new \RuntimeException('Embedding provider is unavailable.');
     }
     throw new \RuntimeException('The pinned embedding model is unavailable or has changed.');
@@ -86,7 +92,9 @@ final class OllamaEmbedder {
       ]);
       $data = json_decode((string) $response->getBody(), TRUE, 512, JSON_THROW_ON_ERROR);
     }
-    catch (\Throwable) {
+    catch (\Throwable $e) {
+      // Class only: messages can contain the query or the prompt.
+      $this->logger?->warning('Ollama embedding request failed: @class.', ['@class' => $e::class]);
       // Do not retain an exception containing submitted health-query text.
       throw new \RuntimeException('Embedding generation failed; please try again later.');
     }

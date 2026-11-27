@@ -2,6 +2,8 @@
 
 namespace Drupal\med_search;
 
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerAwareTrait;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\Core\Config\ConfigFactoryInterface;
@@ -12,7 +14,9 @@ use Drupal\Core\Config\ConfigFactoryInterface;
  * Only ranks are fused. Solr scores and cosine similarities have different,
  * query-dependent scales, so they are never added or normalized together.
  */
-final class HybridSearch implements SearchStrategyInterface {
+final class HybridSearch implements SearchStrategyInterface, LoggerAwareInterface {
+
+  use LoggerAwareTrait;
 
   use StringTranslationTrait;
 
@@ -77,7 +81,9 @@ final class HybridSearch implements SearchStrategyInterface {
       catch (\InvalidArgumentException $e) {
         throw $e;
       }
-      catch (\Throwable) {
+      catch (\Throwable $e) {
+        // Class only: messages can contain the query or the prompt.
+        $this->logger?->warning('Hybrid retriever failed: @class.', ['@class' => $e::class]);
         $failed[] = $id;
         continue;
       }

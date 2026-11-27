@@ -76,8 +76,8 @@ final class SearchForm extends FormBase {
     $search = $this->strategies->get($strategy);
     // submitForm() reads these; the build always runs before submission.
     $form_state->set('med_strategy_id', $strategy)->set('med_automatic', $automatic_strategy);
+    // Results live only in temporary form state, never in the form cache.
     $form_state->disableCache();
-    $form['#cache']['max-age'] = 0;
     $conversational = $strategy === 'conversational';
     $automatic = $automatic_strategy;
     // The strategy that produced the shown results (Hybrid on the homepage
@@ -261,6 +261,11 @@ final class SearchForm extends FormBase {
     $form['#attached']['library'][] = 'med_search/search';
     $response = $form_state->getTemporaryValue('med_response');
     $browsing = $response === NULL && !$form_state->getTemporaryValue('med_error');
+    // The initial page (topic list and examples) is cacheable: it changes
+    // with the topics or the settings. Results are personal and never cached.
+    $form['#cache'] = $browsing
+      ? ['tags' => ['node_list', 'config:med_search.settings'], 'contexts' => ['user.permissions']]
+      : ['max-age' => 0];
     if ($browsing) {
       $response = ['results' => $browse_topics, 'notices' => []];
       $form['howto'] = $this->howItWorks($conversational, $automatic);

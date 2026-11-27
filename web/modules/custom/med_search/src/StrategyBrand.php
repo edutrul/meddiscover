@@ -2,26 +2,30 @@
 
 namespace Drupal\med_search;
 
+use Drupal\Core\Extension\ModuleExtensionList;
+
 /**
  * Provides the technology marks shared by the strategy explanations.
  */
 final class StrategyBrand {
 
+  public function __construct(private ModuleExtensionList $moduleList) {}
+
   /**
    * Public URL path of the module's images directory, with a trailing slash.
    */
-  public static function imagePath(): string {
-    return base_path() . \Drupal::service('extension.list.module')->getPath('med_search') . '/images/';
+  public function imagePath(): string {
+    return base_path() . $this->moduleList->getPath('med_search') . '/images/';
   }
 
   /**
    * Builds the marks for a retrieval strategy.
    */
-  public static function build(string $strategy): array {
+  public function build(string $strategy): array {
     if (!in_array($strategy, ['lexical', 'semantic', 'hybrid'], TRUE)) {
       return [];
     }
-    $path = self::imagePath();
+    $path = $this->imagePath();
     $build = [
       '#type' => 'container',
       '#attributes' => ['class' => ['med-strategy-brand']],
