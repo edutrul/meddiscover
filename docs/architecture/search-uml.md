@@ -2,6 +2,17 @@
 
 GitHub renders these Mermaid diagrams in the Markdown **Preview** tab. The diagrams cover the request path and its main services. They omit Drupal infrastructure and administrative classes.
 
+## Index
+
+1. [End-to-end example](#end-to-end-example)
+2. [Homepage routing](#how-the-homepage-chooses-a-search-path)
+3. [How Hybrid combines rankings](#how-hybrid-combines-rankings)
+4. [How a question becomes a cited answer](#how-a-question-becomes-a-cited-answer)
+5. [Drupal content model](#drupal-content-model)
+6. [Search classes](#search-classes)
+7. [Submit a semantic search](#submit-a-semantic-search)
+8. [Retrieve topics with pgvector](#retrieve-topics-with-pgvector)
+
 ## End-to-end example
 
 ```mermaid
@@ -48,6 +59,36 @@ flowchart TD
 ```
 
 The checked-in configuration uses **Semantic** for conversational retrieval. Hybrid merges positions from the two ranked lists using Reciprocal Rank Fusion (RRF). Conversational search uses retrieved excerpts to generate and check a cited answer.
+
+## How Hybrid combines rankings
+
+```mermaid
+flowchart TD
+    Query["Search: knee"] --> Solr["Solr: topic A ranks 1st, topic B ranks 3rd"]
+    Query --> Vector["pgvector: topic B ranks 2nd"]
+    Solr --> Fusion["RRF adds 1 / (60 + rank) for each list where a topic appears"]
+    Vector --> Fusion
+    Fusion --> A["A: 1/61 = 0.0164"]
+    Fusion --> B["B: 1/63 + 1/62 = 0.0320"]
+    A --> Output["B ranks above A"]
+    B --> Output
+```
+
+These positions are illustrative. A topic that ranks well in both lists can outrank the strongest result from just one list.
+
+## How a question becomes a cited answer
+
+```mermaid
+flowchart TD
+    Question["What is HbA1c?"] --> Retrieve["Semantic retrieval finds the A1C topic"]
+    Retrieve --> Context["Build a prompt with the question and retrieved excerpts"]
+    Context --> Generate["The generation model returns statements with source IDs"]
+    Generate --> Check{"Do the citations and statements pass verification?"}
+    Check -->|Yes| Answer["Show the answer and a link to the A1C source"]
+    Check -->|No| Fallback["Show the matching topics without a generated answer"]
+```
+
+In this example, the **A1C** topic can become source **S1** in the prompt. The generation model receives its excerpt. The published answer links back to the source. With the checked-in configuration, medDiscover can include up to three accepted topics.
 
 ## Drupal content model
 
