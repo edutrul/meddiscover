@@ -2,7 +2,9 @@
 
 An educational healthcare search and discovery proof of concept built on **Drupal 11**. It searches MedlinePlus health topics with keyword, semantic, hybrid and conversational (RAG) search, explains how every result was found and suggests trusted next steps. Answers and embeddings come from local models (Ollama), and no query text is ever stored.
 
-**Live demo:** https://meddiscover.eduardotelaya.com · Source: MedlinePlus, National Library of Medicine.
+[Live demo](https://meddiscover.eduardotelaya.com/) · [Project case study and video](https://eduardotelaya.com/blog/technology/2026-11-25-meddiscover-healthcare-search-in-drupal/) · [Ask a question or report an issue](https://github.com/edutrul/meddiscover/issues)
+
+Source: MedlinePlus, National Library of Medicine.
 
 ## Use this as a Drupal RAG example
 
