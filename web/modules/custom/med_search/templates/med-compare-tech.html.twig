@@ -41,7 +41,7 @@
   </li>
 {% else %}
   <li><h4>{{ 'Routing: question or topic?'|t }}</h4>
-    <p>{% trans %}Before any search, the homepage checks urgent wording, then tests the input against one regular expression (<code>SearchForm::MED_QUESTION_PATTERN</code>, case-insensitive):{% endtrans %}</p>
+    <p>{% trans %}Before any search, the homepage checks urgent wording, then tests the input against one regular expression (<code>HomepageRouter::MED_QUESTION_PATTERN</code>, case-insensitive):{% endtrans %}</p>
     <pre><code>{{ pattern }}</code></pre>
     <p>{% trans %}It matches a trailing <code>?</code>, a leading question word (what, why, when, where, who, which, how) followed by another word, or a leading auxiliary followed by a pronoun or article (“is the”, “can I”, “do you”…).{% endtrans %}
     {% if reason %}

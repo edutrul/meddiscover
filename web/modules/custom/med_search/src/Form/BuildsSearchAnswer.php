@@ -4,6 +4,7 @@ namespace Drupal\med_search\Form;
 
 use Drupal\Core\Url;
 use Drupal\med_search\ConversationalSearch;
+use Drupal\med_search\Render\SearchLinks;
 use Drupal\med_search\UrgencyDetector;
 
 /**
@@ -79,7 +80,7 @@ trait BuildsSearchAnswer {
               '#url' => $node->toUrl(),
               '#prefix' => '[' . $number . '] ',
             ],
-            'origin' => SearchForm::track(SearchForm::external([
+            'origin' => SearchLinks::track(SearchLinks::external([
               '#prefix' => ' — ',
               '#type' => 'link',
               '#title' => $this->t('MedlinePlus, National Library of Medicine'),

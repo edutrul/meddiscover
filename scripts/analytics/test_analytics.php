@@ -10,7 +10,7 @@ use Drupal\Core\Form\FormState;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\med_analytics\Controller\EventController;
 use Drupal\med_search\Event\SearchCompletedEvent;
-use Drupal\med_search\Form\SearchForm;
+use Drupal\med_search\Render\SearchLinks;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -111,7 +111,7 @@ try {
      * {@inheritdoc}
      */
     public function getFormId() {
-      return 'med_semantic_search';
+      return 'med_search';
     }
 
     /**
@@ -130,13 +130,13 @@ try {
   $one = $by_source['test-1'];
   $form = ['results' => [0 => ['#med_topic' => $one, '#med_enrichment' => \Drupal::service('med_search.enricher')->enrich($one)]]];
   $form_state = (new FormState())->setFormObject($form_object)->setValue('query', 'fixture');
-  $form_id = 'med_semantic_search';
+  $form_id = 'med_search';
   \Drupal::moduleHandler()->alter('form', $form, $form_state, $form_id);
   ana_expect($count('cta_shown', 'patient_handouts') === 1 && $count('cta_shown', 'learn_more') === 1 && $count('recommendation_shown', 'related_topic') === 1, 'Each shown call to action must count one impression.');
   ana_expect(in_array('med_analytics/beacon', $form['#attached']['library'], TRUE) && $form['#attached']['drupalSettings']['medAnalytics']['endpoint'] === '/med-analytics/event', 'The beacon must be attached with its endpoint.');
   $link = $form['results'][0]['activation']['list']['#items'][0]['link']['#attributes'];
   ana_expect($link['data-med-event'] === 'cta_clicked' && $link['data-med-dimension'] === 'patient_handouts', 'CTA links carry only the event and rule ID.');
-  ana_expect(SearchForm::rankBucket(1) === 'rank1' && SearchForm::rankBucket(3) === 'rank2-3' && SearchForm::rankBucket(9) === 'rank4plus', 'Result clicks are bucketed by rank.');
+  ana_expect(SearchLinks::rankBucket(1) === 'rank1' && SearchLinks::rankBucket(3) === 'rank2-3' && SearchLinks::rankBucket(9) === 'rank4plus', 'Result clicks are bucketed by rank.');
 
   // 8. Nothing sensitive is stored.
   $leaks = (int) $db->query("SELECT COUNT(*) FROM {med_analytics_daily} WHERE dimension LIKE '%fixture%' OR dimension LIKE '%http%' OR dimension LIKE '%test-%' OR dimension LIKE '% %'")->fetchField();

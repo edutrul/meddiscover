@@ -18,6 +18,18 @@ services:
   Drupal\med_search\GeneratorInterface: '@med_search.generator'
   med_search.urgency:
     class: Drupal\med_search\UrgencyDetector
+  med_search.homepage_router:
+    class: Drupal\med_search\HomepageRouter
+    arguments: ['@med_search.urgency']
+    calls: [[setStringTranslation, ['@string_translation']]]
+  med_search.result_builder:
+    class: Drupal\med_search\Render\SearchResultBuilder
+    arguments: ['@med_search.enricher', '@current_user']
+    calls: [[setStringTranslation, ['@string_translation']]]
+  med_search.debug_panel:
+    class: Drupal\med_search\Render\SearchDebugPanel
+    arguments: ['@med_search.strategies', '@config.factory']
+    calls: [[setStringTranslation, ['@string_translation']]]
 
   # Search strategies: every service tagged med_search.strategy is collected
   # by med_search.strategies and reachable by its id().

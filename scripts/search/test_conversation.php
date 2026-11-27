@@ -57,6 +57,20 @@ class ConvStubRetriever implements SearchStrategyInterface {
   /**
    * {@inheritdoc}
    */
+  public function label(): string {
+    return 'Synthetic semantic';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function description(): string {
+    return 'Synthetic semantic description.';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function search(string $query, ?int $limit = NULL): array {
     $this->calls++;
     if ($this->rows === NULL) {

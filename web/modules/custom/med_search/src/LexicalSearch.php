@@ -48,6 +48,20 @@ final class LexicalSearch implements SearchStrategyInterface {
   /**
    * {@inheritdoc}
    */
+  public function label(): TranslatableMarkup {
+    return $this->t('Keyword (Lexical)');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function description(): TranslatableMarkup {
+    return $this->t('Matches your words against topic names, alternative terms, MeSH labels and text, using Apache Solr.');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function search(string $query, ?int $limit = NULL): array {
     $config = $this->configFactory->get('med_search.settings');
     $limit ??= (int) $config->get('result_limit');

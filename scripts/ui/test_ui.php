@@ -12,6 +12,7 @@ use Drupal\Core\Form\FormState;
 use Drupal\Core\Session\UserSession;
 use Drupal\med_search\Form\SearchForm;
 use Drupal\med_search\SearchStrategyInterface;
+use Drupal\med_search\SearchStrategyRegistry;
 
 /**
  * Fail the run with a clear message.
@@ -70,6 +71,20 @@ $stub = new class() implements SearchStrategyInterface {
   /**
    * {@inheritdoc}
    */
+  public function label(): string {
+    return 'Synthetic conversational';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function description(): string {
+    return 'Synthetic conversational description.';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function search(string $query, ?int $limit = NULL): array {
     return $this->response;
   }
@@ -82,9 +97,26 @@ $stub = new class() implements SearchStrategyInterface {
   }
 
 };
-$form_object = new SearchForm($stub, \Drupal::service('med_search.enricher'), \Drupal::service('event_dispatcher'), \Drupal::entityTypeManager());
-$build = function (array $response) use ($form_object, $renderer): string {
+// The real strategies, with the stub standing in for "conversational".
+$registry = new SearchStrategyRegistry();
+$real = \Drupal::service('med_search.strategies');
+foreach ($real->ids() as $id) {
+  $registry->addStrategy($real->get($id));
+}
+$registry->addStrategy($stub);
+$form_object = new SearchForm(
+  $registry,
+  \Drupal::service('med_search.homepage_router'),
+  \Drupal::service('med_search.result_builder'),
+  \Drupal::service('med_search.debug_panel'),
+  \Drupal::service('event_dispatcher'),
+  \Drupal::entityTypeManager(),
+);
+// Route defaults reach buildForm() as build arguments: /search/conversational.
+$route_args = ['conversational'];
+$build = function (array $response) use ($form_object, $renderer, $route_args): string {
   $form_state = (new FormState())->setFormObject($form_object)->setValue('query', 'synthetic');
+  $form_state->addBuildInfo('args', $route_args);
   $form_state->setTemporaryValue('med_response', $response)->setTemporaryValue('med_search_ms', 1.0);
   $form = \Drupal::formBuilder()->buildForm($form_object, $form_state);
   return (string) $renderer->renderInIsolation($form);
@@ -131,7 +163,7 @@ ui_expect(str_contains($html, 'data-med-results-heading') && str_contains($html,
 
 // 5. Entry guidance: no duplicate mode list, examples, hint and headings.
 $empty = $build(['results' => [], 'timings' => [], 'notices' => [], 'answer' => ['status' => 'abstained', 'reason' => 'no_evidence']]);
-$form_state = (new FormState())->setFormObject($form_object);
+$form_state = (new FormState())->setFormObject($form_object)->addBuildInfo('args', $route_args);
 $fresh = \Drupal::formBuilder()->buildForm($form_object, $form_state);
 $fresh_html = (string) $renderer->renderInIsolation($fresh);
 ui_expect(!str_contains($fresh_html, 'Search mode') && str_contains($fresh_html, 'How it works') && !preg_match('#<h3#', preg_replace('#<article.*?</article>#s', '', $fresh_html)), 'The empty page must explain how it works without skipping heading levels.');
@@ -142,7 +174,7 @@ $example_state->setTriggeringElement(['#med_example' => 'What is HbA1c?']);
 $example_form = [];
 $form_object->validateForm($example_form, $example_state);
 ui_expect($example_state->getValue('query') === 'What is HbA1c?' && $example_state->getUserInput()['query'] === 'What is HbA1c?' && !$example_state->hasAnyErrors(), 'An example button must become the query.');
-$chosen_state = (new FormState())->setFormObject($form_object)->setUserInput(['query' => 'what can trigger a migraine?']);
+$chosen_state = (new FormState())->setFormObject($form_object)->setUserInput(['query' => 'what can trigger a migraine?'])->addBuildInfo('args', $route_args);
 $chosen = \Drupal::formBuilder()->buildForm($form_object, $chosen_state);
 ui_expect(in_array('is-selected', $chosen['search_panel']['examples']['example_2']['#attributes']['class'], TRUE) && $chosen['search_panel']['examples']['example_2']['#attributes']['aria-current'] === 'true' && !in_array('is-selected', $chosen['search_panel']['examples']['example_0']['#attributes']['class'], TRUE), 'The example matching the query must be marked selected.');
 $blank_state = (new FormState())->setFormObject($form_object)->setValue('query', '   ');

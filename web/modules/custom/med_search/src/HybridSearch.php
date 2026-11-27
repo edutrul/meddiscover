@@ -46,6 +46,20 @@ final class HybridSearch implements SearchStrategyInterface {
   /**
    * {@inheritdoc}
    */
+  public function label(): TranslatableMarkup {
+    return $this->t('Hybrid (Keyword + Semantic)');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function description(): TranslatableMarkup {
+    return $this->t('Combines the lexical and semantic rankings with Reciprocal Rank Fusion.');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function search(string $query, ?int $limit = NULL, bool $includeRanking = FALSE): array {
     $config = $this->configFactory->get('med_search.settings');
     $limit ??= (int) $config->get('result_limit');

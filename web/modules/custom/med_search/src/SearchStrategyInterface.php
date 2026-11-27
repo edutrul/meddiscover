@@ -24,9 +24,19 @@ namespace Drupal\med_search;
 interface SearchStrategyInterface {
 
   /**
-   * Machine name: semantic, lexical or hybrid.
+   * Machine name: semantic, lexical, hybrid or conversational.
    */
   public function id(): string;
+
+  /**
+   * Human-readable name, e.g. "Hybrid (Keyword + Semantic)".
+   */
+  public function label(): string|\Stringable;
+
+  /**
+   * One-line explanation of how this strategy finds topics.
+   */
+  public function description(): string|\Stringable;
 
   /**
    * Run a validated query, returning at most $limit deduplicated topics.

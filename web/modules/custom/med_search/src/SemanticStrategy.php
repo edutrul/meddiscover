@@ -24,6 +24,20 @@ final class SemanticStrategy implements SearchStrategyInterface {
   /**
    * {@inheritdoc}
    */
+  public function label(): TranslatableMarkup {
+    return $this->t('Semantic');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function description(): TranslatableMarkup {
+    return $this->t('Matches meaning using local embeddings, so questions in everyday words can find topics.');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function search(string $query, ?int $limit = NULL, bool $includeEmbedding = FALSE): array {
     if ($limit !== NULL) {
       QueryText::validate($query, $limit);

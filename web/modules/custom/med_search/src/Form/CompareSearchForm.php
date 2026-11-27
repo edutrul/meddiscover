@@ -11,7 +11,8 @@ use Drupal\med_search\ConversationalSearch;
 use Drupal\med_search\GeneratorInterface;
 use Drupal\med_search\SearchStrategyRegistry;
 use Drupal\med_search\StrategyBrand;
-use Drupal\med_search\UrgencyDetector;
+use Drupal\med_search\HomepageRouter;
+use Drupal\med_search\Render\MetricHelp;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -26,7 +27,7 @@ final class CompareSearchForm extends FormBase {
 
   public function __construct(
     private SearchStrategyRegistry $strategies,
-    private UrgencyDetector $urgency,
+    private HomepageRouter $router,
     private GeneratorInterface $generator,
   ) {}
 
@@ -34,7 +35,7 @@ final class CompareSearchForm extends FormBase {
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container): static {
-    return new static($container->get('med_search.strategies'), $container->get('med_search.urgency'), $container->get('med_search.generator'));
+    return new static($container->get('med_search.strategies'), $container->get('med_search.homepage_router'), $container->get('med_search.generator'));
   }
 
   /**
@@ -99,7 +100,7 @@ final class CompareSearchForm extends FormBase {
         'class' => ['med-loading'],
         'role' => 'status',
         // Questions also get an answer, which takes much longer.
-        'data-med-question-pattern' => SearchForm::MED_QUESTION_PATTERN,
+        'data-med-question-pattern' => HomepageRouter::MED_QUESTION_PATTERN,
         'data-med-loading-answer' => (string) $this->t('Running the three searches and writing a cited answer from MedlinePlus… this can take 10–40 seconds.'),
         'data-med-loading-search' => (string) $this->t('Running all three searches…'),
       ],
@@ -127,9 +128,10 @@ final class CompareSearchForm extends FormBase {
       'hybrid' => $this->t('Hybrid'),
       default => $this->t('Semantic'),
     };
-    $urgent = $this->urgency->detect($query);
-    $uses_hybrid = SearchForm::usesHomepageHybrid($query, $urgent);
-    $uses_conversation = $urgent === NULL && !$uses_hybrid;
+    $route = $this->router->route($query);
+    $urgent = $this->router->urgency($query);
+    $uses_hybrid = $route === HomepageRouter::MED_HYBRID;
+    $uses_conversation = $route === HomepageRouter::MED_ASK;
     // With no topic at all, the homepage would show its "no topics" message,
     // so no card earns the ribbon.
     $nothing_found = $uses_hybrid && empty($response['hybrid']['results']);
@@ -170,7 +172,7 @@ final class CompareSearchForm extends FormBase {
           ? $this->homepageRibbon($this->t('Finds sources for the answer'))
           : [],
         'brand' => StrategyBrand::build($id),
-        'about' => ['#plain_text' => SearchForm::strategies()[$id][1]],
+        'about' => ['#plain_text' => $this->strategies->get($id)->description()],
       ];
       if ($id === 'semantic') {
         $column['threshold'] = [
@@ -188,7 +190,7 @@ final class CompareSearchForm extends FormBase {
           '@k' => (int) $config->get('hybrid_rrf_k'),
         ]),
       };
-      $column['ranking_help'] = SearchForm::metricHelp($this->t('How ranking works'), $ranking_help);
+      $column['ranking_help'] = MetricHelp::build($this->t('How ranking works'), $ranking_help);
       if ($ribbon_hybrid && $id === 'hybrid') {
         $column['why'] = $this->whyThisOne($this->t('For topic searches the homepage wants the most complete list. Keyword catches exact names and aliases such as “HbA1c”, and Semantic catches related meaning. In our tests, Hybrid found the most relevant topics: 96% of them, against 90% for Semantic and 79% for Keyword.'));
       }
@@ -328,8 +330,8 @@ final class CompareSearchForm extends FormBase {
     $embedding = $semantic['embedding_debug'] ?? [];
     $context = [
       'query' => $query,
-      'pattern' => SearchForm::MED_QUESTION_PATTERN,
-      'reason' => SearchForm::questionReason($query),
+      'pattern' => HomepageRouter::MED_QUESTION_PATTERN,
+      'reason' => $this->router->questionReason($query),
       'urgent' => $urgent,
       'solr_q' => $solr['q'] ?? '',
       'solr_mm' => $mm = $solr['mm'] ?? (string) $config->get('lexical_min_match'),
@@ -429,7 +431,7 @@ final class CompareSearchForm extends FormBase {
         $this->t('A short answer with citations, written from the top topics of @strategy search. It is shown below.', ['@strategy' => $retrieval]),
         $this->t('@query @reason, so it counts as a question.', [
           '@query' => $quoted,
-          '@reason' => SearchForm::questionReason($query),
+          '@reason' => $this->router->questionReason($query),
         ]),
       ],
       $nothing_found => [
@@ -547,7 +549,7 @@ final class CompareSearchForm extends FormBase {
    * Explains why the homepage prefers this strategy for the query.
    */
   private function whyThisOne($text): array {
-    $help = SearchForm::metricHelp($this->t('Why this one?'), $text);
+    $help = MetricHelp::build($this->t('Why this one?'), $text);
     $help['#attributes']['class'][] = 'med-why-this-one';
     return $help;
   }
@@ -625,8 +627,7 @@ final class CompareSearchForm extends FormBase {
     }
     $query = (string) $form_state->getValue('query');
     // Questions are answered automatically, as on the homepage.
-    if ($this->urgency->detect($query) === NULL
-      && !SearchForm::usesHomepageHybrid($query, NULL)) {
+    if ($this->router->route($query) === HomepageRouter::MED_ASK) {
       try {
         $answer = $this->strategies->get('conversational')->search($query, NULL, $this->currentUser()->hasPermission('view med search ranking details'));
       }

@@ -3,6 +3,7 @@
 namespace Drupal\med_search;
 
 use Drupal\Core\StringTranslation\StringTranslationTrait;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\node\NodeInterface;
 
@@ -78,6 +79,20 @@ TXT;
    */
   public function id(): string {
     return 'conversational';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function label(): TranslatableMarkup {
+    return $this->t('Ask (Conversational)');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function description(): TranslatableMarkup {
+    return $this->t('Writes a short educational answer using only the retrieved MedlinePlus topics, citing each statement, and declines when the topics do not answer the question.');
   }
 
   /**
