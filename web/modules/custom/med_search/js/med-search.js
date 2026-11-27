@@ -142,7 +142,10 @@
         }
         const loading = form.querySelector('[data-med-question-pattern]');
         const questionPattern = loading && new RegExp(loading.dataset.medQuestionPattern, 'iu');
+        const results = form.querySelector('.med-results');
         form.addEventListener('htmx:beforeRequest', () => {
+          // The old results stay visible but faded until the swap.
+          results?.setAttribute('aria-busy', 'true');
           if (loading && box) {
             const answer = questionPattern.test(box.value.trim());
             loading.dataset.medLoadingMode = answer ? 'answer' : 'search';
@@ -155,6 +158,7 @@
           }
         });
         const fail = () => {
+          results?.removeAttribute('aria-busy');
           if (error) {
             error.hidden = false;
             error.focus();

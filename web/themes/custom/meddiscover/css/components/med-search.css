@@ -134,8 +134,19 @@
   display: flex;
 }
 
+/* While a search runs, keep the previous results in place but faded and
+   inert, so the page never shows an empty block and the layout does not
+   jump when the new results arrive. */
 .med-search:has(.med-loading.htmx-request) .med-results {
-  visibility: hidden;
+  opacity: 0.35;
+  pointer-events: none;
+  user-select: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .med-results {
+    transition: opacity 0.2s ease;
+  }
 }
 
 .med-loading::before {
