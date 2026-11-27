@@ -6,6 +6,12 @@ An educational healthcare search and discovery proof of concept built on **Drupa
 
 Source: MedlinePlus, National Library of Medicine.
 
+## Watch the demo
+
+[![Watch the medDiscover demo on YouTube](https://i.ytimg.com/vi/N77ifAgZPTU/hqdefault.jpg)](https://www.youtube.com/watch?v=N77ifAgZPTU&t=18s)
+
+[Watch on YouTube](https://www.youtube.com/watch?v=N77ifAgZPTU&t=18s)
+
 ## Use this as a Drupal RAG example
 
 Start with the [conversational walkthrough](docs/architecture/conversational-walkthrough.md) and the [local setup](docs/search.md). The walkthrough follows “What is HbA1c?” from query embedding and pgvector retrieval to a structured answer with citations.
