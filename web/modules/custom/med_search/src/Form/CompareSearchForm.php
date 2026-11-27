@@ -2,7 +2,6 @@
 
 namespace Drupal\med_search\Form;
 
-use Drupal\Component\Utility\Html;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Htmx\Htmx;
@@ -12,6 +11,7 @@ use Drupal\med_search\GeneratorInterface;
 use Drupal\med_search\SearchStrategyRegistry;
 use Drupal\med_search\StrategyBrand;
 use Drupal\med_search\HomepageRouter;
+use Drupal\med_search\Render\CompareVerdictBuilder;
 use Drupal\med_search\Render\MetricHelp;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -30,13 +30,14 @@ final class CompareSearchForm extends FormBase {
     private HomepageRouter $router,
     private GeneratorInterface $generator,
     private StrategyBrand $brand,
+    private CompareVerdictBuilder $verdictBuilder,
   ) {}
 
   /**
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container): static {
-    return new static($container->get('med_search.strategies'), $container->get('med_search.homepage_router'), $container->get('med_search.generator'), $container->get('med_search.strategy_brand'));
+    return new static($container->get('med_search.strategies'), $container->get('med_search.homepage_router'), $container->get('med_search.generator'), $container->get('med_search.strategy_brand'), $container->get('med_search.compare_verdict'));
   }
 
   /**
@@ -130,7 +131,6 @@ final class CompareSearchForm extends FormBase {
       default => $this->t('Semantic'),
     };
     $route = $this->router->route($query);
-    $urgent = $this->router->urgency($query);
     $uses_hybrid = $route === HomepageRouter::MED_HYBRID;
     $uses_conversation = $route === HomepageRouter::MED_ASK;
     // With no topic at all, the homepage would show its "no topics" message,
@@ -138,17 +138,7 @@ final class CompareSearchForm extends FormBase {
     $nothing_found = $uses_hybrid && empty($response['hybrid']['results']);
     $ribbon_hybrid = $uses_hybrid && !$nothing_found;
     // The main point of this page: what the homepage would answer, and why.
-    $hybrid_results = $response['hybrid']['results'] ?? [];
-    $form['verdict'] = $this->verdict($query, $urgent, $uses_conversation, $nothing_found, $hybrid_results, $retrieval);
-    if ($this->currentUser()->hasPermission('view med search ranking details')) {
-      $form['verdict']['technical'] = $this->technicalBreakdown(
-        $query,
-        $urgent,
-        $uses_conversation,
-        $response,
-        $form_state->getTemporaryValue('comparison_answer'),
-      );
-    }
+    $form['verdict'] = $this->verdictBuilder->build($query, $response, $form_state->getTemporaryValue('comparison_answer'), $retrieval);
     if (!$uses_conversation) {
       $form['evidence_heading'] = $this->evidenceHeading();
     }
@@ -315,94 +305,6 @@ final class CompareSearchForm extends FormBase {
   }
 
   /**
-   * Developer mode: how the homepage computes the verdict, with live values.
-   *
-   * Explains every stage of the chosen path (routing, Solr, pgvector, RRF,
-   * or retrieval, prompt and verification for RAG) using this search's own
-   * scores, ranks, settings and timings.
-   */
-  private function technicalBreakdown(string $query, ?string $urgent, bool $uses_conversation, array $response, ?array $answer): array {
-    $config = $this->config('med_search.settings');
-    $ms = static fn($value): string => $value === NULL ? '–' : number_format((float) $value, 1) . ' ms';
-    $lexical = $response['lexical'] ?? NULL;
-    $semantic = $response['semantic'] ?? NULL;
-    $hybrid = $response['hybrid'] ?? NULL;
-    $solr = $lexical['solr_debug']['parameters'] ?? [];
-    $embedding = $semantic['embedding_debug'] ?? [];
-    $context = [
-      'query' => $query,
-      'pattern' => HomepageRouter::MED_QUESTION_PATTERN,
-      'reason' => $this->router->questionReason($query),
-      'urgent' => $urgent,
-      'solr_q' => $solr['q'] ?? '',
-      'solr_mm' => $mm = $solr['mm'] ?? (string) $config->get('lexical_min_match'),
-      // "N<75%": up to N terms all are required; above N, 75% of them.
-      'solr_mm_all' => preg_match('/^(\d+)<75%$/', $mm, $m) ? (int) $m[1] : NULL,
-      'solr_pf' => $solr['pf'] ?? '',
-      'lexical' => array_map(static fn(array $row, int $i): array => [
-        'rank' => $i + 1,
-        'title' => $row['node']->label(),
-        'score' => number_format((float) $row['score'], 2),
-      ], $lexical['results'] ?? [], array_keys($lexical['results'] ?? [])),
-      'lexical_ms' => $ms($lexical['timings']['lexical_ms'] ?? NULL),
-      'embedding_model' => $embedding['model'] ?? '',
-      'embedding_input' => $embedding['input'] ?? 'search_query: ' . $query,
-      'dimensions' => $embedding['response']['dimensions'] ?? (int) $config->get('dimensions'),
-      'vector_head' => isset($embedding['response']['embedding']) ? implode(', ', array_map(static fn($v): string => number_format((float) $v, 4), array_slice($embedding['response']['embedding'], 0, 4))) : NULL,
-      'threshold' => (string) $config->get('threshold'),
-      'semantic' => array_map(static fn(array $row, int $i): array => [
-        'rank' => $i + 1,
-        'title' => $row['node']->label(),
-        'cosine' => number_format((float) $row['score'], 4),
-        'distance' => number_format(1 - (float) $row['score'], 4),
-      ], $semantic['results'] ?? [], array_keys($semantic['results'] ?? [])),
-      'embedding_ms' => $ms($semantic['timings']['embedding_ms'] ?? NULL),
-      'semantic_ms' => $ms($semantic['timings']['semantic_ms'] ?? NULL),
-      'k' => (int) $config->get('hybrid_rrf_k'),
-      'depth' => (int) $config->get('hybrid_depth'),
-      'rrf' => array_map(static fn(array $row, int $i): array => [
-        'rank' => $i + 1,
-        'title' => $row['title'],
-        'lexical_rank' => $row['ranks']['lexical'] ?? '–',
-        'semantic_rank' => $row['ranks']['semantic'] ?? '–',
-        'lexical_points' => isset($row['points_by_list']['lexical']) ? number_format($row['points_by_list']['lexical'], 5) : '0',
-        'semantic_points' => isset($row['points_by_list']['semantic']) ? number_format($row['points_by_list']['semantic'], 5) : '0',
-        'total' => number_format($row['rrf_score'], 5),
-      ], $hybrid['hybrid_debug']['results'] ?? [], array_keys($hybrid['hybrid_debug']['results'] ?? [])),
-      'fusion_ms' => $ms($hybrid['timings']['fusion_ms'] ?? NULL),
-      'rag_sources' => (int) $config->get('rag_sources'),
-      'rag_chars' => (int) $config->get('rag_source_chars'),
-      'generation_model' => $this->generator->modelId(),
-      'generation_max' => (int) $config->get('generation_max_tokens'),
-      'answer_status' => isset($answer['answer']['status'])
-        ? $answer['answer']['status'] . (isset($answer['answer']['reason']) ? ' (' . $answer['answer']['reason'] . ')' : '')
-        : NULL,
-      'answer_statements' => count($answer['answer']['statements'] ?? []),
-      'answer_dropped' => $answer['answer']['dropped'] ?? 0,
-      // Source labels follow retrieval order (the answer lists cited topics
-      // first, which is not the order the model saw).
-      'answer_sources' => $answer === NULL ? [] : array_map(static fn(array $row, int $i): array => [
-        'label' => 'S' . ($i + 1),
-        'title' => $row['node']->label(),
-      ], $sources = array_slice($semantic['results'] ?? [], 0, (int) $config->get('rag_sources')), array_keys($sources)),
-      'answer_embedding_ms' => $ms($answer['timings']['embedding_ms'] ?? NULL),
-      'answer_retrieval_ms' => $ms($answer['timings']['semantic_ms'] ?? NULL),
-      'generation_ms' => $ms($answer['timings']['generation_ms'] ?? NULL),
-    ];
-    return [
-      '#type' => 'details',
-      '#title' => $this->t('How the homepage computes this (technical)'),
-      '#open' => TRUE,
-      '#attributes' => ['class' => ['med-debug', 'med-verdict-tech']],
-      'body' => [
-        '#theme' => 'med_compare_tech',
-        '#path' => $urgent !== NULL ? 'urgent' : ($uses_conversation ? 'ask' : 'hybrid'),
-        '#data' => $context,
-      ],
-    ];
-  }
-
-  /**
    * Heading that presents the method cards as the evidence for the verdict.
    */
   private function evidenceHeading(): array {
@@ -412,117 +314,6 @@ final class CompareSearchForm extends FormBase {
       '#attributes' => ['class' => ['med-compare-subheading']],
       '#value' => $this->t('The evidence: how each method handles this search'),
     ];
-  }
-
-  /**
-   * What the homepage would answer for this input, and the rule behind it.
-   */
-  private function verdict(string $query, ?string $urgent, bool $uses_conversation, bool $nothing_found, array $hybrid_results, $retrieval): array {
-    $quoted = '“' . $query . '”';
-    $topic_rule = $this->t('@query has no “?” and does not start with a question word, so it counts as a topic search.', ['@query' => $quoted]);
-    [$label, $get, $why] = match (TRUE) {
-      $urgent !== NULL => [
-        $this->t('Urgent-safety message'),
-        $this->t('Emergency guidance only: call 911 or your local emergency number. No topic list and no AI answer.'),
-        $this->t('@query contains urgent wording, which is checked before anything else.', ['@query' => $quoted]),
-      ],
-      $uses_conversation => [
-        $this->t('Ask (RAG)'),
-        $this->t('A short answer with citations, written from the top topics of @strategy search. It is shown below.', ['@strategy' => $retrieval]),
-        $this->t('@query @reason, so it counts as a question.', [
-          '@query' => $quoted,
-          '@reason' => $this->router->questionReason($query),
-        ]),
-      ],
-      $nothing_found => [
-        $this->t('No result'),
-        $this->t('“No topics matched closely enough.” None of the three methods found a topic. Check the spelling or try other words.'),
-        $this->t('@rule The homepage would run Hybrid, but Hybrid found nothing.', ['@rule' => $topic_rule]),
-      ],
-      default => [
-        $this->t('Hybrid (Keyword + Semantic)'),
-        $this->t('A ranked list of health topics:'),
-        $topic_rule,
-      ],
-    };
-    $build = [
-      '#type' => 'container',
-      '#attributes' => [
-        'class' => ['med-verdict', $uses_conversation ? 'med-verdict--ask' : 'med-verdict--hybrid'],
-      ],
-      'kicker' => [
-        '#type' => 'html_tag',
-        '#tag' => 'p',
-        '#attributes' => ['class' => ['med-verdict__kicker']],
-        '#value' => $this->t('The homepage would answer with'),
-      ],
-      'label' => [
-        '#type' => 'html_tag',
-        '#tag' => 'p',
-        '#attributes' => ['class' => ['med-verdict__label']],
-        '#value' => $label,
-      ],
-      'get' => [
-        '#type' => 'html_tag',
-        '#tag' => 'p',
-        'title' => ['#type' => 'html_tag', '#tag' => 'strong', '#value' => $this->t("You'd get:")],
-        'text' => ['#plain_text' => ' ' . $get],
-      ],
-    ];
-    if ($urgent === NULL && !$uses_conversation && $hybrid_results) {
-      $build['topics'] = ['#theme' => 'item_list', '#list_type' => 'ol', '#items' => []];
-      foreach ($hybrid_results as $item) {
-        $build['topics']['#items'][] = $item['node']->toLink()->toRenderable();
-      }
-    }
-    $build['why'] = [
-      '#type' => 'html_tag',
-      '#tag' => 'p',
-      'title' => ['#type' => 'html_tag', '#tag' => 'strong', '#value' => $this->t('Why:')],
-      'text' => ['#plain_text' => ' ' . $why],
-    ];
-    $build['rule'] = [
-      '#type' => 'html_tag',
-      '#tag' => 'p',
-      '#attributes' => ['class' => ['med-verdict__rule']],
-      'text' => ['#plain_text' => $this->t('The rule: a question → Ask (RAG) · anything else → Hybrid (Keyword + Semantic) · urgent wording → safety message first.') . ' '],
-      'open' => [
-        '#type' => 'html_tag',
-        '#tag' => 'button',
-        '#attributes' => [
-          'type' => 'button',
-          'class' => ['med-flow-open'],
-          'data-med-flow-open' => TRUE,
-          'aria-haspopup' => 'dialog',
-        ],
-        '#value' => $this->t('See the flow diagram'),
-      ],
-    ];
-    $title_id = Html::getUniqueId('med-flow-title');
-    $build['flow'] = [
-      '#type' => 'html_tag',
-      '#tag' => 'dialog',
-      '#attributes' => ['class' => ['med-strategy-dialog', 'med-flow-dialog'], 'aria-labelledby' => $title_id],
-      'title' => [
-        '#type' => 'html_tag',
-        '#tag' => 'h2',
-        '#attributes' => ['id' => $title_id],
-        '#value' => $this->t('How the homepage decides'),
-      ],
-      'body' => [
-        '#theme' => 'med_compare_flow',
-        '#query' => $query,
-        '#path' => $urgent !== NULL ? 'urgent' : ($uses_conversation ? 'ask' : 'hybrid'),
-        '#images' => $this->brand->imagePath(),
-      ],
-      'close' => [
-        '#type' => 'html_tag',
-        '#tag' => 'button',
-        '#attributes' => ['type' => 'button', 'data-med-flow-close' => TRUE],
-        '#value' => $this->t('Close'),
-      ],
-    ];
-    return $build;
   }
 
   /**

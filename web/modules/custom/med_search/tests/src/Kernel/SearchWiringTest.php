@@ -4,6 +4,7 @@ namespace Drupal\Tests\med_search\Kernel;
 
 use Drupal\KernelTests\KernelTestBase;
 use Drupal\med_search\HomepageRouter;
+use Drupal\med_search\Render\CompareVerdictBuilder;
 use PHPUnit\Framework\Attributes\Group;
 use PHPUnit\Framework\Attributes\RunTestsInSeparateProcesses;
 use Psr\Log\LoggerInterface;
@@ -85,6 +86,7 @@ final class SearchWiringTest extends KernelTestBase {
     $this->assertSame(HomepageRouter::MED_ASK, $router->route('What is HbA1c?'));
     $this->assertStringEndsWith('/med_search/images/', $this->container->get('med_search.strategy_brand')->imagePath());
     $this->assertInstanceOf(LoggerInterface::class, $this->container->get('logger.channel.med_search'));
+    $this->assertInstanceOf(CompareVerdictBuilder::class, $this->container->get('med_search.compare_verdict'));
     $this->assertSame(0.62, (float) $this->config('med_search.settings')->get('threshold'));
   }
 

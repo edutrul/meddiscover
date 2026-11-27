@@ -35,6 +35,10 @@ services:
     class: Drupal\med_search\Render\SearchResultBuilder
     arguments: ['@med_search.enricher', '@current_user']
     calls: [[setStringTranslation, ['@string_translation']]]
+  med_search.compare_verdict:
+    class: Drupal\med_search\Render\CompareVerdictBuilder
+    arguments: ['@med_search.homepage_router', '@med_search.generator', '@config.factory', '@med_search.strategy_brand', '@current_user']
+    calls: [[setStringTranslation, ['@string_translation']]]
   med_search.debug_panel:
     class: Drupal\med_search\Render\SearchDebugPanel
     arguments: ['@med_search.strategies', '@config.factory', '@med_search.strategy_brand', '@med_search.embedder', '@med_search.generator']

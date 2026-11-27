@@ -84,6 +84,7 @@ A question is input that ends with `?`, starts with a question word (what, why, 
 | `ResultEnricher` | Terminology, related topics and resources from structured data (no AI) |
 | `Form\SearchForm`, `Form\CompareSearchForm` | The search and Compare pages (form flow only) |
 | `Render\SearchResultBuilder`, `Render\SearchDebugPanel` | Result cards and enrichment; the Developer mode panel |
+| `Render\CompareVerdictBuilder` | The Compare verdict and its technical breakdown, rendered by the `med_compare_verdict`, `med_compare_flow` and `med_compare_tech` templates |
 | `Event\SearchCompletedEvent` | Dispatched once per search for `med_analytics`; never carries the query text |
 | `Plugin\QueueWorker\TopicEmbedding` | Re-embeds a topic when its published text changes |
 | `Hook\SearchThemeHooks`, `Hook\TopicEmbeddingHooks` | `hook_theme` for the result card and Compare templates; queue re-embedding when a topic changes |

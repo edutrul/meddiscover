@@ -28,6 +28,18 @@ final class SearchThemeHooks {
       'med_compare_tech' => [
         'variables' => ['path' => 'hybrid', 'data' => []],
       ],
+      // Compare page: the verdict box (what the homepage would answer, why).
+      'med_compare_verdict' => [
+        'variables' => [
+          'path' => 'hybrid',
+          'label' => '',
+          'get' => '',
+          'why' => '',
+          'topics' => [],
+          'flow' => [],
+          'technical' => [],
+        ],
+      ],
       // Compare page: flow diagram of the homepage decision.
       'med_compare_flow' => [
         'variables' => ['query' => '', 'path' => 'hybrid', 'images' => ''],
