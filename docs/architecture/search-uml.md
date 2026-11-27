@@ -2,6 +2,28 @@
 
 GitHub renders these Mermaid diagrams in the Markdown **Preview** tab. The diagrams cover the request path and its main services. They omit Drupal infrastructure and administrative classes.
 
+## End-to-end example
+
+```mermaid
+flowchart TD
+    XML["MedlinePlus XML snapshot"] --> Import["Drupal Migrate imports selected topics"]
+    Import --> Content["Drupal stores topics, taxonomy, resources, and relationships"]
+    Content --> Index["Search API indexes topic text in Solr"]
+    Content --> Embeddings["Drupal AI embeds topic text for PostgreSQL / pgvector"]
+    Query["Visitor types: knee pain when walking"] --> Router["Homepage picks Hybrid for this topic phrase"]
+    Router --> Keyword["Solr ranks word matches"]
+    Router --> Semantic["Drupal AI embeds the query; pgvector ranks similar topics"]
+    Index -.-> Keyword
+    Embeddings -.-> Semantic
+    Keyword --> Fusion["Reciprocal Rank Fusion merges both lists"]
+    Semantic --> Fusion
+    Fusion --> Enrich["Drupal loads the ranked topics and their related content"]
+    Content -.-> Enrich
+    Enrich --> Results["Visitor sees ranked topics, source links, and relevant resources"]
+```
+
+Follow **Knee Injuries and Disorders** as an example of a topic in the index. Its title and text can contribute keyword matches, while its stored vector can contribute a semantic match. Hybrid combines the two rankings, and Drupal uses the original topic and its references to build the result card. The exact position depends on the query and the search configuration.
+
 ## How the homepage chooses a search path
 
 ```mermaid
