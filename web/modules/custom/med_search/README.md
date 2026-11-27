@@ -10,6 +10,7 @@ Searches the 24 imported MedlinePlus health topics in four ways and explains how
 Results are enriched with terminology, related topics and healthcare resources from the imported structured data.
 
 For the design and the evidence behind it, see
+[UML diagrams](../../../../docs/architecture/search-uml.md),
 [semantic search](../../../../docs/architecture/003-semantic-search.md),
 [lexical and hybrid](../../../../docs/architecture/005-lexical-hybrid-search.md),
 [conversational search](../../../../docs/architecture/006-conversational-search.md) and
