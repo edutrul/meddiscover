@@ -138,7 +138,15 @@ No form changes are needed: the registry, the form and the Developer mode panel 
 
 ## Testing
 
-Contract tests run in CI against a synthetic two-topic fixture:
+PHPUnit (Unit and Kernel), configured in the root `phpunit.xml.dist`:
+
+```sh
+ddev exec vendor/bin/phpunit                     # all suites
+ddev exec vendor/bin/phpunit --testsuite unit    # RRF, homepage routing, query and answer rules
+ddev exec vendor/bin/phpunit --testsuite kernel  # real container: tagged strategies, routes, services
+```
+
+Contract tests also run in CI against a synthetic two-topic fixture:
 
 ```sh
 ddev drush php:script scripts/search/test.php
