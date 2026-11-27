@@ -42,6 +42,13 @@ final class AiGenerator implements GeneratorInterface, LoggerAwareInterface {
 
   /**
    * {@inheritdoc}
+   *
+   * ConversationalSearch supplies the question, retrieved excerpts, and a
+   * schema for statements with citations. For "What is HbA1c?", the prompt
+   * can include an excerpt from A1C labeled S1. The configured Drupal AI chat
+   * provider generates the structured response for the caller to verify.
+   *
+   * @see \Drupal\med_search\ConversationalSearch::search()
    */
   public function generate(string $system, string $user, array $schema): array {
     $defaults = $this->providers->getDefaultProviderForOperationType(self::MED_OPERATION);

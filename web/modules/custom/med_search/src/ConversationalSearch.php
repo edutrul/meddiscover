@@ -97,6 +97,15 @@ TXT;
 
   /**
    * {@inheritdoc}
+   *
+   * With semantic retrieval, a question such as "What is HbA1c?" is embedded
+   * by SemanticSearch and matched against stored topic vectors in pgvector.
+   * The retriever returns ranked topics, such as A1C. This method adds excerpts
+   * from the top accepted topics to the chat prompt and verifies the returned
+   * statements against those sources.
+   *
+   * @see \Drupal\med_search\SemanticSearch::search()
+   * @see \Drupal\med_search\AiGenerator::generate()
    */
   public function search(string $query, ?int $limit = NULL, bool $includePrompt = FALSE): array {
     $config = $this->configFactory->get('med_search.settings');

@@ -107,7 +107,14 @@ final class SemanticSearch {
   }
 
   /**
-   * Rank by actual cosine distance, rejecting stale or inaccessible topics.
+   * Ranks accessible topics using pgvector cosine similarity.
+   *
+   * embedQuery() converts the question to a vector in the same space as the
+   * precomputed topic vectors. For example, "What is HbA1c?" can match A1C.
+   * The caller receives accepted topics and scores for display or use as
+   * conversational evidence. Embedding debug output can include the vector.
+   *
+   * @see \Drupal\med_search\AiEmbedder::embedQuery()
    */
   public function search(string $query, ?float $threshold = NULL, ?int $limit = NULL, bool $includeEmbedding = FALSE): array {
     $query = trim($query);
