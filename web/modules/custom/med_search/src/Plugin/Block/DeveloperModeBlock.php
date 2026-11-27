@@ -19,7 +19,7 @@ use Drupal\Core\StringTranslation\TranslatableMarkup;
   admin_label: new TranslatableMarkup('medDiscover developer mode'),
   category: new TranslatableMarkup('medDiscover'),
 )]
-class DeveloperModeBlock extends BlockBase {
+final class DeveloperModeBlock extends BlockBase {
 
   /**
    * {@inheritdoc}

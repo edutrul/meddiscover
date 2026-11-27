@@ -29,7 +29,9 @@ A small `med_search` module contains:
 - `SemanticSearch`: builds the deterministic topic input (`topic-v1`), indexes topics and runs the exact cosine query.
 - `SemanticSearchForm`: a Form API page at `/search/semantic` using the `access content` permission and the active Olivero theme.
 
-The [Drupal AI](https://www.drupal.org/project/ai) module, with its Ollama provider and PostgreSQL vector database integrations, was reviewed. It was not adopted for this phase because those integrations are prerelease. A thin adapter keeps exact retrieval and the model-digest checks under direct test. Revisit when Phase 05/06 needs a broader provider abstraction.
+Drupal AI and its [Ollama Provider](https://www.drupal.org/project/ai_provider_ollama) remain candidates for embedding generation. The initial implementation used the direct adapter while the integrations were prerelease. In a live HTTP comparison with Ollama 0.40.18, the endpoint used by Ollama Provider 1.2.0-rc3 reproduced the same cosine distance for a short query. For a longer input made from three MedlinePlus summaries, `/v1/embeddings` returned HTTP 200 and reported 2,048 prompt tokens. The direct `/api/embed` request with `truncate: false` and a 2,048-token context returned HTTP 400. This compared endpoints directly.
+
+Keep the direct adapter until strict handling of oversized input is available through the provider and the integration can preserve model-digest and vector validation. Track strict mode in [Drupal issue #3612033](https://git.drupalcode.org/project/ai_provider_ollama/-/work_items/3612033) and adoption in [medDiscover issue #17](https://github.com/edutrul/meddiscover/issues/17). Before switching, exercise the provider end to end in Drupal with both inputs.
 
 ### Storage
 

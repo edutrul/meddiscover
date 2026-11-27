@@ -63,7 +63,9 @@ All four were then compared on the full Phase 06 query set ([results](../evaluat
 
 ## Dependency injection (#14)
 
-- **Strategy registry.** `med_search.strategies` (`SearchStrategyRegistry`) collects every service tagged `med_search.strategy` through Drupal's `service_collector`. `SearchForm::create()` gets its strategy from the registry, using the route's `strategy` default.
+- **Strategy registry.** `med_search.strategies` (`SearchStrategyRegistry`) collects every service tagged `med_search.strategy` through Drupal's `service_collector`. `SearchForm` receives the registry. Drupal's `FormController` passes the route's `strategy` default (and `automatic_strategy` on the homepage) to `buildForm()` by parameter name, and the form looks the strategy up there. Each strategy describes itself with `label()` and `description()`.
+- **Homepage routing.** `med_search.homepage_router` (`HomepageRouter`) holds the one rule: urgent wording, then a question (Ask), otherwise Hybrid. `SearchForm`, `CompareSearchForm` and the Compare breakdown all use it.
+- **Presentation builders.** `med_search.result_builder` (result cards, enrichment, topic filter) and `med_search.debug_panel` (Developer mode panel) keep `SearchForm` focused on form flow.
 - **Composed strategies.** `HybridSearch` and `ConversationalSearch` receive their component strategies as service arguments through factories. `ConversationalSearch` gets semantic, lexical and hybrid and picks one by configuration at query time. Nothing receives the service container.
 - **Current user.** `SemanticSearch`, `LexicalSearch` and `ResultEnricher` receive `current_user` and pass it to `access('view', $account)`.
 - **Generator alias.** `GeneratorInterface` is aliased to `med_search.generator` for autowiring.

@@ -1,0 +1,128 @@
+{#
+/**
+ * @file
+ * Developer mode: how the homepage computes its answer, with live values.
+ *
+ * Available variables:
+ * - path: 'hybrid', 'ask' or 'urgent'.
+ * - query, pattern, reason, urgent: the routing decision.
+ * - solr_q, solr_mm, solr_mm_all, lexical, lexical_ms: the Solr step.
+ * - embedding_input, embedding_model, dimensions, vector_head, embedding_ms,
+ *   threshold, semantic, semantic_ms: the embedding and pgvector step.
+ * - k, depth, rrf, fusion_ms: Reciprocal Rank Fusion.
+ * - rag_sources, rag_chars, answer_sources, generation_model,
+ *   generation_max, generation_ms, answer_status, answer_statements,
+ *   answer_dropped, answer_embedding_ms, answer_retrieval_ms: the RAG steps.
+ */
+#}
+{% set semantic_step %}
+  <p>{% trans %}<strong>1. Embed the query.</strong> Drupal sends <code>{{ embedding_input }}</code> through the Drupal AI module’s default embeddings provider (Ollama, native <code>/api/embed</code> with truncation disabled) with model <code>{{ embedding_model }}</code>. The <code>search_query:</code> prefix is required by this model (topics were embedded with <code>search_document:</code>). The response is a vector of <strong>{{ dimensions }}</strong> numbers.{% endtrans %}
+  {% if vector_head %}{% trans %}First values: <code>[{{ vector_head }}, …]</code>.{% endtrans %}{% endif %}
+  {% trans %}Time: {{ embedding_ms }}. The model digest is pinned, so query vectors and the stored topic vectors always come from the same model.{% endtrans %}</p>
+  <p>{% trans %}<strong>2. Compare with pgvector.</strong> Each topic has one stored vector (title, description, summary, alternative names and MeSH terms). PostgreSQL computes <code>similarity = 1 − (embedding &lt;=&gt; query)</code>, where <code>&lt;=&gt;</code> is pgvector’s cosine distance, for every topic: an exact scan, no approximate index, which is fine at this size. Topics below <strong>{{ threshold }}</strong> are dropped. Time: {{ semantic_ms }}.{% endtrans %}</p>
+  {% if semantic %}
+    <table>
+      <thead><tr><th>{{ 'Rank'|t }}</th><th>{{ 'Topic'|t }}</th><th>{{ 'Cosine similarity'|t }}</th><th>{{ 'Cosine distance'|t }}</th></tr></thead>
+      <tbody>
+        {% for row in semantic %}
+          <tr><td>{{ row.rank }}</td><td>{{ row.title }}</td><td>{{ row.cosine }}</td><td>{{ row.distance }}</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p><em>{% trans %}No topic reached the {{ threshold }} cutoff.{% endtrans %}</em></p>
+  {% endif %}
+{% endset %}
+
+<ol class="med-tech-steps">
+{% if path == 'urgent' %}
+  <li><h4>{{ 'Urgent wording comes first'|t }}</h4>
+    <p>{% trans %}<code>UrgencyDetector</code> runs before routing and before any search. It matches fixed patterns for emergency (“chest pain”, “can’t breathe”, “throat swelling”, unresponsiveness, poisoning, stroke signs…) and crisis wording (self-harm, overdose). This input matched the <strong>{{ urgent }}</strong> group, so the homepage shows a fixed safety message (911 / 988) and never calls the language model. Patterns favour recall: a false alarm only adds a safety message. Misspellings (“chess pain”) are not caught.{% endtrans %}</p>
+  </li>
+{% else %}
+  <li><h4>{{ 'Routing: question or topic?'|t }}</h4>
+    <p>{% trans %}Before any search, the homepage checks urgent wording, then tests the input against one regular expression (<code>HomepageRouter::MED_QUESTION_PATTERN</code>, case-insensitive):{% endtrans %}</p>
+    <pre><code>{{ pattern }}</code></pre>
+    <p>{% trans %}It matches a trailing <code>?</code>, a leading question word (what, why, when, where, who, which, how) followed by another word, or a leading auxiliary followed by a pronoun or article (“is the”, “can I”, “do you”…).{% endtrans %}
+    {% if reason %}
+      <strong>{% trans %}“{{ query }}” {{ reason }} → Ask (RAG).{% endtrans %}</strong>
+    {% else %}
+      <strong>{% trans %}“{{ query }}” matches none of the three alternatives → Hybrid (Keyword + Semantic).{% endtrans %}</strong>
+    {% endif %}
+    {% trans %}No model is involved in this decision, so it is instant and predictable; the trade-off is that a question written without a question word (“HbA1c normal range”) is treated as a topic search.{% endtrans %}</p>
+  </li>
+
+  {% if path == 'ask' %}
+    <li><h4>{{ 'Retrieve sources (the “R” in RAG): Semantic search'|t }}</h4>
+      {{ semantic_step }}
+      <p>{% trans %}<strong>Why Semantic, not Hybrid:</strong> everything retrieved here is handed to the language model, so precision matters more than completeness. Keyword search counts question words such as “how”, “do” and “I” toward its must-match rule, which can pull in unrelated topics; in our tests Semantic rejected all 10 unrelated questions.{% endtrans %}</p>
+      <p>{% trans %}<strong>Evidence check:</strong> if no topic reaches {{ threshold }}, the pipeline stops here and says the collection has no matching topic. The writing model is never called.{% endtrans %}</p>
+    </li>
+    <li><h4>{{ 'Augment the prompt and generate (the “AG”)'|t }}</h4>
+      <p>{% trans %}The top {{ rag_sources }} topics become labeled sources of up to {{ rag_chars }} characters each (title, description, plain summary). Angle brackets in source text are neutralized, so a source cannot open or close a source block, and the system prompt says sources are data, never instructions.{% endtrans %}</p>
+      {% if answer_sources %}
+        <table>
+          <thead><tr><th>{{ 'Label'|t }}</th><th>{{ 'Source topic'|t }}</th></tr></thead>
+          <tbody>
+            {% for row in answer_sources %}
+              <tr><td>{{ row.label }}</td><td>{{ row.title }}</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% endif %}
+      <p>{% trans %}The Drupal AI module sends a structured chat request (operation <code>chat_with_structured_response</code>) to the configured provider, here Ollama, with model <code>{{ generation_model }}</code>, temperature 0, fixed seed, at most {{ generation_max }} output tokens. The output must follow a <strong>JSON schema</strong>: <code>{answerable, statements: [{text, sources}]}</code>, where <code>sources</code> is an enum of the labels above, so the model cannot even write a citation to a source it was not given. Time: {{ generation_ms }}.{% endtrans %}</p>
+    </li>
+    <li><h4>{{ 'Verify before showing'|t }}</h4>
+      <p>{% trans %}Drupal checks the structure and every citation label; rejects text that diagnoses (“you likely have…”), gives doses (“500 mg”), names contacts or links; and drops any sentence whose content words overlap less than 60% with its cited source. If the model says the sources do not answer the question, or nothing survives, the page abstains.{% endtrans %}</p>
+      {% if answer_status %}
+        <p>{% trans %}<strong>This answer:</strong> status <code>{{ answer_status }}</code>, {{ answer_statements }} statement(s) shown, {{ answer_dropped }} dropped as unsupported.{% endtrans %}</p>
+      {% endif %}
+      <p>{% trans %}Times for this answer: embedding {{ answer_embedding_ms }}, retrieval {{ answer_retrieval_ms }}, generation {{ generation_ms }}. Generation dominates: retrieval takes milliseconds, writing takes seconds on the demo server’s CPU.{% endtrans %}</p>
+    </li>
+  {% else %}
+    <li><h4>{{ 'Keyword (Lexical): Apache Solr'|t }}</h4>
+      <p>{% trans %}Drupal’s Search API Solr sends an <strong>EDisMax</strong> query. The keywords are escaped and sent as <code>q = {{ solr_q }}</code>; Solr’s English analyzer lowercases, removes stopwords and stems them (“problems” → “problem”).{% endtrans %}</p>
+      <p>{% trans %}<strong>Must-match rule <code>mm = {{ solr_mm }}</code>:</strong>{% endtrans %}
+      {% if solr_mm_all %}
+        {% trans %}with up to {{ solr_mm_all }} terms every term is required; with more, 75% of them (rounded down).{% endtrans %}
+      {% else %}
+        {{ 'Solr’s minimum-should-match setting for this query.'|t }}
+      {% endif %}
+      {{ 'This blocks topics that share only one stray word.'|t }}</p>
+      <p>{% trans %}<strong>Scoring:</strong> BM25 (term frequency × rarity, normalized by field length), multiplied by field boosts: title 13 (exact/unstemmed title 21), also-called names 8 (unstemmed 13), MeSH 5, description 3, see-also references 3, summary 1, groups 1. A phrase boost (<code>pf</code>) rewards the whole query appearing as a phrase in the exact title (×21), an alternative name (×13) or a see-also reference (×5). Scores are only comparable within one search. Time: {{ lexical_ms }}.{% endtrans %}</p>
+      {% if lexical %}
+        <table>
+          <thead><tr><th>{{ 'Rank'|t }}</th><th>{{ 'Topic'|t }}</th><th>{{ 'Solr score'|t }}</th></tr></thead>
+          <tbody>
+            {% for row in lexical %}
+              <tr><td>{{ row.rank }}</td><td>{{ row.title }}</td><td>{{ row.score }}</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <p><em>{{ 'No topic satisfied the must-match rule.'|t }}</em></p>
+      {% endif %}
+    </li>
+    <li><h4>{{ 'Semantic: Ollama embeddings + pgvector'|t }}</h4>
+      {{ semantic_step }}
+    </li>
+    <li><h4>{% trans %}Reciprocal Rank Fusion (RRF), k = {{ k }}{% endtrans %}</h4>
+      <p>{% trans %}Solr scores (unbounded BM25) and cosine similarities (between −1 and 1) are on different scales, so adding them would be meaningless. RRF uses only <strong>positions</strong>: from each list (up to {{ depth }} candidates each), a topic at rank <em>r</em> earns <code>1 / ({{ k }} + r)</code> points; a topic missing from a list earns 0 from it. The points are summed and sorted. Ties go to the topic found by more lists, then the better single rank, then Keyword first.{% endtrans %}</p>
+      <p>{% trans %}<strong>Why k = {{ k }}:</strong> a large constant makes neighbouring ranks worth almost the same (1/61 vs 1/62), so <em>appearing in both lists</em> matters more than being first in one. It is the standard value from the original RRF paper (Cormack, Clarke and Büttcher, 2009); on our 48 test searches any k from 0 to 1000 produced the same top 5. Fusion time: {{ fusion_ms }}.{% endtrans %}</p>
+      {% if rrf %}
+        <table>
+          <thead><tr><th>{{ 'Final rank'|t }}</th><th>{{ 'Topic'|t }}</th><th>{{ 'Keyword rank'|t }}</th><th>{{ 'Semantic rank'|t }}</th><th>{{ 'Keyword points'|t }}</th><th>{{ 'Semantic points'|t }}</th><th>{{ 'RRF total'|t }}</th></tr></thead>
+          <tbody>
+            {% for row in rrf %}
+              <tr><td>{{ row.rank }}</td><td>{{ row.title }}</td><td>{{ row.lexical_rank }}</td><td>{{ row.semantic_rank }}</td><td>{{ row.lexical_points }}</td><td>{{ row.semantic_points }}</td><td><strong>{{ row.total }}</strong></td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        <p>{{ 'The top 5 by RRF total are exactly the list the homepage shows.'|t }}</p>
+      {% else %}
+        <p><em>{{ 'Neither list had a topic, so there is nothing to fuse: the homepage says “No topics matched closely enough.”'|t }}</em></p>
+      {% endif %}
+    </li>
+  {% endif %}
+{% endif %}
+</ol>

@@ -18,37 +18,72 @@
     return snapshot;
   }
 
-  function applyView(form, view) {
-    const filter = form.querySelector('.med-result-filter');
-    if (!filter) {
+  function applyView(form, view, topic = 'all') {
+    const results = form.querySelector('.med-results');
+    if (!results) {
       return;
     }
-    filter.hidden = false;
-    filter.querySelectorAll('[data-med-result-view]').forEach((button) => {
-      button.setAttribute('aria-pressed', String(button.dataset.medResultView === view));
-    });
-    const results = filter.closest('.med-results');
+    const filter = results.querySelector('.med-result-filter');
+    if (filter) {
+      filter.hidden = false;
+      filter.querySelectorAll('[data-med-result-view]').forEach((button) => {
+        button.setAttribute('aria-pressed', String(button.dataset.medResultView === view));
+      });
+    }
+    const topicResults = results.querySelector('[data-med-topic-results]');
+    if (topicResults) {
+      topicResults.querySelector('.med-topic-facet').hidden = view === 'answer';
+      topicResults.querySelectorAll('[data-med-topic-filter]').forEach((button) => {
+        button.setAttribute('aria-pressed', String(button.dataset.medTopicFilter === topic));
+      });
+    }
     // Urgent notices and search errors are always visible.
     results.querySelectorAll('.med-answer:not(.med-answer--urgent)').forEach((answer) => {
       answer.hidden = view === 'topics';
     });
-    results.querySelectorAll('.result-card, [data-med-topic-heading]').forEach((topic) => {
-      topic.hidden = view === 'answer';
+    let matching = 0;
+    results.querySelectorAll('.result-card').forEach((card) => {
+      const groups = (card.dataset.medTopicGroups ?? '').split(' ');
+      const matches = topic === 'all' || groups.includes(topic);
+      matching += Number(matches);
+      card.hidden = view === 'answer' || !matches;
+    });
+    const heading = results.querySelector('[data-med-results-heading]');
+    heading.classList.toggle('visually-hidden', view === 'answer');
+    heading.textContent = view === 'answer' ? Drupal.t('Answer') :
+      Drupal.formatPlural(matching, '1 health topic', '@count health topics');
+    results.querySelectorAll('[data-med-topic-heading]').forEach((heading) => {
+      heading.hidden = view === 'answer';
     });
   }
 
-  function remember(form, view = 'all') {
+  function topicFromUrl(form, label) {
+    const option = Array.from(form.querySelectorAll('[data-med-topic-label]'))
+      .find((button) => button.dataset.medTopicLabel === label);
+    return option?.dataset.medTopicFilter ?? 'all';
+  }
+
+  function remember(form, view = 'all', topic = 'all', replace = false) {
     const id = `${pageKey}-${++next}`;
-    snapshots.set(id, { form: copy(form), view });
+    snapshots.set(id, { form: copy(form), view, topic });
     if (snapshots.size > 16) {
       snapshots.delete(snapshots.keys().next().value);
     }
     const url = new URL(initialUrl);
-    url.searchParams.set('results', id);
-    if (view !== 'all') {
+    const example = form.dataset.medPublicExample;
+    if (example) {
+      url.searchParams.set('example', example);
+    }
+    if (topic !== 'all') {
+      const selected = form.querySelector('[data-med-topic-filter][aria-pressed="true"]');
+      if (selected) {
+        url.searchParams.set('topic', selected.dataset.medTopicLabel);
+      }
+    }
+    if (view !== (form.dataset.medDefaultView ?? 'all')) {
       url.searchParams.set('view', view);
     }
-    history.pushState({ medSearch: id }, '', url);
+    history[replace ? 'replaceState' : 'pushState']({ medSearch: id }, '', url);
   }
 
   Drupal.behaviors.medSearchHistory = {
@@ -57,32 +92,56 @@
         return;
       }
       once('med-search-history', selector, context).forEach((form) => {
+        const incoming = new URL(location.href);
+        initialUrl = new URL(incoming);
+        ['results', 'example', 'topic', 'view'].forEach((param) => initialUrl.searchParams.delete(param));
+        const wantedExample = incoming.searchParams.get('example');
+        const preset = Array.from(form.querySelectorAll('.med-examples__button, [name^="compare_example_"]'))
+          .find((button) => button.value === wantedExample);
+        const wantedTopic = incoming.searchParams.get('topic');
+        const wantedView = incoming.searchParams.get('view');
+        let restoring = Boolean(preset);
+        applyView(form, form.dataset.medDefaultView ?? 'all');
         initial = copy(form);
-        const url = new URL(location.href);
-        if (url.searchParams.has('results')) {
-          url.searchParams.delete('results');
-          url.searchParams.delete('view');
-          history.replaceState(null, '', url);
-        }
-        initialUrl = url;
         tracked.add(form);
+        if (!preset) {
+          const topic = topicFromUrl(form, wantedTopic);
+          if (topic !== 'all') {
+            applyView(form, 'all', topic);
+            remember(form, 'all', topic, true);
+          }
+          else if (incoming.href !== initialUrl.href) {
+            history.replaceState(null, '', initialUrl);
+          }
+        }
         document.addEventListener('htmx:afterSettle', () => {
           const current = document.querySelector(selector);
           if (current && !tracked.has(current) && current.querySelector('[data-med-results-heading]')) {
             tracked.add(current);
-            applyView(current, 'all');
-            remember(current);
+            const reopened = restoring && current.dataset.medPublicExample === wantedExample;
+            const topic = reopened ? topicFromUrl(current, wantedTopic) : 'all';
+            const view = reopened && ['all', 'answer', 'topics'].includes(wantedView) &&
+              current.querySelector('.med-result-filter') ? wantedView : (current.dataset.medDefaultView ?? 'all');
+            applyView(current, view, topic);
+            remember(current, view, topic, reopened);
+            restoring = false;
           }
         });
+        if (preset) {
+          setTimeout(() => preset.click(), 0);
+        }
         document.addEventListener('click', (event) => {
-          const button = event.target.closest('[data-med-result-view]');
+          const button = event.target.closest('[data-med-result-view], [data-med-topic-filter]');
           if (!button || button.getAttribute('aria-pressed') === 'true') {
             return;
           }
           const current = button.closest(selector);
-          const view = button.dataset.medResultView;
-          applyView(current, view);
-          remember(current, view);
+          const selectedView = current.querySelector('[data-med-result-view][aria-pressed="true"]');
+          const selectedTopic = current.querySelector('[data-med-topic-filter][aria-pressed="true"]');
+          const view = button.dataset.medResultView ?? selectedView?.dataset.medResultView ?? 'all';
+          const topic = button.dataset.medTopicFilter ?? selectedTopic?.dataset.medTopicFilter ?? 'all';
+          applyView(current, view, topic);
+          remember(current, view, topic);
         });
         window.addEventListener('popstate', (event) => {
           const current = document.querySelector(selector);
@@ -93,7 +152,7 @@
           const snapshot = snapshots.get(event.state?.medSearch);
           const restored = (snapshot?.form ?? initial).cloneNode(true);
           tracked.add(restored);
-          applyView(restored, snapshot?.view ?? 'all');
+          applyView(restored, snapshot?.view ?? restored.dataset.medDefaultView ?? 'all', snapshot?.topic ?? 'all');
           Drupal.detachBehaviors(current);
           current.replaceWith(restored);
           window.htmx?.process(restored);

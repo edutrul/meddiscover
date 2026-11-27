@@ -29,6 +29,13 @@
   padding-block: var(--md-space-3);
 }
 
+.site-header__utilities > .region {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 var(--md-space-4);
+}
+
 .site-header .site-branding__name a,
 .site-header .site-branding a {
   color: var(--md-color-primary-strong);

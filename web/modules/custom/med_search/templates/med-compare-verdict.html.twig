@@ -1,0 +1,38 @@
+{#
+/**
+ * @file
+ * Compare page: what the homepage would answer for this input, and why.
+ *
+ * Available variables:
+ * - path: 'urgent', 'ask' or 'hybrid' (the homepage route).
+ * - label: the answer type, e.g. "Hybrid (Keyword + Semantic)".
+ * - get: what the visitor would get.
+ * - topics: Hybrid topic links, if any.
+ * - why: why the homepage chose this route.
+ * - flow: the flow diagram (med_compare_flow).
+ * - technical: the Developer mode breakdown, or empty.
+ */
+#}
+<div class="med-verdict med-verdict--{{ path == 'ask' ? 'ask' : 'hybrid' }}">
+  <p class="med-verdict__kicker">{{ 'The homepage would answer with'|t }}</p>
+  <p class="med-verdict__label">{{ label }}</p>
+  <p><strong>{{ "You'd get:"|t }}</strong> {{ get }}</p>
+  {% if topics %}
+    <ol>
+      {% for topic in topics %}
+        <li>{{ topic }}</li>
+      {% endfor %}
+    </ol>
+  {% endif %}
+  <p><strong>{{ 'Why:'|t }}</strong> {{ why }}</p>
+  <p class="med-verdict__rule">
+    {{ 'The rule: a question → Ask (RAG) · anything else → Hybrid (Keyword + Semantic) · urgent wording → safety message first.'|t }}
+    <button type="button" class="med-flow-open" data-med-flow-open aria-haspopup="dialog">{{ 'See the flow diagram'|t }}</button>
+  </p>
+  <dialog class="med-strategy-dialog med-flow-dialog" aria-labelledby="med-flow-title">
+    <h2 id="med-flow-title">{{ 'How the homepage decides'|t }}</h2>
+    {{ flow }}
+    <button type="button" data-med-flow-close>{{ 'Close'|t }}</button>
+  </dialog>
+  {{ technical }}
+</div>

@@ -1,0 +1,61 @@
+diff --git a/src/OllamaControlApi.php b/src/OllamaControlApi.php
+index c6e9ae7..aea6a5e 100644
+--- a/src/OllamaControlApi.php
++++ b/src/OllamaControlApi.php
+@@ -70,6 +70,33 @@ class OllamaControlApi {
+     return $result;
+   }
+ 
++  /**
++   * Embeddings through the native endpoint, with explicit input handling.
++   *
++   * Unlike the OpenAI-compatible /v1/embeddings endpoint, /api/embed honours
++   * "truncate": with FALSE, an input longer than the context is rejected
++   * (HTTP 400) instead of being silently cut.
++   *
++   * @param string $text
++   *   The input text.
++   * @param string $model
++   *   The model.
++   * @param bool $truncate
++   *   Whether Ollama may truncate an input that exceeds the context.
++   * @param int|null $num_ctx
++   *   The context length to use, or NULL for the model default.
++   *
++   * @return array
++   *   The decoded response, with "model" and "embeddings".
++   */
++  public function embed(string $text, string $model, bool $truncate, ?int $num_ctx = NULL): array {
++    $body = ['model' => $model, 'input' => $text, 'truncate' => $truncate];
++    if ($num_ctx) {
++      $body['options'] = ['num_ctx' => $num_ctx];
++    }
++    return Json::decode($this->makeRequest("api/embed", [], 'POST', $body)->getContents());
++  }
++
+   /**
+    * Embeddings vector size.
+    *
+diff --git a/src/Plugin/AiProvider/OllamaProvider.php b/src/Plugin/AiProvider/OllamaProvider.php
+index cfebde6..3d5d354 100644
+--- a/src/Plugin/AiProvider/OllamaProvider.php
++++ b/src/Plugin/AiProvider/OllamaProvider.php
+@@ -225,6 +225,18 @@ class OllamaProvider extends OpenAiBasedProviderClientBase {
+    */
+   public function embeddings(string|EmbeddingsInput $input, string $model_id, array $tags = []): EmbeddingsOutput {
+     $model_id = $this->getModel($model_id);
++    // Strict input handling: the OpenAI-compatible endpoint always truncates
++    // over-long input silently, so a "truncate" setting uses /api/embed.
++    if (array_key_exists('truncate', $this->configuration)) {
++      $this->loadClient();
++      $text = $input instanceof EmbeddingsInput ? $input->getPrompt() : $input;
++      $num_ctx = isset($this->configuration['num_ctx']) ? (int) $this->configuration['num_ctx'] : NULL;
++      $response = $this->controlApi->embed($text, $model_id, (bool) $this->configuration['truncate'], $num_ctx);
++      if (!isset($response['embeddings'][0]) || !is_array($response['embeddings'][0])) {
++        throw new AiRequestErrorException('Embeddings response missing embedding data.');
++      }
++      return new EmbeddingsOutput($response['embeddings'][0], $response, []);
++    }
+     return parent::embeddings($input, $model_id, $tags);
+   }
+ 

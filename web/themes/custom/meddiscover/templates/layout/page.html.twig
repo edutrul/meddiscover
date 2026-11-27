@@ -48,7 +48,9 @@
     <div class="site-header__inner">
       {{ page.header }}
       {{ page.primary_menu }}
-      {{ page.secondary_menu }}
+      {% if page.secondary_menu %}
+        <div class="site-header__utilities">{{ page.secondary_menu }}</div>
+      {% endif %}
     </div>
   </header>
 

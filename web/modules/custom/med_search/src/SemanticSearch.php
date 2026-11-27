@@ -13,14 +13,14 @@ use Drupal\node\NodeInterface;
 /**
  * Indexes topic inputs and performs exact PostgreSQL cosine search.
  */
-class SemanticSearch {
+final class SemanticSearch {
 
-  public const INPUT_VERSION = 'topic-v1';
+  public const MED_INPUT_VERSION = 'topic-v1';
 
   public function __construct(
     private Connection $db,
     private EntityTypeManagerInterface $entities,
-    private OllamaEmbedder $embedder,
+    private EmbedderInterface $embedder,
     private ConfigFactoryInterface $configFactory,
     private LockBackendInterface $lock,
     private TimeInterface $time,
@@ -71,7 +71,11 @@ class SemanticSearch {
       foreach ($storage->loadMultiple($ids) as $node) {
         $text = $this->input($node);
         $hash = hash('sha256', $text);
-        $args = [':topic' => $node->id(), ':digest' => $config->get('model_digest'), ':version' => self::INPUT_VERSION];
+        $args = [
+          ':topic' => $node->id(),
+          ':digest' => $config->get('model_digest'),
+          ':version' => self::MED_INPUT_VERSION,
+        ];
         $existing = $this->db->query("SELECT content_hash, dimensions FROM {med_topic_embeddings} WHERE topic_id = :topic AND model_digest = :digest AND input_version = :version AND slot = 'topic'", $args)->fetchAssoc();
         if ($existing && $existing['content_hash'] === $hash && (int) $existing['dimensions'] === (int) $config->get('dimensions')) {
           $counts['skipped']++;
@@ -83,7 +87,7 @@ class SemanticSearch {
         }
         $vector = $this->embedder->embed($text);
         $args += [
-          ':model' => $config->get('model'),
+          ':model' => $this->embedder->modelId(),
           ':dimensions' => $config->get('dimensions'),
           ':hash' => $hash,
           ':text' => $text,
@@ -103,9 +107,16 @@ class SemanticSearch {
   }
 
   /**
-   * Rank by actual cosine distance, rejecting stale or inaccessible topics.
+   * Ranks accessible topics using pgvector cosine similarity.
+   *
+   * The embedQuery() method converts the question to a vector in the same
+   * space as the precomputed topic vectors. "What is HbA1c?" can match A1C.
+   * The caller receives accepted topics and scores for display or use as
+   * conversational evidence. Embedding debug output can include the vector.
+   *
+   * @see \Drupal\med_search\AiEmbedder::embedQuery()
    */
-  public function search(string $query, ?float $threshold = NULL, ?int $limit = NULL): array {
+  public function search(string $query, ?float $threshold = NULL, ?int $limit = NULL, bool $includeEmbedding = FALSE): array {
     $query = trim($query);
     if ($query === '' || mb_strlen($query) > 500) {
       throw new \InvalidArgumentException('Enter a query between 1 and 500 characters.');
@@ -117,15 +128,14 @@ class SemanticSearch {
       throw new \InvalidArgumentException('Invalid search threshold or result limit.');
     }
     $start = hrtime(TRUE);
-    $this->embedder->verifyModel();
-    $vector = $this->embedder->embed('search_query: ' . $query);
+    $vector = $this->embedder->embedQuery($query);
     $embedding_ms = (hrtime(TRUE) - $start) / 1e6;
     $start = hrtime(TRUE);
     $args = [
       ':vector' => json_encode($vector, JSON_THROW_ON_ERROR),
       ':digest' => $config->get('model_digest'),
       ':dimensions' => $config->get('dimensions'),
-      ':version' => self::INPUT_VERSION,
+      ':version' => self::MED_INPUT_VERSION,
     ];
     // Filter freshness/access before limiting the exact ranking, so stale rows
     // cannot hide valid lower-ranked topics.
@@ -149,7 +159,19 @@ class SemanticSearch {
         break;
       }
     }
-    return ['results' => $results, 'embedding_ms' => $embedding_ms, 'retrieval_ms' => (hrtime(TRUE) - $start) / 1e6];
+    $response = [
+      'results' => $results,
+      'embedding_ms' => $embedding_ms,
+      'retrieval_ms' => (hrtime(TRUE) - $start) / 1e6,
+    ];
+    if ($includeEmbedding) {
+      $response['embedding_debug'] = [
+        'model' => $this->embedder->modelId(),
+        'input' => $this->embedder->queryInput($query),
+        'response' => ['dimensions' => count($vector), 'embedding' => $vector],
+      ];
+    }
+    return $response;
   }
 
 }

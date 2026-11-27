@@ -2,6 +2,10 @@
 
 namespace Drupal\med_search;
 
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerAwareTrait;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Session\AccountInterface;
@@ -16,12 +20,16 @@ use Drupal\search_api_solr\SolrBackendInterface;
  * query-time behavior: EDisMax with a minimum-should-match rule, phrase boosts
  * for exact names, exact-name promotion and ambiguity notices.
  */
-class LexicalSearch implements SearchStrategyInterface {
+final class LexicalSearch implements SearchStrategyInterface, LoggerAwareInterface {
+
+  use LoggerAwareTrait;
+
+  use StringTranslationTrait;
 
   /**
    * Fields searched for exact (phrase) names, with phrase boosts.
    */
-  public const PHRASE_FIELDS = [
+  public const MED_PHRASE_FIELDS = [
     'title_unstemmed' => 21,
     'also_called_unstemmed' => 13,
     'see_reference' => 5,
@@ -44,6 +52,20 @@ class LexicalSearch implements SearchStrategyInterface {
   /**
    * {@inheritdoc}
    */
+  public function label(): TranslatableMarkup {
+    return $this->t('Keyword (Lexical)');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function description(): TranslatableMarkup {
+    return $this->t('Matches your words against topic names, alternative terms, MeSH labels and text, using Apache Solr.');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function search(string $query, ?int $limit = NULL): array {
     $config = $this->configFactory->get('med_search.settings');
     $limit ??= (int) $config->get('result_limit');
@@ -60,7 +82,7 @@ class LexicalSearch implements SearchStrategyInterface {
     }
     $names = $backend->getSolrFieldNamesKeyedByLanguage(['en'], $index);
     $phrase_fields = [];
-    foreach (self::PHRASE_FIELDS as $field => $boost) {
+    foreach (self::MED_PHRASE_FIELDS as $field => $boost) {
       $phrase_fields[] = $names[$field]['en'] . '^' . $boost;
     }
 
@@ -78,11 +100,16 @@ class LexicalSearch implements SearchStrategyInterface {
     $search->setOption('solr_param_mm', $keys !== $query ? '4<75%' : (string) $config->get('lexical_min_match'));
     $search->setOption('solr_param_pf', implode(' ', $phrase_fields));
 
+    $capture = $this->currentUser->hasPermission('view med search ranking details');
+    $search->setOption('med_solr_debug', $capture);
     $start = hrtime(TRUE);
     try {
-      $items = $search->execute()->getResultItems();
+      $result_set = $search->execute();
+      $items = $result_set->getResultItems();
     }
-    catch (\Throwable) {
+    catch (\Throwable $e) {
+      // Class only: messages can contain the query or the prompt.
+      $this->logger?->warning('Solr lexical search failed: @class.', ['@class' => $e::class]);
       // Do not rethrow: backend messages can contain the request.
       throw new \RuntimeException('Lexical search is unavailable.');
     }
@@ -116,20 +143,35 @@ class LexicalSearch implements SearchStrategyInterface {
 
     $notices = [];
     if (count($exact) > 1) {
-      $notices[] = sprintf('“%s” is a name used by several topics: %s. Choose the one that fits.', $query, implode(', ', $exact));
+      $notices[] = $this->t('“@query” is a name used by several topics: @topics. Choose the one that fits.', [
+        '@query' => $query,
+        '@topics' => implode(', ', $exact),
+      ]);
     }
-    return [
+    $response = [
       'results' => $results,
       'timings' => ['lexical_ms' => (hrtime(TRUE) - $start) / 1e6],
       'notices' => $notices,
     ];
+    if ($capture && $parameters = $search->getOption('med_solr_debug_params')) {
+      $raw = $result_set->getExtraData('search_api_solr_response');
+      $response['solr_debug'] = [
+        'parameters' => $parameters,
+        'solr_matches' => $raw['response']['numFound'] ?? $result_set->getResultCount(),
+        'website_results' => array_map(static fn(array $item): array => [
+          'title' => $item['node']->label(),
+          'score' => $item['score'],
+        ], $results),
+      ];
+    }
+    return $response;
   }
 
   /**
    * {@inheritdoc}
    */
-  public function describeScore(array $result): string {
-    return 'Solr relevance score: ' . number_format($result['score'], 2) . ' (comparable only within this search)';
+  public function describeScore(array $result): TranslatableMarkup {
+    return $this->t('Solr relevance score: @score (comparable only within this search)', ['@score' => number_format($result['score'], 2)]);
   }
 
   /**

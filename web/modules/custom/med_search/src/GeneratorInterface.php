@@ -11,6 +11,11 @@ namespace Drupal\med_search;
 interface GeneratorInterface {
 
   /**
+   * The answer model ID, for display and debugging.
+   */
+  public function modelId(): string;
+
+  /**
    * Generate one JSON object matching $schema.
    *
    * @param string $system

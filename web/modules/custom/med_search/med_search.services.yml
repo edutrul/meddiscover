@@ -1,19 +1,48 @@
 services:
+  med_search.solr_debug:
+    class: Drupal\med_search\SolrDebugSubscriber
+    tags: [{ name: event_subscriber }]
   med_search.embedder:
-    class: Drupal\med_search\OllamaEmbedder
-    arguments: ['@http_client', '@config.factory']
+    class: Drupal\med_search\AiEmbedder
+    arguments: ['@ai.provider', '@config.factory']
+    calls: [[setLogger, ['@logger.channel.med_search']]]
   med_search.search:
     class: Drupal\med_search\SemanticSearch
     arguments: ['@database', '@entity_type.manager', '@med_search.embedder', '@config.factory', '@lock', '@datetime.time', '@current_user']
   med_search.enricher:
     class: Drupal\med_search\ResultEnricher
     arguments: ['@entity_type.manager', '@current_user']
+    calls: [[setStringTranslation, ['@string_translation']]]
   med_search.generator:
-    class: Drupal\med_search\OllamaGenerator
-    arguments: ['@http_client', '@config.factory']
+    class: Drupal\med_search\AiGenerator
+    arguments: ['@ai.provider', '@config.factory']
+    calls: [[setLogger, ['@logger.channel.med_search']]]
   Drupal\med_search\GeneratorInterface: '@med_search.generator'
+  Drupal\med_search\EmbedderInterface: '@med_search.embedder'
   med_search.urgency:
     class: Drupal\med_search\UrgencyDetector
+  med_search.strategy_brand:
+    class: Drupal\med_search\StrategyBrand
+    arguments: ['@extension.list.module']
+  logger.channel.med_search:
+    parent: logger.channel_base
+    arguments: ['med_search']
+  med_search.homepage_router:
+    class: Drupal\med_search\HomepageRouter
+    arguments: ['@med_search.urgency']
+    calls: [[setStringTranslation, ['@string_translation']]]
+  med_search.result_builder:
+    class: Drupal\med_search\Render\SearchResultBuilder
+    arguments: ['@med_search.enricher', '@current_user']
+    calls: [[setStringTranslation, ['@string_translation']]]
+  med_search.compare_verdict:
+    class: Drupal\med_search\Render\CompareVerdictBuilder
+    arguments: ['@med_search.homepage_router', '@med_search.generator', '@config.factory', '@med_search.strategy_brand', '@current_user']
+    calls: [[setStringTranslation, ['@string_translation']]]
+  med_search.debug_panel:
+    class: Drupal\med_search\Render\SearchDebugPanel
+    arguments: ['@med_search.strategies', '@config.factory', '@med_search.strategy_brand', '@med_search.embedder', '@med_search.generator']
+    calls: [[setStringTranslation, ['@string_translation']]]
 
   # Search strategies: every service tagged med_search.strategy is collected
   # by med_search.strategies and reachable by its id().
@@ -24,18 +53,26 @@ services:
   med_search.strategy.semantic:
     class: Drupal\med_search\SemanticStrategy
     arguments: ['@med_search.search']
+    calls: [[setStringTranslation, ['@string_translation']]]
     tags: [{ name: med_search.strategy }]
   med_search.strategy.lexical:
     class: Drupal\med_search\LexicalSearch
     arguments: ['@entity_type.manager', '@config.factory', '@plugin.manager.search_api.parse_mode', '@current_user']
+    calls:
+      - [setStringTranslation, ['@string_translation']]
+      - [setLogger, ['@logger.channel.med_search']]
     tags: [{ name: med_search.strategy }]
   med_search.strategy.hybrid:
     class: Drupal\med_search\HybridSearch
     factory: ['Drupal\med_search\HybridSearch', 'create']
     arguments: ['@med_search.strategy.lexical', '@med_search.strategy.semantic', '@config.factory']
+    calls:
+      - [setStringTranslation, ['@string_translation']]
+      - [setLogger, ['@logger.channel.med_search']]
     tags: [{ name: med_search.strategy }]
   med_search.strategy.conversational:
     class: Drupal\med_search\ConversationalSearch
     factory: ['Drupal\med_search\ConversationalSearch', 'create']
     arguments: ['@med_search.strategy.semantic', '@med_search.strategy.lexical', '@med_search.strategy.hybrid', '@med_search.generator', '@med_search.urgency', '@config.factory']
+    calls: [[setStringTranslation, ['@string_translation']]]
     tags: [{ name: med_search.strategy }]

@@ -106,7 +106,7 @@ try {
      * {@inheritdoc}
      */
     public function getFormId() {
-      return 'med_lexical_search';
+      return 'med_search';
     }
 
     /**
@@ -123,7 +123,7 @@ try {
 
   };
   $form_state = (new FormState())->setFormObject($form_object)->setValue('query', 'more sources please');
-  $form_id = 'med_lexical_search';
+  $form_id = 'med_search';
   \Drupal::moduleHandler()->alter('form', $form, $form_state, $form_id);
   act_expect(isset($form['results'][0]['activation']['list']) && !isset($form['results']['heading']['activation']), 'Search results must receive Next steps.');
   $other = ['results' => [0 => ['#med_topic' => $one]]];

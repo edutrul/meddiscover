@@ -171,6 +171,20 @@ try {
     /**
      * {@inheritdoc}
      */
+    public function label(): string {
+      return 'Synthetic semantic';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function description(): string {
+      return 'Synthetic semantic description.';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
     public function search(string $query, ?int $limit = NULL): array {
       if ($this->results === NULL) {
         throw new RuntimeException('Provider unavailable (synthetic).');

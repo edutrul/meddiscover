@@ -2,6 +2,10 @@
 
 namespace Drupal\med_search;
 
+use Psr\Log\LoggerAwareInterface;
+use Psr\Log\LoggerAwareTrait;
+use Drupal\Core\StringTranslation\StringTranslationTrait;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\Core\Config\ConfigFactoryInterface;
 
 /**
@@ -10,7 +14,11 @@ use Drupal\Core\Config\ConfigFactoryInterface;
  * Only ranks are fused. Solr scores and cosine similarities have different,
  * query-dependent scales, so they are never added or normalized together.
  */
-class HybridSearch implements SearchStrategyInterface {
+final class HybridSearch implements SearchStrategyInterface, LoggerAwareInterface {
+
+  use LoggerAwareTrait;
+
+  use StringTranslationTrait;
 
   /**
    * Constructs the hybrid strategy.
@@ -42,7 +50,21 @@ class HybridSearch implements SearchStrategyInterface {
   /**
    * {@inheritdoc}
    */
-  public function search(string $query, ?int $limit = NULL): array {
+  public function label(): TranslatableMarkup {
+    return $this->t('Hybrid (Keyword + Semantic)');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function description(): TranslatableMarkup {
+    return $this->t('Combines the lexical and semantic rankings with Reciprocal Rank Fusion.');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function search(string $query, ?int $limit = NULL, bool $includeRanking = FALSE): array {
     $config = $this->configFactory->get('med_search.settings');
     $limit ??= (int) $config->get('result_limit');
     QueryText::validate($query, $limit);
@@ -59,7 +81,9 @@ class HybridSearch implements SearchStrategyInterface {
       catch (\InvalidArgumentException $e) {
         throw $e;
       }
-      catch (\Throwable) {
+      catch (\Throwable $e) {
+        // Class only: messages can contain the query or the prompt.
+        $this->logger?->warning('Hybrid retriever failed: @class.', ['@class' => $e::class]);
         $failed[] = $id;
         continue;
       }
@@ -74,7 +98,10 @@ class HybridSearch implements SearchStrategyInterface {
       throw new \RuntimeException('No retrieval strategy is available.');
     }
     foreach ($failed as $id) {
-      $notices[] = sprintf('%s retrieval is unavailable, so these results use %s ranking only.', ucfirst($id), implode(' and ', array_keys($rankings)));
+      $notices[] = $this->t('@failed retrieval is unavailable, so these results use @used ranking only.', [
+        '@failed' => ucfirst($id),
+        '@used' => implode(' + ', array_keys($rankings)),
+      ]);
     }
 
     $start = hrtime(TRUE);
@@ -83,7 +110,22 @@ class HybridSearch implements SearchStrategyInterface {
       $results[] = ['node' => $nodes[$row['id']]] + $row;
     }
     $timings['fusion_ms'] = (hrtime(TRUE) - $start) / 1e6;
-    return ['results' => $results, 'timings' => $timings, 'notices' => array_values(array_unique($notices))];
+    $response = ['results' => $results, 'timings' => $timings, 'notices' => array_values(array_unique($notices))];
+    if ($includeRanking) {
+      $response['hybrid_debug'] = [
+        'method' => 'Reciprocal Rank Fusion',
+        'k' => $k,
+        'candidate_limit_per_list' => $depth,
+        'input_rankings' => array_map(static fn(array $ids): array => array_map(static fn($id): string => $nodes[$id]->label(), $ids), $rankings),
+        'results' => array_map(static fn(array $row): array => [
+          'title' => $row['node']->label(),
+          'ranks' => $row['ranks'],
+          'points_by_list' => array_map(static fn(int $rank): float => 1 / ($k + $rank), $row['ranks']),
+          'rrf_score' => $row['score'],
+        ], $results),
+      ];
+    }
+    return $response;
   }
 
   /**
@@ -133,12 +175,12 @@ class HybridSearch implements SearchStrategyInterface {
   /**
    * {@inheritdoc}
    */
-  public function describeScore(array $result): string {
-    $ranks = [];
-    foreach (['lexical' => 'Lexical', 'semantic' => 'Semantic'] as $id => $label) {
-      $ranks[] = $label . ' rank ' . ($result['ranks'][$id] ?? '–');
-    }
-    return 'RRF score: ' . number_format($result['score'], 4) . ' (' . implode(', ', $ranks) . ')';
+  public function describeScore(array $result): TranslatableMarkup {
+    return $this->t('RRF score: @score (Lexical rank @lexical, Semantic rank @semantic)', [
+      '@score' => number_format($result['score'], 4),
+      '@lexical' => $result['ranks']['lexical'] ?? '–',
+      '@semantic' => $result['ranks']['semantic'] ?? '–',
+    ]);
   }
 
 }

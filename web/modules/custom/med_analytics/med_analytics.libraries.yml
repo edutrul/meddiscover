@@ -6,3 +6,8 @@ beacon:
     - core/drupal
     - core/drupalSettings
     - core/once
+
+report:
+  css:
+    component:
+      css/report.css: {}

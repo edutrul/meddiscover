@@ -2,6 +2,8 @@
 
 namespace Drupal\med_search;
 
+use Drupal\Core\StringTranslation\TranslatableMarkup;
+
 /**
  * Deterministic detection of possibly urgent situations.
  *
@@ -9,12 +11,12 @@ namespace Drupal\med_search;
  * similarity ranking or a language model. The patterns favor recall; a false
  * positive only adds a safety message.
  */
-class UrgencyDetector {
+final class UrgencyDetector {
 
   /**
    * Pattern groups. Crisis is checked first.
    */
-  public const PATTERNS = [
+  public const MED_PATTERNS = [
     'crisis' => [
       '/\b(kill(ing)? myself|suicid\w*|end (my|it all)|take my (own )?life|self[- ]?harm|hurt(ing)? myself|want to die|better off dead)\b/i',
       '/\b(overdos\w*|took too many (pills|tablets))\b/i',
@@ -37,7 +39,7 @@ class UrgencyDetector {
    * Return 'crisis', 'emergency' or NULL.
    */
   public function detect(string $text): ?string {
-    foreach (self::PATTERNS as $type => $patterns) {
+    foreach (self::MED_PATTERNS as $type => $patterns) {
       foreach ($patterns as $pattern) {
         if (preg_match($pattern, $text)) {
           return $type;
@@ -50,10 +52,10 @@ class UrgencyDetector {
   /**
    * Fixed safety message for a detected type.
    */
-  public static function message(string $type): string {
+  public static function message(string $type): TranslatableMarkup {
     return $type === 'crisis'
-      ? 'If you are thinking about harming yourself or may have taken too much of a medicine, get help now: in the United States call or text 988 (Suicide & Crisis Lifeline) or call 911; elsewhere, call your local emergency number. This site cannot provide crisis support.'
-      : 'This may be a medical emergency. Call 911 in the United States, or your local emergency number, now. Do not wait for online information. This site provides general education only.';
+      ? new TranslatableMarkup('If you are thinking about harming yourself or may have taken too much of a medicine, get help now: in the United States call or text 988 (Suicide & Crisis Lifeline) or call 911; elsewhere, call your local emergency number. This site cannot provide crisis support.')
+      : new TranslatableMarkup('This may be a medical emergency. Call 911 in the United States, or your local emergency number, now. Do not wait for online information. This site provides general education only.');
   }
 
 }

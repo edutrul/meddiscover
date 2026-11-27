@@ -1,3 +1,7 @@
 view med search ranking details:
   title: 'View search ranking details'
-  description: 'See cosine similarity, Solr scores and RRF ranks on search results, for debugging and demos. Public visitors do not see scores.'
+  description: 'See cosine similarity, Solr scores and RRF ranks on search results, for debugging and demos.'
+administer med search:
+  title: 'Administer medDiscover search'
+  description: 'Tune retrieval and answers: similarity cutoff, Solr mm, RRF k, sources given to the model.'
+  restrict access: true

@@ -5,8 +5,7 @@
  */
 /* Keep the search workspace distinct from content and administration pages. */
 .site-main:has(.med-search) {
-  --med-workspace-width: 58rem;
-  width: min(100% - 2rem, var(--med-workspace-width));
+  width: min(100% - 2rem, var(--md-max-width));
 }
 
 .site-main:has(.med-search) .page-title {
@@ -135,6 +134,21 @@
   display: flex;
 }
 
+/* While a search runs, keep the previous results in place but faded and
+   inert, so the page never shows an empty block and the layout does not
+   jump when the new results arrive. */
+.med-search:has(.med-loading.htmx-request) .med-results {
+  opacity: 0.35;
+  pointer-events: none;
+  user-select: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .med-results {
+    transition: opacity 0.2s ease;
+  }
+}
+
 .med-loading::before {
   width: 1rem;
   height: 1rem;
@@ -143,6 +157,36 @@
   border-radius: 50%;
   content: "";
   animation: med-spin 0.8s linear infinite;
+}
+
+.med-search-panel .med-loading[data-med-loading-mode='answer']::before {
+  display: grid;
+  min-inline-size: 1.35rem;
+  min-block-size: 1.35rem;
+  place-content: center;
+  border: 0;
+  content: '✨' / '';
+  animation: med-sparkle 1.4s ease-in-out infinite;
+}
+
+@keyframes med-sparkle {
+  0%, 100% {
+    opacity: 0.6;
+    transform: scale(0.82) rotate(-8deg);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.35) rotate(8deg);
+    filter: drop-shadow(0 0 0.3rem #ffd577);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .med-search-panel .med-loading::before,
+  .med-search-panel .med-loading[data-med-loading-mode='answer']::before {
+    animation: none;
+  }
 }
 
 @keyframes med-spin {
@@ -212,7 +256,18 @@
 }
 
 .med-results__heading {
+  margin: 0;
+}
+
+.med-results__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
   margin-top: var(--md-space-4);
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--md-color-border);
 }
 
 .med-results__heading:focus {
@@ -245,8 +300,23 @@
   list-style: none;
 }
 
+.med-next-steps .med-next-steps__link {
+  font-weight: 700;
+  text-underline-offset: 0.15em;
+}
+
 .med-next-steps small {
   color: var(--md-color-muted);
+  font-size: 0.875rem;
+}
+
+.med-next-steps .med-external {
+  margin-inline: 0.25rem;
+  color: var(--md-color-muted);
+}
+
+.med-next-steps .med-external::after {
+  content: ' ·';
 }
 
 .med-external {
@@ -273,6 +343,15 @@
 .med-answer .item-list ul {
   margin: 0;
   padding: 0;
+}
+
+.med-result details .item-list ul {
+  padding-inline-start: 1.25rem;
+  margin-block: 0.3rem 0.65rem;
+}
+
+.med-result details .item-list + .item-list {
+  margin-block-start: 0.75rem;
 }
 
 .med-search .item-list li {
@@ -449,6 +528,105 @@ a[data-med-external]::after {
   padding: var(--md-space-1) var(--md-space-4) var(--md-space-1) 0;
 }
 
+:is(.med-debug-panel, .med-compare) .med-metric-help {
+  position: relative;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+:is(.med-debug-panel, .med-compare) .med-metric-help summary {
+  display: inline-block;
+  padding: 0;
+  cursor: help;
+  text-decoration: underline dotted;
+  text-underline-offset: 0.2em;
+}
+
+.med-metric-help summary::-webkit-details-marker {
+  display: none;
+}
+
+:is(.med-debug-panel, .med-compare):not(:has(.med-metric-help[open])) .med-metric-help:not(.is-dismissed) summary:is(:hover, :focus-visible)::after {
+  content: attr(data-help);
+}
+
+.med-metric-help[open] > p,
+:is(.med-debug-panel, .med-compare):not(:has(.med-metric-help[open])) .med-metric-help:not(.is-dismissed) summary:is(:hover, :focus-visible)::after {
+  position: absolute;
+  z-index: 2;
+  inset-block-start: 100%;
+  inset-inline-start: 0;
+  inline-size: max-content;
+  max-inline-size: min(46ch, 76vw);
+  margin: 0;
+  padding: var(--md-space-2);
+  border: 1px solid var(--md-color-border);
+  border-radius: var(--md-radius-small);
+  background: var(--md-color-surface);
+  font-weight: normal;
+  line-height: 1.5;
+  text-decoration: none;
+  box-shadow: 0 0.25rem 0.75rem #0002;
+}
+
+.med-debug-panel [data-med-strategy-open] {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--md-color-primary-strong);
+  font: inherit;
+  text-decoration: underline dotted;
+  text-underline-offset: 0.2em;
+  cursor: pointer;
+}
+
+.med-strategy-dialog {
+  box-sizing: border-box;
+  inline-size: min(36rem, calc(100% - 2rem));
+  max-block-size: calc(100% - 2rem);
+  padding: var(--md-space-4);
+  border: 1px solid var(--md-color-border);
+  border-radius: var(--md-radius-small);
+  background: var(--md-color-surface);
+  color: inherit;
+}
+
+.med-strategy-dialog [data-med-strategy-close] {
+  min-block-size: 2.75rem;
+  padding: 0.45rem 1rem;
+  border: 1px solid currentColor;
+  border-radius: var(--md-radius-small);
+  background: var(--md-color-surface);
+  color: var(--md-color-primary-strong);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.med-strategy-dialog [data-med-strategy-close]:hover {
+  background: var(--md-color-primary-strong);
+  color: var(--md-color-surface);
+}
+
+.med-debug-panel [data-med-strategy-open]:focus-visible,
+.med-strategy-dialog [data-med-strategy-close]:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
+
+.med-strategy-dialog::backdrop {
+  background: #0006;
+}
+
+.med-strategy-dialog :is(h2, h3) {
+  margin-block: 0.75em 0.3em;
+}
+
+.med-strategy-dialog p {
+  margin-block: 0 0.75em;
+}
+
 .med-suggestions:not([hidden]) {
   display: grid;
   border: 1px solid var(--md-color-border);
@@ -570,6 +748,21 @@ a[data-med-external]::after {
   padding-inline-end: 4rem;
 }
 
+.med-query-bar__sparkle {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-start: 1rem;
+  display: grid;
+  block-size: 3.5rem;
+  align-items: center;
+  font-size: 1rem;
+  pointer-events: none;
+}
+
+.med-query-bar:has(.med-query-bar__sparkle) input[type="text"] {
+  padding-inline-start: 2.75rem;
+}
+
 .med-search .med-query-bar > .form-submit {
   position: absolute;
   inset-block-start: 0;
@@ -621,6 +814,24 @@ a[data-med-external]::after {
   color: #fff;
 }
 
+.med-search-panel .med-loading[data-med-loading-mode='answer'] {
+  border-inline-start-color: #c4b5fd;
+  background: linear-gradient(105deg, #124a51, #253569, #563166, #124a51);
+  background-size: 240% 100%;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .med-search-panel .med-loading[data-med-loading-mode='answer'].htmx-request {
+    animation: med-answer-glow 3s ease-in-out infinite alternate;
+  }
+}
+
+@keyframes med-answer-glow {
+  to {
+    background-position: 100% 50%;
+  }
+}
+
 .med-search-panel .med-loading::before {
   flex-shrink: 0;
   border-color: #72989a;
@@ -629,7 +840,11 @@ a[data-med-external]::after {
 
 .med-compare {
   display: grid;
-  gap: 1rem;
+  gap: 0.6rem;
+}
+
+.med-compare input[name="compare_generate_answer"][hidden] {
+  display: none;
 }
 
 .med-compare > .form-submit {
@@ -691,12 +906,9 @@ a[data-med-external]::after {
 
 .med-result-filter:not([hidden]) {
   display: inline-flex;
+  margin-inline-start: auto;
   flex-wrap: wrap;
   gap: 0.25rem;
-  padding: 0.25rem;
-  border: 1px solid var(--md-color-primary);
-  border-radius: var(--md-radius-small);
-  background: var(--md-color-surface);
 }
 
 .med-result-filter button {
@@ -716,6 +928,591 @@ a[data-med-external]::after {
 }
 
 .med-result-filter button[aria-pressed='true'] {
+  background: var(--md-color-info-bg);
+  color: var(--md-color-primary-strong);
+  box-shadow: inset 0 -2px var(--md-color-primary);
+}
+
+.med-topic-results:not([hidden]) {
+  display: grid;
+  gap: var(--md-space-4);
+}
+
+.med-topic-results__items {
+  display: grid;
+  align-self: start;
+  min-inline-size: 0;
+  gap: var(--md-space-4);
+}
+
+.med-topic-facet {
+  align-self: start;
+  margin: 0;
+  padding: 0.75rem;
+  border: 1px solid var(--md-color-border);
+  border-radius: var(--md-radius-small);
+  background: var(--md-color-surface);
+}
+
+.med-topic-facet summary {
+  padding: 0.5rem;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.med-topic-facet button {
+  display: block;
+  width: 100%;
+  min-block-size: 44px;
+  padding: 0.5rem;
+  border: 0;
+  border-radius: var(--md-radius-small);
+  background: transparent;
+  color: var(--md-color-primary-strong);
+  cursor: pointer;
+  font: inherit;
+  text-align: start;
+}
+
+.med-topic-facet button:hover {
+  text-decoration: underline;
+}
+
+.med-topic-facet button[aria-pressed='true'] {
+  background: var(--md-color-info-bg);
+  font-weight: 700;
+}
+
+@media (min-width: 48rem) {
+  .med-topic-results:not([hidden]):has(.med-topic-facet:not([hidden])) {
+    grid-template-columns: clamp(13rem, 23%, 18rem) minmax(0, 1fr);
+    column-gap: clamp(1rem, 2.5vw, 2.5rem);
+  }
+}
+
+.med-strategy-brand {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  margin-block: 0.25rem 0.65rem;
+  font-weight: 600;
+}
+
+.med-strategy-brand img {
+  display: block;
+  inline-size: auto;
+  block-size: 1.75rem;
+}
+
+.med-solr-debug pre {
+  max-inline-size: 100%;
+  overflow: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 0.8125rem;
+}
+
+.med-homepage-ribbon {
+  display: inline-block;
+  margin-block: 0.25rem 0.55rem;
+  padding: 0.2rem 0.55rem;
+  border: 1px solid currentColor;
+  border-radius: var(--md-radius-small);
+  color: var(--md-color-primary-strong);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.med-compare > :is(h2, p),
+.med-comparison-grid section > :is(h3, p) {
+  margin-block: 0;
+}
+
+.med-comparison-grid section > p {
+  margin-block-start: 0.45rem;
+}
+
+.med-answer-comparison {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
+  gap: 0.75rem;
+  margin-block: 0.75rem;
+  align-items: start;
+}
+
+.med-answer-comparison > * {
+  min-inline-size: 0;
+}
+
+.med-conversation-card {
+  min-inline-size: 0;
+  padding: clamp(1rem, 2.5vw, 1.5rem);
+  border: 1px solid var(--md-color-border);
+  border-block-start: 3px solid var(--md-color-primary);
+  border-radius: var(--md-radius-small);
+  background: var(--md-color-surface);
+}
+
+.med-conversation-card > :is(h2, p) {
+  margin-block: 0 0.5rem;
+}
+
+.med-conversation-card > .form-submit {
+  margin: 0.25rem 0 0;
+}
+
+.med-conversation-card [name="compare_generate_answer"] {
+  background-image: linear-gradient(110deg, transparent 38%, #ffffff38 50%, transparent 62%);
+  background-position: 100% 0;
+  background-size: 250% 100%;
+  transition: background-position 420ms ease-out, box-shadow 180ms ease-out;
+}
+
+.med-conversation-card [name="compare_generate_answer"]:is(:hover, :focus-visible) {
+  background-position: 0 0;
+  box-shadow: 0 0 0 3px var(--md-color-info-bg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .med-conversation-card [name="compare_generate_answer"] {
+    transition: none;
+  }
+}
+
+.med-conversation-card .med-answer-comparison {
+  border-block-start: 1px solid var(--md-color-border);
+  padding-block-start: 0.9rem;
+  margin-block-end: 0;
+}
+
+/* The card the homepage would use: emphasized border and a corner ribbon. */
+.med-homepage-card {
+  position: relative;
+  box-shadow: 0 0 0 2px var(--md-color-primary), var(--md-shadow);
+}
+
+/* The corner box clips the diagonal band; the card itself does not clip,
+   so "How ranking works" and "Why this one?" popups can overflow it. */
+.med-corner-ribbon {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-end: 0;
+  inline-size: 6.5rem;
+  block-size: 6.5rem;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.med-corner-ribbon > span {
+  position: absolute;
+  inset-block-start: 1.15rem;
+  inset-inline-end: -2.35rem;
+  inline-size: 8.5rem;
+  padding: 0.2rem 0;
   background: var(--md-color-primary);
-  color: white;
+  box-shadow: 0 2px 4px rgb(19 41 61 / 25%);
+  color: #fff;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-align: center;
+  text-transform: uppercase;
+  transform: rotate(45deg);
+}
+
+/* Keep headings clear of the ribbon. */
+.med-homepage-card > :is(h2, h3) {
+  padding-inline-end: 4rem;
+}
+
+.med-generate-hint {
+  margin-block: 0.5rem 0;
+  color: var(--md-color-muted);
+  font-size: 0.875rem;
+}
+
+.med-compare-subheading {
+  margin-block: 1.5rem 0.25rem;
+  font-size: 1.25rem;
+}
+
+.med-compare-subheading + .med-generate-hint {
+  margin-block: 0 0.75rem;
+}
+
+/* "Why this one?" explains the ribbon, so it reads as part of it. */
+.med-compare .med-why-this-one summary {
+  color: var(--md-color-primary-strong);
+  font-weight: 700;
+}
+
+/* Inside the three ranking cards, help popups span the card's content width
+   so the rightmost card's popups never run off the page. */
+.med-comparison-grid .med-metric-help[open] > p,
+.med-compare:not(:has(.med-metric-help[open])) .med-comparison-grid .med-metric-help:not(.is-dismissed) summary:is(:hover, :focus-visible)::after {
+  inset-inline-end: 0;
+  inline-size: auto;
+  max-inline-size: none;
+}
+
+/* Results headings receive focus after an HTMX swap for screen readers;
+   the focus is programmatic, so no visible box is needed. */
+[data-med-results-heading]:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Compare: the homepage verdict comes first; the cards are the evidence. */
+.med-verdict {
+  min-inline-size: 0;
+  margin-block: 0.5rem 1rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--md-color-border);
+  border-inline-start: 6px solid var(--md-color-primary);
+  border-radius: var(--md-radius-small);
+  background: var(--md-color-surface);
+  box-shadow: var(--md-shadow);
+}
+
+.med-verdict > p {
+  margin-block: 0.35rem 0;
+}
+
+.med-verdict .med-verdict__kicker {
+  margin-block-start: 0;
+  color: var(--md-color-muted);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.med-verdict .med-verdict__label {
+  margin-block-start: 0.1rem;
+  color: var(--md-color-primary-strong);
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.med-verdict ol {
+  margin-block: 0.25rem 0;
+  padding-inline-start: 1.5rem;
+}
+
+.med-verdict .med-verdict__rule {
+  margin-block-start: 0.6rem;
+  padding-block-start: 0.5rem;
+  border-block-start: 1px solid var(--md-color-border);
+  color: var(--md-color-muted);
+  font-size: 0.875rem;
+}
+
+/* Developer mode: technical breakdown inside the verdict. */
+.med-verdict-tech {
+  margin-block-start: 0.75rem;
+  padding: 0.75rem 1rem;
+  border: 1px dashed var(--md-color-muted);
+  border-radius: var(--md-radius-small);
+  background: var(--md-color-bg);
+  font-size: 0.9rem;
+}
+
+.med-verdict-tech > summary {
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.med-tech-steps {
+  margin: 0.75rem 0 0;
+  padding-inline-start: 1.4rem;
+}
+
+.med-tech-steps > li + li {
+  margin-block-start: 1rem;
+}
+
+.med-tech-steps h4 {
+  margin: 0 0 0.35rem;
+  font-size: 1rem;
+}
+
+.med-tech-steps p {
+  margin-block: 0.35rem;
+}
+
+.med-tech-steps pre {
+  max-inline-size: 100%;
+  margin: 0.35rem 0;
+  padding: 0.5rem;
+  overflow-x: auto;
+  border-radius: var(--md-radius-small);
+  background: var(--md-color-surface);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 0.8125rem;
+}
+
+.med-tech-steps code {
+  overflow-wrap: anywhere;
+}
+
+.med-tech-steps table {
+  display: block;
+  inline-size: 100%;
+  margin-block: 0.5rem;
+  overflow-x: auto;
+  border-collapse: collapse;
+  font-size: 0.8438rem;
+}
+
+.med-tech-steps th,
+.med-tech-steps td {
+  padding: 0.3rem 0.6rem;
+  border: 1px solid var(--md-color-border);
+  background: var(--md-color-surface);
+  text-align: start;
+  white-space: nowrap;
+}
+
+.med-tech-steps th {
+  background: var(--md-color-info-bg);
+}
+
+/* Flow diagram dialog (Compare verdict). */
+.med-verdict .med-flow-open {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--md-color-primary-strong);
+  font: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.med-verdict .med-flow-open:focus-visible,
+.med-flow-dialog [data-med-flow-close]:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
+
+.med-strategy-dialog.med-flow-dialog {
+  inline-size: min(46rem, calc(100% - 2rem));
+}
+
+.med-flow-dialog [data-med-flow-close] {
+  min-block-size: 2.75rem;
+  margin-block-start: var(--md-space-3, 0.75rem);
+  padding: 0.45rem 1rem;
+  border: 1px solid currentColor;
+  border-radius: var(--md-radius-small);
+  background: var(--md-color-surface);
+  color: var(--md-color-primary-strong);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.med-flow__you {
+  padding: 0 0.3em;
+  border-radius: 3px;
+  background: var(--md-color-info-bg);
+  box-shadow: inset 0 0 0 2px var(--md-color-primary);
+}
+
+.med-flow {
+  display: grid;
+  gap: 0;
+  margin: 0.75rem 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.9375rem;
+}
+
+.med-flow > li {
+  margin: 0;
+}
+
+.med-flow__node,
+.med-flow__check {
+  padding: 0.55rem 0.75rem;
+  border: 1px solid var(--md-color-border);
+  border-radius: var(--md-radius-small);
+  background: var(--md-color-surface);
+}
+
+.med-flow__node--input {
+  justify-self: start;
+  font-weight: 600;
+}
+
+.med-flow__check {
+  display: grid;
+  gap: 0.15rem;
+  border-style: dashed;
+}
+
+.med-flow__q {
+  font-weight: 700;
+}
+
+.med-flow__how,
+.med-flow__node span,
+.med-flow__pipe {
+  color: var(--md-color-muted);
+  font-size: 0.8438rem;
+}
+
+.med-flow__title {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.med-flow img {
+  inline-size: 18px;
+  block-size: 18px;
+  object-fit: contain;
+  vertical-align: -4px;
+}
+
+.med-flow__title img {
+  inline-size: 20px;
+  block-size: 20px;
+}
+
+/* Arrows down between steps. */
+.med-flow__node--input + .med-flow__step::before {
+  content: "↓";
+  display: block;
+  padding-inline-start: 1rem;
+  color: var(--md-color-muted);
+  line-height: 1.4;
+}
+
+.med-flow__no {
+  padding-inline-start: 1.1rem;
+  color: var(--md-color-muted);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.med-flow__no::before {
+  content: "↓ ";
+}
+
+.med-flow__step {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
+  gap: 0 0.5rem;
+  align-items: start;
+}
+
+.med-flow__step::before {
+  grid-column: 1 / -1;
+}
+
+.med-flow img[src$="solr.png"] {
+  inline-size: auto;
+}
+
+.med-flow__branch {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 0.4rem;
+  align-items: start;
+}
+
+.med-flow__yes {
+  padding-block-start: 0.55rem;
+  color: var(--md-color-muted);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.med-flow__yes::after {
+  content: " →";
+}
+
+.med-flow__pipe {
+  display: grid;
+  gap: 0.2rem;
+  margin: 0.35rem 0;
+  padding-inline-start: 1.2rem;
+}
+
+.med-flow__ai {
+  display: inline-block;
+  inline-size: 18px;
+  color: var(--md-color-primary);
+  font-weight: 700;
+  text-align: center;
+}
+
+.med-flow__lists {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.6rem;
+  margin-block: 0.35rem;
+}
+
+.med-flow__plus {
+  font-weight: 700;
+}
+
+.med-flow__node .med-flow__merge,
+.med-flow__node .med-flow__out {
+  display: block;
+}
+
+.med-flow__node .med-flow__out {
+  margin-block-start: 0.2rem;
+  color: var(--md-color-text, inherit);
+  font-weight: 600;
+}
+
+/* The path this search took; the rest fades. */
+.med-flow__step:not(.is-taken) .med-flow__branch,
+.med-flow__node--hybrid:not(.is-taken),
+.med-flow__no:not(.is-taken) {
+  opacity: 0.5;
+}
+
+.med-flow__check.is-taken,
+.med-flow__branch.is-taken .med-flow__node,
+.med-flow__node.is-taken {
+  border: 2px solid var(--md-color-primary);
+  background: var(--md-color-info-bg);
+}
+
+.med-flow__branch.is-taken .med-flow__node--urgent {
+  border-color: var(--md-color-danger-border);
+  background: var(--md-color-danger-bg);
+}
+
+.med-flow__branch.is-taken .med-flow__yes,
+.med-flow__no.is-taken {
+  color: var(--md-color-primary-strong);
+}
+
+.med-flow__note {
+  padding: 0.6rem 0.75rem;
+  border-inline-start: 4px solid var(--md-color-border);
+  background: var(--md-color-surface-alt, #f4f6f6);
+  font-size: 0.875rem;
+}
+
+@media (max-width: 40rem) {
+  .med-flow__step {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .med-flow__branch {
+    margin-block-start: 0.35rem;
+    padding-inline-start: 1rem;
+  }
 }

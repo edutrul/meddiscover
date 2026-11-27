@@ -1,23 +1,73 @@
 # medDiscover
 
-Educational healthcare search and discovery POC. Current implementation: **Phase 09 — UI/UX Enhancement**. Public pages use the custom `meddiscover` theme (core Starterkit, Single Directory Components, core HTMX) and administration uses core Claro; the front page is the conversational search. Authenticated administrators have the classic core toolbar enhanced by Admin Toolbar dropdowns and Extra Tools. The approved English corpus is migrated with Drupal Migrate API. Semantic search at `/search/semantic` uses a local Ollama embedding model and exact pgvector retrieval; Lexical search at `/search/lexical` uses Apache Solr (DDEV add-on) through Search API, and hybrid search at `/search/hybrid` fuses both rankings with Reciprocal Rank Fusion. Conversational search at `/search/conversational` writes short cited educational answers from the retrieved topics with a local LLM, abstains when the topics do not answer, and answers urgent situations with a fixed safety message. Every result shows explainable **Next steps**: calls to action chosen by configurable rules (`/admin/config/search/med-activation`) that link real MedlinePlus resource URLs. Aggregate-only metrics (`med_analytics`, report at `/admin/reports/med-analytics`) measure search volume, zero results, latency per stage and CTA engagement without storing queries, topics, URLs or visitor identifiers. Every result is also enriched with terminology, related topics and healthcare resources from the imported structured data. [Master plan](PLAN.md) · [Agent rules](AGENTS.md) · [Foundation report](docs/delivery/phase-01.md) · [Content schema](docs/architecture/002-content-model.md) · [Migration instructions](docs/migration.md) · [Phase 02 report](docs/delivery/phase-02.md) · [Semantic search setup](docs/search.md) · [Search design](docs/architecture/003-semantic-search.md) · [Phase 03 report](docs/delivery/phase-03.md) · [Enrichment design](docs/architecture/004-result-enrichment.md) · [Phase 04 report](docs/delivery/phase-04.md) · [Lexical and hybrid design](docs/architecture/005-lexical-hybrid-search.md) · [Retrieval comparison](docs/evaluation/hybrid-search.md) · [Phase 05 report](docs/delivery/phase-05.md) · [Conversational design](docs/architecture/006-conversational-search.md) · [Conversational evaluation](docs/evaluation/conversational-search.md) · [Phase 06 report](docs/delivery/phase-06.md) · [Activation design](docs/architecture/007-activation.md) · [Phase 07 report](docs/delivery/phase-07.md) · [Analytics contract](docs/analytics.md) · [Optimization design](docs/architecture/008-optimization.md) · [Optimization evidence](docs/evaluation/optimization.md) · [Phase 08 report](docs/delivery/phase-08.md) · [Search UI design](docs/architecture/009-search-ui.md) · [Phase 09 report](docs/delivery/phase-09.md)
+An educational healthcare search and discovery proof of concept built on **Drupal 11**. It searches MedlinePlus health topics with keyword, semantic, hybrid and conversational (RAG) search, explains how every result was found and suggests trusted next steps. Answers and embeddings come from local models (Ollama), and no query text is ever stored.
 
-Source: MedlinePlus, National Library of Medicine.
+**Live demo:** https://meddiscover.eduardotelaya.com · Source: MedlinePlus, National Library of Medicine.
+
+## What you can try
+
+| Page | What it shows |
+|---|---|
+| [`/search`](https://meddiscover.eduardotelaya.com/search) (front page) | One search box. Topic phrases ("knee pain") get a ranked **Hybrid** list; questions ("What is HbA1c?") get a short **cited answer**; urgent wording ("chest pain right now") gets a safety message first. |
+| `/search/lexical` · `/search/semantic` · `/search/hybrid` · `/search/conversational` | Each search method on its own |
+| [`/search/compare`](https://meddiscover.eduardotelaya.com/search/compare) | All three rankings side by side, what the homepage would answer and why, a flow diagram, and (in Developer mode) a step-by-step technical breakdown with live Solr scores, cosine similarities and RRF points |
+| `/how-it-was-built` | Build overview |
+
+How the front page decides (one deterministic rule, no model):
+
+```
+input → urgent wording?  → safety message (911 / 988), no search, no AI
+      → a question?      → Ask (RAG): Semantic finds 3 sources, Ollama writes, every sentence must cite
+      → otherwise        → Hybrid: Solr list + pgvector list → Reciprocal Rank Fusion → ranked topics
+```
+
+## Architecture
+
+| Part | Technology | README |
+|---|---|---|
+| Content model and import | Nodes and taxonomies; core Migrate API from a checksum-verified MedlinePlus XML snapshot (24 English topics) | [med_content](web/modules/custom/med_content/README.md) |
+| Search | Apache Solr (Search API, EDisMax) · Drupal AI module + Ollama provider (`nomic-embed-text` embeddings, structured chat) · PostgreSQL pgvector · RRF fusion · RAG with JSON-schema output and citation verification | [med_search](web/modules/custom/med_search/README.md) |
+| Next steps | Rule-based calls to action (config entities) linking real MedlinePlus resources | [med_activation](web/modules/custom/med_activation/README.md) |
+| Metrics | Aggregate-only daily counters; no queries, URLs or identifiers | [med_analytics](web/modules/custom/med_analytics/README.md) |
+| Front end | Custom Starterkit theme, Single Directory Components, core HTMX; Claro for admin | [meddiscover theme](web/themes/custom/meddiscover/README.md) |
+
+## Documentation
+
+- **Plan and rules:** [master plan](PLAN.md) · [agent rules](AGENTS.md) · [contributing](CONTRIBUTING.md)
+- **Design:**
+  - [foundation](docs/architecture/001-foundation.md)
+  - [content model](docs/architecture/002-content-model.md)
+  - [semantic search](docs/architecture/003-semantic-search.md)
+  - [enrichment](docs/architecture/004-result-enrichment.md)
+  - [lexical and hybrid](docs/architecture/005-lexical-hybrid-search.md)
+  - [conversational](docs/architecture/006-conversational-search.md)
+  - [activation](docs/architecture/007-activation.md)
+  - [optimization](docs/architecture/008-optimization.md)
+  - [search UI](docs/architecture/009-search-ui.md)
+- **How-to:** [migration](docs/migration.md) · [search setup](docs/search.md) · [analytics contract](docs/analytics.md)
+- **Evidence:**
+  - [semantic search](docs/evaluation/semantic-search.md)
+  - [retrieval comparison](docs/evaluation/hybrid-search.md)
+  - [conversational](docs/evaluation/conversational-search.md)
+  - [optimization](docs/evaluation/optimization.md)
+- **Delivery reports:** phases [01](docs/delivery/phase-01.md) · [02](docs/delivery/phase-02.md) · [03](docs/delivery/phase-03.md) · [04](docs/delivery/phase-04.md) · [05](docs/delivery/phase-05.md) · [06](docs/delivery/phase-06.md) · [07](docs/delivery/phase-07.md) · [08](docs/delivery/phase-08.md) · [09](docs/delivery/phase-09.md)
 
 ## Requirements
 
-Docker with sufficient available memory, DDEV 1.25.2 or later, Git. Tested locally on macOS arm64. DDEV provides PHP 8.4, Composer and PostgreSQL 17; the database image installs `postgresql-17-pgvector`. The `ddev/ddev-solr` add-on (committed under `.ddev`) runs Solr 9.11 in SolrCloud mode.
+Docker with sufficient available memory, DDEV 1.25.2 or later, Git. Tested locally on macOS arm64. DDEV provides PHP 8.4, Composer and PostgreSQL 17; the database image installs `postgresql-17-pgvector`. The `ddev/ddev-solr` add-on (committed under `.ddev`) runs Solr 9.11 in SolrCloud mode. Search and answers use the [Drupal AI](https://www.drupal.org/project/ai) module with its Ollama provider (patched; see the med_search README), and need [Ollama](https://ollama.com) reachable from the web container, with `nomic-embed-text:v1.5` and a generation model (`gemma3:12b` by default); see the [med_search README](web/modules/custom/med_search/README.md).
 
 ## Fresh installation
 
 ```sh
 git clone https://github.com/edutrul/meddiscover.git
 cd meddiscover
-# Before Phase 02 merges, use: git switch med-3-content-migration
 ddev start
 ddev composer install --no-interaction
 ddev drush site:install --existing-config --account-name=admin --account-mail=admin@example.invalid -y
 ddev drush solr-upload-conf med_solr --numShards=1   # creates the Solr collection from exported config
+ddev drush migrate:import --tag=med --execute-dependencies   # needs the local XML snapshot; see docs/migration.md
+ddev drush search-api:index med_topics
+ddev drush queue:run med_topic_embedding
 ddev drush --uri=https://meddiscover.ddev.site uli
 ```
 

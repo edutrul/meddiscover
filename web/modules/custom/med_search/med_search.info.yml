@@ -3,7 +3,10 @@ type: module
 description: Semantic (pgvector), lexical (Solr) and hybrid (RRF) English topic retrieval with deterministic enrichment.
 package: medDiscover
 core_version_requirement: ^11
+configure: med_search.settings
 dependencies:
   - med_content:med_content
   - search_api:search_api
   - search_api_solr:search_api_solr
+  - ai:ai
+  - ai_provider_ollama:ai_provider_ollama

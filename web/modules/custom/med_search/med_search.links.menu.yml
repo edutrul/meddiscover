@@ -1,6 +1,6 @@
 med_search.conversational:
   title: 'Search'
-  route_name: med_search.conversational
+  route_name: med_search.home
   menu_name: main
   weight: 0
 med_search.build:
@@ -8,3 +8,8 @@ med_search.build:
   route_name: med_search.build
   menu_name: main
   weight: 1
+med_search.settings:
+  title: 'medDiscover search settings'
+  description: 'Similarity cutoff, Solr minimum-should-match, RRF, and how many sources answers use.'
+  route_name: med_search.settings
+  parent: system.admin_config_search

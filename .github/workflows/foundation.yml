@@ -61,3 +61,5 @@ jobs:
         run: ddev drush php:script scripts/analytics/test_analytics.php
       - name: Validate the search UI contract
         run: ddev drush php:script scripts/ui/test_ui.php
+      - name: Run PHPUnit unit and kernel tests
+        run: ddev exec vendor/bin/phpunit

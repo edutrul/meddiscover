@@ -12,6 +12,7 @@ use Drupal\Core\Form\FormState;
 use Drupal\Core\Session\UserSession;
 use Drupal\med_search\Form\SearchForm;
 use Drupal\med_search\SearchStrategyInterface;
+use Drupal\med_search\SearchStrategyRegistry;
 
 /**
  * Fail the run with a clear message.
@@ -32,7 +33,7 @@ foreach ($topics as $topic) {
 // 1. Theme configuration.
 $theme = \Drupal::config('system.theme');
 ui_expect($theme->get('default') === 'meddiscover' && $theme->get('admin') === 'claro', 'medDiscover must be the default theme and Claro the admin theme.');
-ui_expect(\Drupal::config('system.site')->get('page.front') === '/search/conversational', 'The front page must be the conversational search.');
+ui_expect(\Drupal::config('system.site')->get('page.front') === '/search', 'The front page must be automatic search.');
 ui_expect(\Drupal::service('theme.manager')->getActiveTheme()->getName() === 'meddiscover', 'Rendering must use the medDiscover theme.');
 $block = \Drupal::entityTypeManager()->getStorage('block')->load('meddiscover_powered');
 ui_expect($block && !$block->status(), 'The Powered by Drupal block must stay disabled.');
@@ -70,6 +71,20 @@ $stub = new class() implements SearchStrategyInterface {
   /**
    * {@inheritdoc}
    */
+  public function label(): string {
+    return 'Synthetic conversational';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function description(): string {
+    return 'Synthetic conversational description.';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function search(string $query, ?int $limit = NULL): array {
     return $this->response;
   }
@@ -82,25 +97,51 @@ $stub = new class() implements SearchStrategyInterface {
   }
 
 };
-$form_object = new SearchForm($stub, \Drupal::service('med_search.enricher'), \Drupal::service('event_dispatcher'), \Drupal::entityTypeManager());
-$build = function (array $response) use ($form_object, $renderer): string {
+// The real strategies, with the stub standing in for "conversational".
+$registry = new SearchStrategyRegistry();
+$real = \Drupal::service('med_search.strategies');
+foreach ($real->ids() as $id) {
+  $registry->addStrategy($real->get($id));
+}
+$registry->addStrategy($stub);
+$form_object = new SearchForm(
+  $registry,
+  \Drupal::service('med_search.homepage_router'),
+  \Drupal::service('med_search.result_builder'),
+  \Drupal::service('med_search.debug_panel'),
+  \Drupal::service('event_dispatcher'),
+  \Drupal::entityTypeManager(),
+);
+// Route defaults reach buildForm() as build arguments: /search/conversational.
+$route_args = ['conversational'];
+$build = function (array $response) use ($form_object, $renderer, $route_args): string {
   $form_state = (new FormState())->setFormObject($form_object)->setValue('query', 'synthetic');
+  $form_state->addBuildInfo('args', $route_args);
   $form_state->setTemporaryValue('med_response', $response)->setTemporaryValue('med_search_ms', 1.0);
   $form = \Drupal::formBuilder()->buildForm($form_object, $form_state);
   return (string) $renderer->renderInIsolation($form);
 };
 $one = $by_source['test-1'];
 $result = ['node' => $one, 'id' => 'test-1', 'score' => 0.9, 'ranks' => ['semantic' => 1]];
-$html = $build([
-  'results' => [$result],
-  'timings' => [],
-  'notices' => ['Synthetic notice.'],
-  'answer' => ['status' => 'answered', 'statements' => [['text' => 'Synthetic statement.', 'citations' => ['test-1']]], 'dropped' => 0],
-]);
+// The public view is built for an account without the ranking permission.
+// The demo grants that permission to anonymous visitors (Developer mode),
+// so the anonymous role cannot stand in for "a visitor without it".
+$switcher = \Drupal::service('account_switcher');
+$switcher->switchTo(new UserSession(['uid' => 0, 'roles' => []]));
+try {
+  $html = $build([
+    'results' => [$result],
+    'timings' => [],
+    'notices' => ['Synthetic notice.'],
+    'answer' => ['status' => 'answered', 'statements' => [['text' => 'Synthetic statement.', 'citations' => ['test-1']]], 'dropped' => 0],
+  ]);
+}
+finally {
+  $switcher->switchBack();
+}
 ui_expect(str_contains($html, 'class="med-result result-card"') && str_contains($html, 'result-card__title') && str_contains($html, 'Synthetic Topic One'), 'Results must render through the result-card component.');
 ui_expect(!str_contains($html, 'Synthetic score') && str_contains($html, 'Source: MedlinePlus, National Library of Medicine.'), 'Public visitors see source attribution but no ranking scores.');
 ui_expect(str_contains($html, 'med-link--external') && str_contains($html, '(opens in a new tab)') && str_contains($html, 'target="_blank"'), 'External links must be marked for the icon and screen readers.');
-$switcher = \Drupal::service('account_switcher');
 $switcher->switchTo(new UserSession(['uid' => 1, 'roles' => ['authenticated']]));
 try {
   $debug_html = $build(['results' => [$result], 'timings' => [], 'notices' => []]);
@@ -122,7 +163,7 @@ ui_expect(str_contains($html, 'data-med-results-heading') && str_contains($html,
 
 // 5. Entry guidance: no duplicate mode list, examples, hint and headings.
 $empty = $build(['results' => [], 'timings' => [], 'notices' => [], 'answer' => ['status' => 'abstained', 'reason' => 'no_evidence']]);
-$form_state = (new FormState())->setFormObject($form_object);
+$form_state = (new FormState())->setFormObject($form_object)->addBuildInfo('args', $route_args);
 $fresh = \Drupal::formBuilder()->buildForm($form_object, $form_state);
 $fresh_html = (string) $renderer->renderInIsolation($fresh);
 ui_expect(!str_contains($fresh_html, 'Search mode') && str_contains($fresh_html, 'How it works') && !preg_match('#<h3#', preg_replace('#<article.*?</article>#s', '', $fresh_html)), 'The empty page must explain how it works without skipping heading levels.');
@@ -133,7 +174,7 @@ $example_state->setTriggeringElement(['#med_example' => 'What is HbA1c?']);
 $example_form = [];
 $form_object->validateForm($example_form, $example_state);
 ui_expect($example_state->getValue('query') === 'What is HbA1c?' && $example_state->getUserInput()['query'] === 'What is HbA1c?' && !$example_state->hasAnyErrors(), 'An example button must become the query.');
-$chosen_state = (new FormState())->setFormObject($form_object)->setUserInput(['query' => 'what can trigger a migraine?']);
+$chosen_state = (new FormState())->setFormObject($form_object)->setUserInput(['query' => 'what can trigger a migraine?'])->addBuildInfo('args', $route_args);
 $chosen = \Drupal::formBuilder()->buildForm($form_object, $chosen_state);
 ui_expect(in_array('is-selected', $chosen['search_panel']['examples']['example_2']['#attributes']['class'], TRUE) && $chosen['search_panel']['examples']['example_2']['#attributes']['aria-current'] === 'true' && !in_array('is-selected', $chosen['search_panel']['examples']['example_0']['#attributes']['class'], TRUE), 'The example matching the query must be marked selected.');
 $blank_state = (new FormState())->setFormObject($form_object)->setValue('query', '   ');

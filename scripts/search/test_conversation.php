@@ -57,6 +57,20 @@ class ConvStubRetriever implements SearchStrategyInterface {
   /**
    * {@inheritdoc}
    */
+  public function label(): string {
+    return 'Synthetic semantic';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function description(): string {
+    return 'Synthetic semantic description.';
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function search(string $query, ?int $limit = NULL): array {
     $this->calls++;
     if ($this->rows === NULL) {
@@ -78,6 +92,13 @@ class ConvStubRetriever implements SearchStrategyInterface {
  * Stub generator returning a fixed object, or failing.
  */
 class ConvStubGenerator implements GeneratorInterface {
+
+  /**
+   * {@inheritdoc}
+   */
+  public function modelId(): string {
+    return 'synthetic-model';
+  }
 
   /**
    * Output to return, or NULL to fail.

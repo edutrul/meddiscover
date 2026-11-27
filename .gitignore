@@ -28,3 +28,6 @@ __pycache__/
 /web/sites/clean-foundation/
 /web/sites/sites.php
 /.idea/
+
+# PHPUnit
+.phpunit.cache/

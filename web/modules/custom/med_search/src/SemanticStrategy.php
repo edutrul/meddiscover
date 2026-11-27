@@ -2,10 +2,15 @@
 
 namespace Drupal\med_search;
 
+use Drupal\Core\StringTranslation\StringTranslationTrait;
+use Drupal\Core\StringTranslation\TranslatableMarkup;
+
 /**
  * Adapts the Phase 03 pgvector search to the shared strategy contract.
  */
-class SemanticStrategy implements SearchStrategyInterface {
+final class SemanticStrategy implements SearchStrategyInterface {
+
+  use StringTranslationTrait;
 
   public function __construct(private SemanticSearch $search) {}
 
@@ -19,11 +24,25 @@ class SemanticStrategy implements SearchStrategyInterface {
   /**
    * {@inheritdoc}
    */
-  public function search(string $query, ?int $limit = NULL): array {
+  public function label(): TranslatableMarkup {
+    return $this->t('Semantic');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function description(): TranslatableMarkup {
+    return $this->t('Matches meaning using local embeddings, so questions in everyday words can find topics.');
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function search(string $query, ?int $limit = NULL, bool $includeEmbedding = FALSE): array {
     if ($limit !== NULL) {
       QueryText::validate($query, $limit);
     }
-    $response = $this->search->search($query, NULL, $limit);
+    $response = $this->search->search($query, NULL, $limit, $includeEmbedding);
     $results = [];
     foreach ($response['results'] as $position => $row) {
       $results[] = [
@@ -37,14 +56,14 @@ class SemanticStrategy implements SearchStrategyInterface {
       'results' => $results,
       'timings' => ['embedding_ms' => $response['embedding_ms'], 'semantic_ms' => $response['retrieval_ms']],
       'notices' => [],
-    ];
+    ] + array_intersect_key($response, ['embedding_debug' => TRUE]);
   }
 
   /**
    * {@inheritdoc}
    */
-  public function describeScore(array $result): string {
-    return 'Cosine similarity: ' . number_format($result['score'], 4);
+  public function describeScore(array $result): TranslatableMarkup {
+    return $this->t('Cosine similarity: @score', ['@score' => number_format($result['score'], 4)]);
   }
 
 }

@@ -1,31 +1,49 @@
+# Providers and models (Ollama host, embedding and answer models, request
+# timeout) are configured in the Drupal AI module: ai.settings default
+# providers and ai_provider_ollama.settings. This module keeps the pins and
+# the search tuning.
 med_search.settings:
   type: config_object
   label: 'medDiscover search settings'
   mapping:
-    endpoint:
-      type: string
-      label: 'Local Ollama endpoint'
-    model:
-      type: string
-      label: 'Embedding model tag'
     model_digest:
       type: string
-      label: 'Pinned model digest'
+      label: 'Pinned embedding model digest'
+      constraints:
+        Regex:
+          pattern: '/^[a-f0-9]{64}$/'
+          message: 'The digest must be 64 hexadecimal characters.'
     dimensions:
       type: integer
       label: 'Vector dimensions'
+      constraints:
+        Range:
+          min: 1
+          max: 4096
     context_length:
       type: integer
-      label: 'Embedding context length'
+      label: 'Embedding context length (tokens)'
+      constraints:
+        Range:
+          min: 128
+          max: 32768
     include_metadata:
       type: boolean
       label: 'Include aliases and MeSH labels in input'
     result_limit:
       type: integer
       label: 'Maximum displayed results'
+      constraints:
+        Range:
+          min: 1
+          max: 20
     threshold:
       type: float
       label: 'Minimum cosine similarity'
+      constraints:
+        Range:
+          min: -1
+          max: 1
     lexical_index:
       type: string
       label: 'Search API index for lexical search'
@@ -35,30 +53,50 @@ med_search.settings:
     hybrid_depth:
       type: integer
       label: 'Candidates taken from each strategy before fusion'
+      constraints:
+        Range:
+          min: 1
+          max: 100
     hybrid_rrf_k:
       type: integer
       label: 'Reciprocal Rank Fusion constant k'
-    generation_model:
-      type: string
-      label: 'Local Ollama chat model tag'
+      constraints:
+        Range:
+          min: 0
+          max: 1000
     generation_model_digest:
       type: string
-      label: 'Pinned chat model digest'
-    generation_context_length:
-      type: integer
-      label: 'Chat context length (tokens)'
+      label: 'Pinned answer model digest'
+      constraints:
+        Regex:
+          pattern: '/^[a-f0-9]{64}$/'
+          message: 'The digest must be 64 hexadecimal characters.'
     generation_max_tokens:
       type: integer
       label: 'Maximum generated tokens'
-    generation_timeout:
-      type: integer
-      label: 'Generation timeout in seconds'
+      constraints:
+        Range:
+          min: 32
+          max: 4096
     rag_strategy:
       type: string
       label: 'Retrieval strategy for conversational search'
+      constraints:
+        Choice:
+          - semantic
+          - lexical
+          - hybrid
     rag_sources:
       type: integer
       label: 'Retrieved topics given to the model'
+      constraints:
+        Range:
+          min: 1
+          max: 10
     rag_source_chars:
       type: integer
       label: 'Characters of each topic given to the model'
+      constraints:
+        Range:
+          min: 200
+          max: 10000
