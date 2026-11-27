@@ -90,13 +90,13 @@ flowchart TD
     Check -->|No| Fallback["Show the matching topics without a generated answer"]
 ```
 
-The retrieval call in [ConversationalSearch::search()](../../web/modules/custom/med_search/src/ConversationalSearch.php#L110) is:
+The retrieval call in [ConversationalSearch::search()](../../web/modules/custom/med_search/src/ConversationalSearch.php#L119) is:
 
 ```php
 $retrieved = $this->retriever()->search($query, $limit);
 ```
 
-With `rag_strategy: semantic`, this reaches [SemanticSearch::search()](../../web/modules/custom/med_search/src/SemanticSearch.php#L124). Its `embedQuery($query)` call turns the question into a vector in the same embedding space as the indexed topics, so pgvector can rank them by cosine similarity. The query vector stays inside the retrieval step. `$retrieved['results']` contains the matching topics and scores. The chat model gets the question and excerpts from those topics in a later call.
+With `rag_strategy: semantic`, this reaches [SemanticSearch::search()](../../web/modules/custom/med_search/src/SemanticSearch.php#L131). Its `embedQuery($query)` call turns the question into a vector in the same embedding space as the indexed topics, so pgvector can rank them by cosine similarity. The query vector stays inside the retrieval step. `$retrieved['results']` contains the matching topics and scores. The chat model gets the question and excerpts from those topics in a later call.
 
 In this example, the **A1C** topic can become source **S1** in the prompt. The generation model receives its excerpt. The published answer links back to the source. With the checked-in configuration, medDiscover can include up to three accepted topics.
 
