@@ -2,6 +2,56 @@
 
 GitHub renders these Mermaid diagrams in the Markdown **Preview** tab. The diagrams cover the request path and its main services. They omit Drupal infrastructure and administrative classes.
 
+## How the homepage chooses a search path
+
+```mermaid
+flowchart TD
+    Input["Homepage search"] --> Urgent{"Urgent wording?"}
+    Urgent -->|Yes| Safety["Show the fixed safety message"]
+    Urgent -->|No| Question{"Does it read like a question?"}
+    Question -->|"Topic phrase: knee pain when walking"| Hybrid["Hybrid search"]
+    Hybrid --> Solr["Solr ranks keyword matches"]
+    Hybrid --> Vector["pgvector ranks semantic matches"]
+    Solr --> RRF["Reciprocal Rank Fusion merges both rankings"]
+    Vector --> RRF
+    RRF --> Topics["Show ranked topics"]
+    Question -->|"Question: What is HbA1c?"| Ask["Conversational search"]
+    Ask --> Retrieve["Retrieve source topics using the configured strategy"]
+    Retrieve --> Evidence{"Usable sources?"}
+    Evidence -->|Yes| Generate["Ask the model to write a cited answer"]
+    Evidence -->|No| Fallback["Show that an answer is unavailable"]
+    Generate --> Validate{"Answer passes validation?"}
+    Validate -->|Yes| Answer["Show the answer and its sources"]
+    Validate -->|No| Fallback
+```
+
+The checked-in configuration uses **Semantic** for conversational retrieval. Hybrid merges positions from the two ranked lists using Reciprocal Rank Fusion (RRF). Conversational search uses retrieved excerpts to generate and check a cited answer.
+
+## Drupal content model
+
+```mermaid
+erDiagram
+    HEALTH_TOPIC }o--o{ MEDICAL_GROUP : belongs_to
+    HEALTH_TOPIC }o--o{ MESH_HEADING : indexed_with
+    HEALTH_TOPIC ||--o{ RESOURCE_ASSIGNMENT : has
+    RESOURCE_ASSIGNMENT }o--o{ RESOURCE_CATEGORY : classified_as
+    HEALTH_TOPIC ||--o{ TOPIC_RELATIONSHIP : source_of
+    TOPIC_RELATIONSHIP }o--o| HEALTH_TOPIC : points_to_imported_target
+
+    RESOURCE_ASSIGNMENT {
+        string title
+        string resource_url
+    }
+    TOPIC_RELATIONSHIP {
+        string relationship_type
+        string target_source_url
+    }
+```
+
+Start with **Knee Injuries and Disorders**. It belongs to the **Injuries and Wounds** medical group and has the **Knee Injuries** MeSH heading. The **Anterior knee pain** resource assignment links to the MedlinePlus article. A separate **Topic Relationship** records the curated link to **Knee Replacement**. A relationship keeps the target URL and can also reference the local Drupal topic when that target was imported.
+
+See the [Drupal content model decision](002-content-model.md) for bundle and field names.
+
 ## Search classes
 
 ```mermaid
