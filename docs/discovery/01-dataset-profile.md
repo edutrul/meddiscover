@@ -9,9 +9,9 @@ Source: `data/raw/mplus_topics_2026-11-24.xml`; **30,156,344 bytes** (30.16 MB /
 Reproduce from the project root:
 
 ```sh
-rtk proxy python3 scripts/discovery/analyze.py
-rtk proxy python3 scripts/discovery/report.py
-rtk proxy python3 scripts/discovery/verify.py
+python3 scripts/discovery/analyze.py
+python3 scripts/discovery/report.py
+python3 scripts/discovery/verify.py
 ```
 
 `dataset-profile.json` is a discovery evidence artifact, not a database or the proposed POC payload. It includes all per-language unique leaf/attribute values and counts, exact resource URLs and hostnames, record evidence, relationship edges, inferred pair projections, and all flagged issues. No search engine, embeddings, LLM calls, or database was created. Full-summary values in that inventory are XML-decoded HTML strings; the record evidence contains extracted plain text.

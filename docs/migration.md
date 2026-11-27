@@ -11,9 +11,9 @@ Source: MedlinePlus, National Library of Medicine. See [publication assessment](
 Fresh site: follow README to install the exported configuration. For an existing Phase 01 site, back up the database, check out this branch, run `ddev composer install`, `ddev drush updatedb -y`, `ddev drush config:import -y` and `ddev drush cache:rebuild`. Configuration import enables the custom module and required core modules. Do not rerun site installation on an existing database.
 
 ```sh
-rtk ddev drush migrate:status --tag=med
-rtk ddev drush migrate:import --tag=med --execute-dependencies
-rtk proxy python3 scripts/migration/verify.py
+ddev drush migrate:status --tag=med
+ddev drush migrate:import --tag=med --execute-dependencies
+python3 scripts/migration/verify.py
 ```
 
 Dependencies order groups/MeSH/categories before topics, then resources and relationships. Aliases migrate with their parent topic. There are six source migrations. The adapter verifies the checksum before data is read; Migrate uses core SQL ID maps and tracks source-row changes. No approximate vector indexes or embeddings are created.
