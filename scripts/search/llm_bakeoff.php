@@ -10,7 +10,8 @@
  */
 
 $models = $extra ?: ['gemma3:4b', 'llama3.1:8b', 'qwen3:8b', 'gemma3:12b'];
-$endpoint = \Drupal::config('med_search.settings')->get('endpoint');
+$ollama = \Drupal::config('ai_provider_ollama.settings');
+$endpoint = rtrim($ollama->get('host_name'), '/') . ($ollama->get('port') ? ':' . $ollama->get('port') : '');
 $http = \Drupal::httpClient();
 $retriever = \Drupal::service('med_search.strategy.semantic');
 

@@ -39,3 +39,44 @@ function med_search_install(): void {
   $db->query('ALTER TABLE {med_topic_embeddings} ADD CONSTRAINT med_embedding_dimensions CHECK (dimensions > 0 AND vector_dims(embedding) = dimensions)');
   $db->query('ALTER TABLE {med_topic_embeddings} ADD CONSTRAINT med_embedding_topic FOREIGN KEY (topic_id) REFERENCES {node}(nid) ON DELETE CASCADE');
 }
+
+/**
+ * Move providers and models to the Drupal AI module (ai, ai_provider_ollama).
+ *
+ * Keeps each site's own values: the Ollama endpoint becomes the provider host
+ * and port, the embedding and answer models become the AI module's default
+ * providers, and the generation timeout becomes the AI request timeout. The
+ * pinned digests and the search tuning stay in med_search.settings.
+ */
+function med_search_update_11001(): string {
+  $installer = \Drupal::service('module_installer');
+  $installer->install(['ai', 'ai_provider_ollama']);
+
+  $factory = \Drupal::configFactory();
+  $settings = $factory->getEditable('med_search.settings');
+  $endpoint = (string) ($settings->get('endpoint') ?: 'http://host.docker.internal:11434');
+  $parts = parse_url($endpoint);
+  $factory->getEditable('ai_provider_ollama.settings')
+    ->set('host_name', ($parts['scheme'] ?? 'http') . '://' . ($parts['host'] ?? 'localhost'))
+    ->set('port', (int) ($parts['port'] ?? 11434))
+    ->save();
+
+  $ai = $factory->getEditable('ai.settings');
+  $ai->set('default_providers.embeddings', [
+    'provider_id' => 'ollama',
+    'model_id' => (string) ($settings->get('model') ?: 'nomic-embed-text:v1.5'),
+  ]);
+  foreach (['chat', 'chat_with_structured_response'] as $operation) {
+    $ai->set("default_providers.$operation", [
+      'provider_id' => 'ollama',
+      'model_id' => (string) ($settings->get('generation_model') ?: 'gemma3:12b'),
+    ]);
+  }
+  $ai->set('request_timeout', (int) ($settings->get('generation_timeout') ?: 90))->save();
+
+  foreach (['endpoint', 'model', 'generation_model', 'generation_context_length', 'generation_timeout'] as $key) {
+    $settings->clear($key);
+  }
+  $settings->save();
+  return (string) t('Providers and models now come from the Drupal AI module.');
+}

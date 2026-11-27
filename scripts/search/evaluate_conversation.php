@@ -23,11 +23,23 @@ $root = dirname(DRUPAL_ROOT);
 $set = json_decode(file_get_contents($root . '/docs/evaluation/phase-06-queries.json'), TRUE, 512, JSON_THROW_ON_ERROR);
 $editable = \Drupal::configFactory()->getEditable('med_search.settings');
 $saved = $editable->getRawData();
+// The answer model is the AI module's default structured-chat provider.
+$ai = \Drupal::configFactory()->getEditable('ai.settings');
+$saved_ai = $ai->getRawData();
+$ollama = \Drupal::config('ai_provider_ollama.settings');
+$ollama_url = rtrim($ollama->get('host_name'), '/') . ($ollama->get('port') ? ':' . $ollama->get('port') : '');
 
 /**
  * Records raw model output; optionally appends a hostile source.
  */
 class EvalGenerator implements GeneratorInterface {
+
+  /**
+   * {@inheritdoc}
+   */
+  public function modelId(): string {
+    return 'synthetic-model';
+  }
 
   /**
    * Raw output of the last call.
@@ -62,12 +74,13 @@ try {
     $editable->set('rag_strategy', $args['strategy']);
   }
   if (isset($args['model'])) {
-    $tags = json_decode((string) \Drupal::httpClient()->get($saved['endpoint'] . '/api/tags')->getBody(), TRUE);
+    $tags = json_decode((string) \Drupal::httpClient()->get($ollama_url . '/api/tags')->getBody(), TRUE);
     $digest = array_column($tags['models'], 'digest', 'name')[$args['model']] ?? NULL;
     if (!$digest) {
       throw new RuntimeException('Model not installed: ' . $args['model']);
     }
-    $editable->set('generation_model', $args['model'])->set('generation_model_digest', $digest);
+    $ai->set('default_providers.chat_with_structured_response', ['provider_id' => 'ollama', 'model_id' => $args['model']])->save();
+    $editable->set('generation_model_digest', $digest);
   }
   $editable->save();
   $config = \Drupal::config('med_search.settings');
@@ -111,7 +124,7 @@ try {
     $details[] = sprintf("- **%s** %s — `%s` → %s%s (%.1f s)%s\n%s", $case['id'], $ok ? 'OK' : '**FAIL**', $case['query'], $answer['status'], isset($answer['reason']) ? '/' . $answer['reason'] : (isset($answer['type']) ? '/' . $answer['type'] : ''), $ms / 1000, ($answer['dropped'] ?? 0) ? ', dropped ' . $answer['dropped'] : '', $lines ? implode("\n", $lines) : ($answer['status'] === 'withheld' ? '  - raw: ' . mb_substr($raw_text, 0, 300) : ''));
   }
 
-  printf("Model `%s`, retrieval `%s`, %d sources × %d characters, temperature 0.\n\n", $config->get('generation_model'), $config->get('rag_strategy'), $config->get('rag_sources'), $config->get('rag_source_chars'));
+  printf("Model `%s`, retrieval `%s`, %d sources × %d characters, temperature 0.\n\n", \Drupal::service('med_search.generator')->modelId(), $config->get('rag_strategy'), $config->get('rag_sources'), $config->get('rag_source_chars'));
   echo "| Category | Cases | Expected behavior |\n|---|---|---|\n";
   $all = [];
   foreach ($by_category as $category => $oks) {
@@ -125,4 +138,5 @@ try {
 }
 finally {
   $editable->setData($saved)->save();
+  $ai->setData($saved_ai)->save();
 }

@@ -77,21 +77,23 @@ A question is input that ends with `?`, starts with a question word (what, why, 
 |---|---|
 | `SearchStrategyInterface`, `SearchStrategyRegistry` | Strategy contract and tagged-service registry |
 | `LexicalSearch` | Solr EDisMax query, `mm` rule, phrase boosts, exact-name promotion |
-| `SemanticSearch`, `SemanticStrategy`, `OllamaEmbedder` | Query embedding and exact pgvector similarity with a 0.62 cutoff |
+| `SemanticSearch`, `SemanticStrategy`, `AiEmbedder` (`EmbedderInterface`) | Query embedding through the Drupal AI module, and exact pgvector similarity with a 0.62 cutoff |
 | `HybridSearch` | RRF: `1 / (k + rank)` per list, summed; ranks only, never raw scores |
-| `ConversationalSearch`, `OllamaGenerator`, `UrgencyDetector` | RAG pipeline: urgency, retrieval, evidence check, JSON-schema generation, citation and safety verification |
+| `ConversationalSearch`, `AiGenerator` (`GeneratorInterface`), `UrgencyDetector` | RAG pipeline: urgency, retrieval, evidence check, JSON-schema generation, citation and safety verification |
 | `HomepageRouter` | The homepage decision: urgent, Ask or Hybrid |
 | `ResultEnricher` | Terminology, related topics and resources from structured data (no AI) |
 | `Form\SearchForm`, `Form\CompareSearchForm` | The search and Compare pages (form flow only) |
 | `Render\SearchResultBuilder`, `Render\SearchDebugPanel` | Result cards and enrichment; the Developer mode panel |
 | `Event\SearchCompletedEvent` | Dispatched once per search for `med_analytics`; never carries the query text |
 | `Plugin\QueueWorker\TopicEmbedding` | Re-embeds a topic when its published text changes |
-| `Hook\SearchThemeHooks` | `hook_theme` for the result card and the Compare templates |
+| `Hook\SearchThemeHooks`, `Hook\TopicEmbeddingHooks` | `hook_theme` for the result card and Compare templates; queue re-embedding when a topic changes |
+| `Form\SettingsForm` | Search tuning at `/admin/config/search/med-search` (`#config_target`, validated by the config schema) |
 
 ## Requirements
 
 - Drupal 11 with PostgreSQL and the `vector` (pgvector) extension.
 - Modules: `med_content`, `search_api` and `search_api_solr`, with the `med_solr` server and the `med_topics` index from the exported configuration.
+- The [Drupal AI](https://www.drupal.org/project/ai) module with the [Ollama provider](https://www.drupal.org/project/ai_provider_ollama), patched (see below).
 - [Ollama](https://ollama.com), reachable from the web container, with the embedding model `nomic-embed-text:v1.5` and a generation model (`gemma3:12b` by default).
 
 ## Installation
@@ -106,19 +108,32 @@ ddev drush queue:run med_topic_embedding             # embed the topics
 
 ## Configuration
 
-`med_search.settings` (`config/install/med_search.settings.yml`, with a schema):
+**Providers and models (Drupal AI module):**
+
+| Where | Setting |
+|---|---|
+| `/admin/config/ai/settings` (`ai.settings`) | Default provider and model for **Embeddings** (`nomic-embed-text:v1.5`) and **Chat with structured response** (`gemma3:12b`), plus the request timeout (90 s) |
+| `/admin/config/ai/providers/ollama` (`ai_provider_ollama.settings`) | Ollama host and port |
+
+Answers use the AI module's `chat_with_structured_response` operation: the JSON schema is sent as a structured-output constraint, so citations can only name the provided sources. Embeddings and answers both go through `ai.provider` (`AiProviderPluginManager`), so the backend can change in configuration without code changes.
+
+**Search tuning (`med_search.settings`)** at `/admin/config/search/med-search` (permission *Administer medDiscover search*). Values are validated by the constraints in `config/schema/med_search.schema.yml`.
 
 | Key | Default | Meaning |
 |---|---|---|
-| `endpoint` | `http://host.docker.internal:11434` | Ollama URL |
-| `model`, `model_digest`, `dimensions` | `nomic-embed-text:v1.5`, pinned digest, 768 | Embedding model. The digest is pinned, so query and topic vectors always match. |
 | `threshold` | 0.62 | Minimum cosine similarity for Semantic |
 | `lexical_min_match` | `2<75%` | Solr minimum-should-match |
 | `hybrid_depth`, `hybrid_rrf_k` | 20, 60 | Candidates per list and the RRF constant |
-| `generation_model`, `generation_*` | `gemma3:12b`, context 8192, 800 tokens, 90 s | Answer model |
 | `rag_strategy`, `rag_sources`, `rag_source_chars` | `semantic`, 3, 2500 | Retrieval used for answers, and how much source text the model sees |
+| `generation_max_tokens` | 800 | Longer output is a failure, never shown truncated |
+| `model_digest`, `generation_model_digest` | pinned | With Ollama, the exact model versions; a changed model fails loudly instead of mixing vectors |
+| `dimensions`, `context_length` | 768, 2048 | Vector size and embedding context |
 
-Production overrides the endpoint and uses a smaller generation model (`meddiscover-qwen:0.5b`) to fit a CPU-only server.
+Production uses a smaller answer model (`meddiscover-qwen:0.5b`) to fit a CPU-only server.
+
+### The Ollama provider patch
+
+`patches/ai_provider_ollama-strict-embeddings.patch`, applied with `cweagans/composer-patches`. The provider calls Ollama's OpenAI-compatible `/v1/embeddings`, which **silently truncates** an input longer than the context and ignores `truncate: false` (verified against Ollama). A silently truncated topic would get a vector for only part of its text. With the patch, when the provider configuration sets `truncate`, embeddings go through the native `/api/embed` endpoint, which honours it: an over-long input fails with HTTP 400. `AiEmbedder` sets `truncate: FALSE` and `num_ctx`. Vectors from both endpoints are identical (cosine 1.0), so no topic had to be re-embedded.
 
 ## Developer mode
 

@@ -1,6 +1,6 @@
 {
     "name": "edutrul/meddiscover",
-    "description": "Educational healthcare discovery POC \u2014 Drupal project foundation",
+    "description": "Educational healthcare discovery POC — Drupal project foundation",
     "type": "project",
     "license": "GPL-2.0-or-later",
     "homepage": "https://www.drupal.org/project/drupal",
@@ -16,7 +16,10 @@
     ],
     "require": {
         "composer/installers": "^2.3",
+        "cweagans/composer-patches": "^1.7",
         "drupal/admin_toolbar": "^3.6",
+        "drupal/ai": "^1.5",
+        "drupal/ai_provider_ollama": "^1.2@RC",
         "drupal/core-composer-scaffold": "^11.4",
         "drupal/core-project-message": "^11.4",
         "drupal/core-recipe-unpack": "^11.4",
@@ -39,7 +42,8 @@
             "dealerdirect/phpcodesniffer-composer-installer": true,
             "php-http/discovery": true,
             "php-tuf/composer-integration": true,
-            "symfony/runtime": true
+            "symfony/runtime": true,
+            "cweagans/composer-patches": true
         },
         "sort-packages": true
     },
@@ -88,7 +92,7 @@
             ],
             "post-create-project-cmd-message": [
                 "<bg=blue;fg=white>                                                         </>",
-                "<bg=blue;fg=white>  Congratulations, you\u2019ve installed the Drupal codebase  </>",
+                "<bg=blue;fg=white>  Congratulations, you’ve installed the Drupal codebase  </>",
                 "<bg=blue;fg=white>  from the drupal/recommended-project template!          </>",
                 "<bg=blue;fg=white>                                                         </>",
                 "",
@@ -101,6 +105,12 @@
                 "  * Remove the plugin that prints this message:",
                 "      composer remove drupal/core-project-message"
             ]
+        },
+        "composer-exit-on-patch-failure": true,
+        "patches": {
+            "drupal/ai_provider_ollama": {
+                "Strict embeddings input: honour \"truncate\" through the native /api/embed endpoint (the OpenAI-compatible endpoint truncates silently)": "patches/ai_provider_ollama-strict-embeddings.patch"
+            }
         }
     },
     "require-dev": {

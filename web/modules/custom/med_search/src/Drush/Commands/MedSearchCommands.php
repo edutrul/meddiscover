@@ -2,7 +2,7 @@
 
 namespace Drupal\med_search\Drush\Commands;
 
-use Drupal\med_search\OllamaEmbedder;
+use Drupal\med_search\EmbedderInterface;
 use Drush\Attributes as CLI;
 use Drush\Commands\AutowireTrait;
 use Drush\Commands\DrushCommands;
@@ -17,7 +17,7 @@ final class MedSearchCommands extends DrushCommands {
 
   public function __construct(
     #[Autowire(service: 'med_search.embedder')]
-    private readonly OllamaEmbedder $embedder,
+    private readonly EmbedderInterface $embedder,
   ) {
     parent::__construct();
   }

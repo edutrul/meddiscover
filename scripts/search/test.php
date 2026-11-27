@@ -5,12 +5,9 @@
  * Exact vector/service contract checks on synthetic CI data, never production.
  */
 
-use Drupal\med_search\OllamaEmbedder;
+use Drupal\med_search\AiEmbedder;
+use Drupal\med_search\EmbedderInterface;
 use Drupal\med_search\SemanticSearch;
-use GuzzleHttp\Client;
-use GuzzleHttp\Handler\MockHandler;
-use GuzzleHttp\HandlerStack;
-use GuzzleHttp\Psr7\Response;
 
 function search_expect(bool $value, string $message): void {
   if (!$value) {
@@ -28,18 +25,67 @@ foreach ($nodes as $node) {
 search_expect((int) $db->query('SELECT COUNT(*) FROM {med_topic_embeddings}')->fetchField() === 0, 'Tests require empty embedding storage.');
 $config = \Drupal::configFactory()->getEditable('med_search.settings');
 $original = $config->getRawData();
-$config->set('dimensions', 3)->set('model', 'fixture-model')->set('model_digest', str_repeat('f', 64))->save();
-function fixture_embedder(array $vectors = [], ?Response $override = NULL): OllamaEmbedder {
-  $queue = [new Response(200, [], json_encode(['models' => [['name' => 'fixture-model', 'digest' => str_repeat('f', 64)]]]))];
-  foreach ($vectors as $vector) {
-    $queue[] = new Response(200, [], json_encode(['model' => 'fixture-model', 'embeddings' => [$vector]]));
+$config->set('dimensions', 3)->set('model_digest', str_repeat('f', 64))->save();
+
+/**
+ * Synthetic embedder: queued vectors, or a provider failure.
+ *
+ * The real AiEmbedder goes through the Drupal AI provider; here the contract
+ * SemanticSearch depends on is exercised without a model.
+ */
+final class FixtureEmbedder implements EmbedderInterface {
+
+  public function __construct(private array $vectors = [], private ?string $failure = NULL) {}
+
+  /**
+   * {@inheritdoc}
+   */
+  public function modelId(): string {
+    return 'fixture-model';
   }
-  if ($override) {
-    $queue = [$override];
+
+  /**
+   * {@inheritdoc}
+   */
+  public function verifyModel(): void {
+    if ($this->failure === 'model_changed') {
+      throw new RuntimeException('The pinned embedding model is unavailable or has changed.');
+    }
   }
-  return new OllamaEmbedder(new Client(['handler' => HandlerStack::create(new MockHandler($queue))]), \Drupal::configFactory());
+
+  /**
+   * {@inheritdoc}
+   */
+  public function queryInput(string $query): string {
+    return 'search_query: ' . $query;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function embedQuery(string $query): array {
+    $this->verifyModel();
+    return $this->embed($this->queryInput($query));
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function embed(string $text): array {
+    if ($this->failure !== NULL || !$this->vectors) {
+      throw new RuntimeException('Embedding generation failed; please try again later.');
+    }
+    $vector = array_shift($this->vectors);
+    AiEmbedder::validateVector($vector, 3);
+    return $vector;
+  }
+
 }
-function fixture_search(OllamaEmbedder $embedder): SemanticSearch {
+
+function fixture_embedder(array $vectors = [], ?string $failure = NULL): FixtureEmbedder {
+  return new FixtureEmbedder($vectors, $failure);
+}
+function fixture_search(EmbedderInterface $embedder): SemanticSearch {
   return new SemanticSearch(\Drupal::database(), \Drupal::entityTypeManager(), $embedder,
     \Drupal::configFactory(), \Drupal::lock(), \Drupal::time(), \Drupal::currentUser());
 }
@@ -47,7 +93,7 @@ try {
   foreach ([[0, 0, 0], [1, 0], [NAN, 0, 0], ['bad', 0, 1]] as $bad) {
     $rejected = FALSE;
     try {
-      OllamaEmbedder::validateVector($bad, 3);
+      AiEmbedder::validateVector($bad, 3);
     }
     catch (RuntimeException) {
       $rejected = TRUE;
@@ -78,10 +124,11 @@ try {
   $node->field_med_description = $description;
   $node->save();
   fixture_search(fixture_embedder([[1, 0, 0]]))->indexTopics();
-  foreach ([new Response(503), new Response(200, [], '{bad json'), new Response(200, [], '{"models":[]}')] as $response) {
+  foreach (['unavailable', 'model_changed', [[0, 0, 0]]] as $failure) {
     $rejected = FALSE;
     try {
-      fixture_search(fixture_embedder([], $response))->search('synthetic provider failure');
+      $embedder = is_array($failure) ? fixture_embedder($failure) : fixture_embedder([], $failure);
+      fixture_search($embedder)->search('synthetic provider failure');
     }
     catch (RuntimeException $error) {
       $rejected = TRUE;

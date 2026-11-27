@@ -20,7 +20,7 @@ final class SemanticSearch {
   public function __construct(
     private Connection $db,
     private EntityTypeManagerInterface $entities,
-    private OllamaEmbedder $embedder,
+    private EmbedderInterface $embedder,
     private ConfigFactoryInterface $configFactory,
     private LockBackendInterface $lock,
     private TimeInterface $time,
@@ -87,7 +87,7 @@ final class SemanticSearch {
         }
         $vector = $this->embedder->embed($text);
         $args += [
-          ':model' => $config->get('model'),
+          ':model' => $this->embedder->modelId(),
           ':dimensions' => $config->get('dimensions'),
           ':hash' => $hash,
           ':text' => $text,
@@ -159,8 +159,8 @@ final class SemanticSearch {
     ];
     if ($includeEmbedding) {
       $response['embedding_debug'] = [
-        'model' => $config->get('model'),
-        'input' => OllamaEmbedder::queryInput($query),
+        'model' => $this->embedder->modelId(),
+        'input' => $this->embedder->queryInput($query),
         'response' => ['dimensions' => count($vector), 'embedding' => $vector],
       ];
     }

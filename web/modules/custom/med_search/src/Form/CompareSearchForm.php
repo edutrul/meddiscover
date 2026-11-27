@@ -283,7 +283,7 @@ final class CompareSearchForm extends FormBase {
           ];
           if ($can_debug && isset($answer['baseline'])) {
             $form['conversation']['outputs']['baseline']['prompt'] = $this->debugCode($this->t('Ollama prompt without search'), [
-              'model' => $config->get('generation_model'),
+              'model' => $this->generator->modelId(),
               'system' => self::MED_BASELINE_INSTRUCTIONS,
               'user' => self::MED_BASELINE_QUESTION,
             ]);
@@ -345,7 +345,7 @@ final class CompareSearchForm extends FormBase {
         'score' => number_format((float) $row['score'], 2),
       ], $lexical['results'] ?? [], array_keys($lexical['results'] ?? [])),
       'lexical_ms' => $ms($lexical['timings']['lexical_ms'] ?? NULL),
-      'embedding_model' => $embedding['model'] ?? (string) $config->get('model'),
+      'embedding_model' => $embedding['model'] ?? '',
       'embedding_input' => $embedding['input'] ?? 'search_query: ' . $query,
       'dimensions' => $embedding['response']['dimensions'] ?? (int) $config->get('dimensions'),
       'vector_head' => isset($embedding['response']['embedding']) ? implode(', ', array_map(static fn($v): string => number_format((float) $v, 4), array_slice($embedding['response']['embedding'], 0, 4))) : NULL,
@@ -372,8 +372,7 @@ final class CompareSearchForm extends FormBase {
       'fusion_ms' => $ms($hybrid['timings']['fusion_ms'] ?? NULL),
       'rag_sources' => (int) $config->get('rag_sources'),
       'rag_chars' => (int) $config->get('rag_source_chars'),
-      'generation_model' => (string) $config->get('generation_model'),
-      'generation_ctx' => (int) $config->get('generation_context_length'),
+      'generation_model' => $this->generator->modelId(),
       'generation_max' => (int) $config->get('generation_max_tokens'),
       'answer_status' => isset($answer['answer']['status'])
         ? $answer['answer']['status'] . (isset($answer['answer']['reason']) ? ' (' . $answer['answer']['reason'] . ')' : '')

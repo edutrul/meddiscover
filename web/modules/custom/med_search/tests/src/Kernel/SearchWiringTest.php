@@ -32,6 +32,9 @@ final class SearchWiringTest extends KernelTestBase {
     'migrate',
     'search_api',
     'search_api_solr',
+    'key',
+    'ai',
+    'ai_provider_ollama',
     'med_content',
     'med_search',
   ];

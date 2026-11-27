@@ -157,7 +157,7 @@ TXT;
     $response = $this->response($answer, $results, $timings, $notices);
     if ($includePrompt) {
       $response['generation_debug'] = [
-        'model' => $config->get('generation_model'),
+        'model' => $this->generator->modelId(),
         'system' => self::MED_SYSTEM_PROMPT,
         'user' => $prompt,
       ];

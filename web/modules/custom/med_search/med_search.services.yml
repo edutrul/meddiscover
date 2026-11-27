@@ -3,8 +3,8 @@ services:
     class: Drupal\med_search\SolrDebugSubscriber
     tags: [{ name: event_subscriber }]
   med_search.embedder:
-    class: Drupal\med_search\OllamaEmbedder
-    arguments: ['@http_client', '@config.factory']
+    class: Drupal\med_search\AiEmbedder
+    arguments: ['@ai.provider', '@config.factory']
     calls: [[setLogger, ['@logger.channel.med_search']]]
   med_search.search:
     class: Drupal\med_search\SemanticSearch
@@ -14,10 +14,11 @@ services:
     arguments: ['@entity_type.manager', '@current_user']
     calls: [[setStringTranslation, ['@string_translation']]]
   med_search.generator:
-    class: Drupal\med_search\OllamaGenerator
-    arguments: ['@http_client', '@config.factory']
+    class: Drupal\med_search\AiGenerator
+    arguments: ['@ai.provider', '@config.factory']
     calls: [[setLogger, ['@logger.channel.med_search']]]
   Drupal\med_search\GeneratorInterface: '@med_search.generator'
+  Drupal\med_search\EmbedderInterface: '@med_search.embedder'
   med_search.urgency:
     class: Drupal\med_search\UrgencyDetector
   med_search.strategy_brand:
@@ -36,7 +37,7 @@ services:
     calls: [[setStringTranslation, ['@string_translation']]]
   med_search.debug_panel:
     class: Drupal\med_search\Render\SearchDebugPanel
-    arguments: ['@med_search.strategies', '@config.factory', '@med_search.strategy_brand']
+    arguments: ['@med_search.strategies', '@config.factory', '@med_search.strategy_brand', '@med_search.embedder', '@med_search.generator']
     calls: [[setStringTranslation, ['@string_translation']]]
 
   # Search strategies: every service tagged med_search.strategy is collected

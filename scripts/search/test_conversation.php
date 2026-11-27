@@ -94,6 +94,13 @@ class ConvStubRetriever implements SearchStrategyInterface {
 class ConvStubGenerator implements GeneratorInterface {
 
   /**
+   * {@inheritdoc}
+   */
+  public function modelId(): string {
+    return 'synthetic-model';
+  }
+
+  /**
    * Output to return, or NULL to fail.
    */
   public ?array $output = NULL;

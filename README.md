@@ -26,7 +26,7 @@ input → urgent wording?  → safety message (911 / 988), no search, no AI
 | Part | Technology | README |
 |---|---|---|
 | Content model and import | Nodes and taxonomies; core Migrate API from a checksum-verified MedlinePlus XML snapshot (24 English topics) | [med_content](web/modules/custom/med_content/README.md) |
-| Search | Apache Solr (Search API, EDisMax) · Ollama `nomic-embed-text` + PostgreSQL pgvector · RRF fusion · RAG with a local LLM, JSON-schema output and citation verification | [med_search](web/modules/custom/med_search/README.md) |
+| Search | Apache Solr (Search API, EDisMax) · Drupal AI module + Ollama provider (`nomic-embed-text` embeddings, structured chat) · PostgreSQL pgvector · RRF fusion · RAG with JSON-schema output and citation verification | [med_search](web/modules/custom/med_search/README.md) |
 | Next steps | Rule-based calls to action (config entities) linking real MedlinePlus resources | [med_activation](web/modules/custom/med_activation/README.md) |
 | Metrics | Aggregate-only daily counters; no queries, URLs or identifiers | [med_analytics](web/modules/custom/med_analytics/README.md) |
 | Front end | Custom Starterkit theme, Single Directory Components, core HTMX; Claro for admin | [meddiscover theme](web/themes/custom/meddiscover/README.md) |
@@ -54,7 +54,7 @@ input → urgent wording?  → safety message (911 / 988), no search, no AI
 
 ## Requirements
 
-Docker with sufficient available memory, DDEV 1.25.2 or later, Git. Tested locally on macOS arm64. DDEV provides PHP 8.4, Composer and PostgreSQL 17; the database image installs `postgresql-17-pgvector`. The `ddev/ddev-solr` add-on (committed under `.ddev`) runs Solr 9.11 in SolrCloud mode. Search and answers also need [Ollama](https://ollama.com) reachable from the web container, with `nomic-embed-text:v1.5` and a generation model (`gemma3:12b` by default); see the [med_search README](web/modules/custom/med_search/README.md).
+Docker with sufficient available memory, DDEV 1.25.2 or later, Git. Tested locally on macOS arm64. DDEV provides PHP 8.4, Composer and PostgreSQL 17; the database image installs `postgresql-17-pgvector`. The `ddev/ddev-solr` add-on (committed under `.ddev`) runs Solr 9.11 in SolrCloud mode. Search and answers use the [Drupal AI](https://www.drupal.org/project/ai) module with its Ollama provider (patched; see the med_search README), and need [Ollama](https://ollama.com) reachable from the web container, with `nomic-embed-text:v1.5` and a generation model (`gemma3:12b` by default); see the [med_search README](web/modules/custom/med_search/README.md).
 
 ## Fresh installation
 

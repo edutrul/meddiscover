@@ -6,6 +6,8 @@ use Drupal\Component\Utility\Html;
 use Drupal\Core\Config\ConfigFactoryInterface;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\Url;
+use Drupal\med_search\EmbedderInterface;
+use Drupal\med_search\GeneratorInterface;
 use Drupal\med_search\SearchStrategyInterface;
 use Drupal\med_search\SearchStrategyRegistry;
 use Drupal\med_search\StrategyBrand;
@@ -23,6 +25,8 @@ final class SearchDebugPanel {
     private SearchStrategyRegistry $strategies,
     private ConfigFactoryInterface $configFactory,
     private StrategyBrand $brand,
+    private EmbedderInterface $embedder,
+    private GeneratorInterface $generator,
   ) {}
 
   /**
@@ -51,7 +55,7 @@ final class SearchDebugPanel {
       $rows[] = $row($label, number_format($t[$key], 1) . ' ms', $help);
       if (in_array($key, ['embedding_ms', 'generation_ms'], TRUE)) {
         $embedding = $key === 'embedding_ms';
-        $model = (string) $config->get($embedding ? 'model' : 'generation_model');
+        $model = $embedding ? $this->embedder->modelId() : $this->generator->modelId();
         $family = str_starts_with($model, 'meddiscover-qwen:') ? 'qwen2.5' : explode(':', $model, 2)[0];
         $library = in_array($family, ['nomic-embed-text', 'gemma3', 'qwen2.5'], TRUE) ? '/' . $family : '';
         $rows[] = $row(

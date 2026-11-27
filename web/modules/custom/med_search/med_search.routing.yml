@@ -53,3 +53,10 @@ med_search.compare:
     _title: 'Compare search modes'
   requirements:
     _permission: 'access content'
+med_search.settings:
+  path: '/admin/config/search/med-search'
+  defaults:
+    _form: '\Drupal\med_search\Form\SettingsForm'
+    _title: 'medDiscover search settings'
+  requirements:
+    _permission: 'administer med search'
