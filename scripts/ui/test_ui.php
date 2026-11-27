@@ -91,16 +91,25 @@ $build = function (array $response) use ($form_object, $renderer): string {
 };
 $one = $by_source['test-1'];
 $result = ['node' => $one, 'id' => 'test-1', 'score' => 0.9, 'ranks' => ['semantic' => 1]];
-$html = $build([
-  'results' => [$result],
-  'timings' => [],
-  'notices' => ['Synthetic notice.'],
-  'answer' => ['status' => 'answered', 'statements' => [['text' => 'Synthetic statement.', 'citations' => ['test-1']]], 'dropped' => 0],
-]);
+// The public view is built for an account without the ranking permission.
+// The demo grants that permission to anonymous visitors (Developer mode),
+// so the anonymous role cannot stand in for "a visitor without it".
+$switcher = \Drupal::service('account_switcher');
+$switcher->switchTo(new UserSession(['uid' => 0, 'roles' => []]));
+try {
+  $html = $build([
+    'results' => [$result],
+    'timings' => [],
+    'notices' => ['Synthetic notice.'],
+    'answer' => ['status' => 'answered', 'statements' => [['text' => 'Synthetic statement.', 'citations' => ['test-1']]], 'dropped' => 0],
+  ]);
+}
+finally {
+  $switcher->switchBack();
+}
 ui_expect(str_contains($html, 'class="med-result result-card"') && str_contains($html, 'result-card__title') && str_contains($html, 'Synthetic Topic One'), 'Results must render through the result-card component.');
 ui_expect(!str_contains($html, 'Synthetic score') && str_contains($html, 'Source: MedlinePlus, National Library of Medicine.'), 'Public visitors see source attribution but no ranking scores.');
 ui_expect(str_contains($html, 'med-link--external') && str_contains($html, '(opens in a new tab)') && str_contains($html, 'target="_blank"'), 'External links must be marked for the icon and screen readers.');
-$switcher = \Drupal::service('account_switcher');
 $switcher->switchTo(new UserSession(['uid' => 1, 'roles' => ['authenticated']]));
 try {
   $debug_html = $build(['results' => [$result], 'timings' => [], 'notices' => []]);
