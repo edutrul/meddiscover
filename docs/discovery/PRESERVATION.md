@@ -1,6 +1,6 @@
 # Discovery preservation and approved implementation scope
 
-The historical reports and scripts already existed under `/Users/edutrul/Projects/meddiscover` on 2026-11-24. The plan's former `axelerant-demo` directory was absent. No source project was modified or deleted. Reports retain their historical bilingual recommendations; PLAN.md now governs implementation.
+The historical reports and scripts already existed in the medDiscover checkout on 2026-11-24. The original local discovery workspace was unavailable. No source project was modified or deleted. Reports retain their historical bilingual recommendations; PLAN.md now governs implementation.
 
 The original 30-topic manifest is preserved unchanged. `implementation-selection.json` records the 24 English topics separately, with recalculated counts from the original XML. This is selection evidence, not a content migration.
 

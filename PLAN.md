@@ -61,7 +61,7 @@ Search is not the end goal. It is the entry point to a measurable, actionable, a
 | GitHub owner | edutrul |
 | GitHub repository | meddiscover |
 | Repository visibility | Public |
-| Local directory | /Users/edutrul/Projects/meddiscover |
+| Local directory | meddiscover/ |
 | Default branch | main |
 | Development environment | DDEV |
 | CMS | Drupal 11 |
@@ -428,7 +428,7 @@ Do not create empty modules or unnecessary directories merely to match this prop
 
 The existing discovery project is located at:
 
-    /Users/edutrul/Projects/axelerant-demo
+    the original local discovery workspace
 
 Inspect and preserve its relevant assets:
 
@@ -438,7 +438,7 @@ Inspect and preserve its relevant assets:
 
 The new project directory is:
 
-    /Users/edutrul/Projects/meddiscover
+    meddiscover/
 
 Copy required assets without deleting or modifying the original discovery project.
 
@@ -1890,11 +1890,11 @@ When starting work on this project:
 1. Read this entire plan.
 2. Inspect the existing discovery project at:
 
-       /Users/edutrul/Projects/axelerant-demo
+       the original local discovery workspace
 
 3. Inspect the intended project directory:
 
-       /Users/edutrul/Projects/meddiscover
+       meddiscover/
 
 4. Verify GitHub authentication and access.
 5. Verify whether the target repository already exists.
